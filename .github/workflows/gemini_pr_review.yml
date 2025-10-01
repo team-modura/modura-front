@@ -19,7 +19,7 @@ jobs:
 
       - name: Gemini Review (Python)
         env:
-          GEMINI_API_KEY: ${{ secrets.gemini_pr_review }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python .github/scripts/gemini_review.py
 

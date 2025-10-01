@@ -1,7 +1,7 @@
 import os
 import requests
 
-API_KEY = os.environ['gemini_pr_review']
+API_KEY = os.environ['GEMINI_API_KEY']
 with open("pr.diff", "r") as f:
     diff = f.read()
 
