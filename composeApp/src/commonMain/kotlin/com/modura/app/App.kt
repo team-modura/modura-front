@@ -1,49 +1,85 @@
 package com.modura.app
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.tab.CurrentTab
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabNavigator
+import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.modura.app.navigation.BottomNavItem
+import com.modura.app.ui.components.BottomNavigationBar
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.compose_multiplatform
 
 @Composable
-@Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+        TabNavigator(HomeScreenTab) { tabNavigator -> // 초기 탭 지정
+            Scaffold(
+                content = { paddingValues ->
+                    Box(modifier = Modifier.padding(paddingValues)) {
+                        CurrentTab()
+                    }
+                },
+                bottomBar = {
+                    BottomNavigationBar(
+                        currentScreen = tabNavigator.current,
+                        onTabSelected = { tab -> tabNavigator.current = tab }
+                    )
                 }
-            }
+            )
         }
     }
 }
+
+internal val HomeScreenTab = object : Tab {
+    override val key: String = "HomeScreenTabKey"
+    override val options: TabOptions
+    @Composable
+        get() {
+            val title = BottomNavItem.Home.title
+            val icon = painterResource(BottomNavItem.Home.icon)
+            return remember { TabOptions(index = 0u, title = title, icon = icon) }
+        }
+    @Composable
+    override fun Content() {
+        Navigator(BottomNavItem.Home.route)
+    }
+}
+
+internal val ListScreenTab = object : Tab {
+    override val key: String = "ListScreenTabKey"
+    override val options: TabOptions
+    @Composable
+        get() {
+            val title = BottomNavItem.List.title
+            val icon = painterResource(BottomNavItem.List.icon)
+            return remember { TabOptions(index = 1u, title = title, icon = icon) }
+        }
+    @Composable
+    override fun Content() {
+        Navigator(BottomNavItem.List.route)
+    }
+}
+
+internal val MyPageScreenTab = object : Tab {
+    override val key: String = "MypageScreenTabKey"
+    override val options: TabOptions
+    @Composable
+        get() {
+            val title = BottomNavItem.MyPage.title
+            val icon = painterResource(BottomNavItem.MyPage.icon)
+            return remember { TabOptions(index = 2u, title = title, icon = icon) }
+        }
+    @Composable
+    override fun Content() {
+        Navigator(BottomNavItem.MyPage.route)
+    }
+}
+
