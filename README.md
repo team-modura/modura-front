@@ -27,6 +27,7 @@ ModuraApp/
 │   └── iosMain/     # iOS 플랫폼 종속 코드
 └── build.gradle.kts # KMP 타겟 및 의존성 정의
 ```
+
 ### 2.2. 모듈별 상세 역할
 
 | 모듈 이름 | 주요 역할 및 기능 |
