@@ -16,20 +16,17 @@
 
 ## 2. 파일 구조 및 모듈 설명
 
-프로젝트는 표준 KMP 구조를 따르며, **복지 추천 로직**은 모두 `:shared` 모듈에 집중되어 있습니다.
-
 ### 2.1. 프로젝트 구조
+```
 ModuraApp/
 ├── androidApp/          # Android 플랫폼 UI 구현
 └── shared/              # 플랫폼 독립적인 핵심 로직 (KMP Core)
 ├── src/
-│   ├── commonMain/
-
-│   ├── androidMain/
-│   └── iosMain/
-
-└── build.gradle.kts
-
+│   ├── commonMain/  # 공통 비즈니스 로직
+│   ├── androidMain/ # Android 플랫폼 종속 코드
+│   └── iosMain/     # iOS 플랫폼 종속 코드
+└── build.gradle.kts # KMP 타겟 및 의존성 정의
+```
 ### 2.2. 모듈별 상세 역할
 
 | 모듈 이름 | 주요 역할 및 기능 |
