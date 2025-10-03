@@ -76,18 +76,18 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
             } else {
                 Image(
                     painter = painterResource(Res.drawable.img_file),
-                    contentDescription = "Background Image 2",
-                    modifier = Modifier
-                        .size(300.dp, 500.dp)
-                        .offset(x = 49.dp, y = image2OffsetY),
-                    contentScale = ContentScale.Crop
-                )
-                Image(
-                    painter = painterResource(Res.drawable.img_file),
                     contentDescription = "Background Image 1",
                     modifier = Modifier
                         .size(300.dp, 500.dp)
                         .offset(x = 129.dp, y = image1OffsetY),
+                    contentScale = ContentScale.Crop
+                )
+                Image(
+                    painter = painterResource(Res.drawable.img_file),
+                    contentDescription = "Background Image 2",
+                    modifier = Modifier
+                        .size(300.dp, 500.dp)
+                        .offset(x = 49.dp, y = image2OffsetY),
                     contentScale = ContentScale.Crop
                 )
 
