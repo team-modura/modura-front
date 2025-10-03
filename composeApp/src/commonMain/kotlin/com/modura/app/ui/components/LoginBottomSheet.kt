@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.modura.app.platform.openUrl
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +81,7 @@ fun LoginBottomSheet(
             CheckTextDetail(
                 checked = agreePrivacyPolicy,
                 onCheckedChange = { agreePrivacyPolicy = it },
-                onDetailClick = { /* TODO: 상세 보기 화면으로 이동 */ },
+                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802ebee3ff3fe67e4d74") },
                 text = "개인정보 수집 및 이용 동의"
             )
             Spacer(modifier = Modifier.height(5.dp))
@@ -88,7 +89,7 @@ fun LoginBottomSheet(
             CheckTextDetail(
                 checked = agreeTermsOfService,
                 onCheckedChange = { agreeTermsOfService = it },
-                onDetailClick = { /* TODO: 상세 보기 화면으로 이동 */ },
+                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802aa738d091b0813d01") },
                 text = "서비스 이용약관"
             )
             Spacer(modifier = Modifier.height(5.dp))
@@ -96,7 +97,7 @@ fun LoginBottomSheet(
             CheckTextDetail(
                 checked = agreePrivacyProcessing,
                 onCheckedChange = { agreePrivacyProcessing = it },
-                onDetailClick = { /* TODO: 상세 보기 화면으로 이동 */ },
+                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d8061a547fa50f02c6b3f") },
                 text = "개인정보 처리방침"
             )
             Spacer(modifier = Modifier.height(30.dp))
