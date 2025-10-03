@@ -59,11 +59,11 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
         }
 
         val image1OffsetY by animateDpAsState(
-            targetValue = if (startAnimation) 458.dp else 1000.dp, // 목표 위치 vs 화면 아래
+            targetValue = if (startAnimation) 358.dp else 1000.dp, // 목표 위치 vs 화면 아래
             animationSpec = tween(durationMillis = 1000, delayMillis = 200) // 1초 동안, 0.2초 후 시작
         )
         val image2OffsetY by animateDpAsState(
-            targetValue = if (startAnimation) 538.dp else 1100.dp, // 목표 위치 vs 화면 아래
+            targetValue = if (startAnimation)438.dp else 1100.dp, // 목표 위치 vs 화면 아래
             animationSpec = tween(durationMillis = 1000, delayMillis = 400) // 1초 동안, 0.4초 후 시작
         )
         val textAlpha by animateFloatAsState(
@@ -96,17 +96,17 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
                     painter = painterResource(Res.drawable.img_file),
                     contentDescription = "Background Image 1",
                     modifier = Modifier
-                        .size(300.dp, 500.dp)
+                        .size(300.dp, 850.dp)
                         .offset(x = 129.dp, y = image1OffsetY),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
                 Image(
                     painter = painterResource(Res.drawable.img_file),
                     contentDescription = "Background Image 2",
                     modifier = Modifier
-                        .size(300.dp, 500.dp)
+                        .size(300.dp, 850.dp)
                         .offset(x = 49.dp, y = image2OffsetY),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
 
                 // 상단 텍스트 및 하단 로그인 버튼
