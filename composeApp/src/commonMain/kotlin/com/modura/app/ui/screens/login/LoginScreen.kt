@@ -34,6 +34,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.data.AuthRepository
+import com.modura.app.ui.components.LoginBottomSheet
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import modura.composeapp.generated.resources.Res
@@ -51,6 +52,8 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
         var isLoading by remember { mutableStateOf(false) }
         var startAnimation by remember { mutableStateOf(false) }
 
+        var showBottomSheet by remember { mutableStateOf(false) }
+
         LaunchedEffect(Unit) {
             startAnimation = true
         }
@@ -67,6 +70,21 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
             targetValue = if (startAnimation) 1f else 0f, // 1f: 불투명, 0f: 투명
             animationSpec = tween(durationMillis = 1000, delayMillis = 600) // 0.6초 뒤에 시작
         )
+
+        if (showBottomSheet) {
+            LoginBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                onLoginClicked = {
+                    showBottomSheet = false
+                    isLoading = true
+                    coroutineScope.launch {
+                        authRepository.saveToken("DUMMY_TOKEN_FOR_LOGGED_IN_USER")
+                    }
+                }
+            )
+        }
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -121,14 +139,11 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
                             .width(300.dp)
                             .height(45.dp)
                             .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null // 클릭 시 물결 효과 제거
-                        ) {
-                            isLoading = true
-                            coroutineScope.launch {
-                                authRepository.saveToken("DUMMY_TOKEN_FOR_LOGGED_IN_USER")
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                showBottomSheet = true
                             }
-                        }
                     )
                 }
             }
