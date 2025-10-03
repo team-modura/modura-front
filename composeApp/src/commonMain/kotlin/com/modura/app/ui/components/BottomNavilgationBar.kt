@@ -13,9 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.Tab
-import com.modura.app.HomeScreenTab
-import com.modura.app.ListScreenTab
-import com.modura.app.MyPageScreenTab
+import com.modura.app.navigation.HomeScreenTab
+import com.modura.app.navigation.ListScreenTab
+import com.modura.app.navigation.MyPageScreenTab
 
 @Composable
 fun BottomNavigationBar(
