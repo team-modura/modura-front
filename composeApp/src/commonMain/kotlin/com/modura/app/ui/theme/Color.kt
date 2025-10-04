@@ -5,8 +5,10 @@ import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF000000)
 val White = Color(0xFFFFFFFF)
-val Gray100 = Color(0xF4F4F4)
-val Gray500 = Color(0xA8A8A8)
+val Gray100 = Color(0xFFF4F4F4)
+val Gray500 = Color(0xFFA8A8A8)
+val Gray800 = Color(0xFF383838)
+val Gray900 = Color(0xFF272727)
 
 val LightColorScheme = lightColorScheme(
     background = Gray100,      // 앱의 기본 배경색

@@ -33,10 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.data.AuthRepository
 import com.modura.app.ui.components.LoginBottomSheet
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_file
 import modura.composeapp.generated.resources.img_kakao_login
@@ -48,6 +49,8 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
         val coroutineScope = rememberCoroutineScope()
         var isLoading by remember { mutableStateOf(false) }
         var startAnimation by remember { mutableStateOf(false) }
@@ -78,10 +81,9 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
                 },
                 onLoginClicked = {
                     showBottomSheet = false
-                    isLoading = true
-                    coroutineScope.launch {
-                        authRepository.saveToken("DUMMY_TOKEN_FOR_LOGGED_IN_USER")
-                    }
+                    navigator.push(SignupScreen(onSignupComplete = {
+
+                    }))
                 }
             )
         }
