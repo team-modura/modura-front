@@ -55,6 +55,8 @@ kotlin {
                 implementation(libs.androidx.datastore.preferences.core)
 
                 api(libs.okio)
+
+                implementation(libs.kotlinx.datetime)
             }
         }
 

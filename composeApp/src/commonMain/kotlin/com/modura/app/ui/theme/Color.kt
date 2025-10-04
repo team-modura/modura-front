@@ -13,6 +13,7 @@ val Gray800 = Color(0xFF383838)
 val Gray900 = Color(0xFF272727)
 
 val Blue500 = Color(0xff5376CE)
+val Green700 = Color(0xff8EC28E)
 
 val LightColorScheme = lightColorScheme(
     background = Gray100,      // 앱의 기본 배경색

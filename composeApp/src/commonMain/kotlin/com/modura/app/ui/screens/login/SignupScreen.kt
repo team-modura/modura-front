@@ -92,7 +92,6 @@ class SignupScreen(
                                 onLastValueChange = { pnLast = it },
                                 onDone = {
                                     println("전화번호 입력 완료: 010-$pnMiddle-$pnLast")
-                                    // TODO: 최종 완료 로직 (예: onSignupComplete() 호출)
                                 },
                                 onClear = {
                                     pnMiddle = ""
