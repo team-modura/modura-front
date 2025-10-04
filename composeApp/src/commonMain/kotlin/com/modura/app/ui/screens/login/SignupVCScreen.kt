@@ -1,5 +1,6 @@
 package com.modura.app.ui.screens.login
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.ui.components.CommonChips
 import com.modura.app.ui.components.CommonToast
 import com.modura.app.ui.components.LargeButton
@@ -30,7 +33,10 @@ class SignupVCScreen : Screen {
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
         var verificationCode by remember { mutableStateOf("") }
+        val correctCode = "123456"
 
         val initialTime = 5 * 60 // 5분 = 300초
         var remainingTime by remember { mutableStateOf(initialTime) }
@@ -59,62 +65,68 @@ class SignupVCScreen : Screen {
         }
 
         Scaffold { innerPadding ->
-            // 3. Column으로 전체 구조를 감싸서 하단 버튼을 배치합니다.
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                // --- 메인 콘텐츠 ---
+            Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f) // 이 Column이 버튼을 제외한 모든 공간을 차지하도록 설정
-                        .padding(horizontal = 20.dp)
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 ) {
-                    Text(
-                        text = "문자로 전송된\n인증번호 6자리를 입력해주세요.",
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 20.dp)
+                    ) {
+                        Text(
+                            text = "문자로 전송된\n인증번호 6자리를 입력해주세요.",
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
+                        )
 
-                    TextFieldVC(
-                        value = verificationCode,
-                        onValueChange = { verificationCode = it },
-                        remainingTime = remainingTime
-                    )
+                        TextFieldVC(
+                            value = verificationCode,
+                            onValueChange = { verificationCode = it },
+                            remainingTime = remainingTime
+                        )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                    CommonChips(
-                        text = "인증 문자가 안 와요",
-                        enabled = canResend,
+                        CommonChips(
+                            text = "인증 문자가 안 와요",
+                            enabled = canResend,
+                            onClick = {
+                                val currentTime = getCurrentTimeMillis()
+                                if (canResend) {
+                                    println("인증번호 재전송 요청")
+                                    lastResendTimestamp = currentTime
+                                    toastMessage = "인증번호를 다시 전송했어요"
+                                    showToast = true
+                                } else {
+                                    val timeLeft =
+                                        resendCoolDown - ((currentTime - lastResendTimestamp) / 1000)
+                                    toastMessage = "${timeLeft}초 뒤에 다시 시도해주세요"
+                                    showToast = true
+                                }
+                            }
+                        )
+                    }
+
+                    LargeButton(
+                        text = "다음",
+                        enabled = isButtonEnabled,
                         onClick = {
-                            val currentTime = getCurrentTimeMillis()
-                            if (canResend) {
-                                println("인증번호 재전송 요청")
-                                lastResendTimestamp = currentTime
-                                toastMessage = "인증번호를 다시 전송했어요"
-                                showToast = true
-                            } else {
-                                val timeLeft = resendCoolDown - ((currentTime - lastResendTimestamp) / 1000)
-                                toastMessage = "${timeLeft}초 뒤에 다시 시도해주세요"
-                                showToast = true
+                            if(isButtonEnabled) {
+                                if (verificationCode == correctCode) {
+                                    println("인증 성공! StartScreen으로 이동합니다.")
+                                    navigator.popUntilRoot()
+                                } else {
+                                    toastMessage = "인증번호가 틀렸습니다."
+                                    showToast = true
+                                }
                             }
                         }
                     )
                 }
-
-                LargeButton(
-                    text = "다음",
-                    enabled = isButtonEnabled,
-                    onClick = {
-                        if(isButtonEnabled) {
-                            println("인증 완료: $verificationCode")
-                            // TODO: 다음 화면으로 이동하는 로직 (예: navigator.push(...))
-                        }
-                    }
-                )
             }
 
             // --- 토스트 메시지 ---

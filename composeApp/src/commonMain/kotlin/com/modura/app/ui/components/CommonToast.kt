@@ -25,7 +25,7 @@ fun CommonToast(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, start = 20.dp, end = 20.dp)
+            .padding(top = 50.dp, start = 20.dp, end = 20.dp)
     ) {
         Box(
             modifier = Modifier
