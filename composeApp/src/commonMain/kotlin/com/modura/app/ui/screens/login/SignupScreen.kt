@@ -18,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.ui.components.DisplayableItem
 import com.modura.app.ui.components.LargeButton
 import com.modura.app.ui.components.ListBottomSheet
@@ -42,6 +44,7 @@ class SignupScreen(
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow // 👈 2. navigator 객체 가져오기
 
         var currentStep by remember { mutableStateOf(1) }
         var nickname by remember { mutableStateOf("") }
@@ -137,12 +140,17 @@ class SignupScreen(
                         )
                     }
 
-                    if (currentStep == 1) {
+                    if (currentStep == 1 || currentStep == 4) {
                         LargeButton(
-                            text = "다음",
+                            text = "확인",
                             onClick = {
                                 if (isButtonEnabled) {
-                                    currentStep = 2
+                                    if (currentStep == 1) {
+                                        currentStep = 2
+                                    } else {
+                                        println("인증 문자 받기 클릭됨. SignupVCScreen으로 이동합니다.")
+                                        navigator.push(SignupVCScreen())
+                                    }
                                 }
                             },
                             enabled = isButtonEnabled
