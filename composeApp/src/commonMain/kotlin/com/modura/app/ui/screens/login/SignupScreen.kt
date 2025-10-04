@@ -1,5 +1,6 @@
 package com.modura.app.ui.screens.login
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,85 +18,121 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import com.modura.app.ui.components.DisplayableItem
 import com.modura.app.ui.components.LargeButton
+import com.modura.app.ui.components.ListBottomSheet
 import com.modura.app.ui.components.TextField
 import com.modura.app.ui.components.TextFieldRNN
+
+data class Telecom(val id: String, override val displayName: String) : DisplayableItem
 
 class SignupScreen(
     val onSignupComplete: () -> Unit
 ) : Screen {
 
+    private val telecomOptions = listOf(
+        Telecom("SKT", "SKT"),
+        Telecom("KT", "KT"),
+        Telecom("LGU", "LG U+"),
+        Telecom("SKT_MVNO", "SKT 알뜰폰"),
+        Telecom("KT_MVNO", "KT 알뜰폰"),
+        Telecom("LGU_MVNO", "LG U+ 알뜰폰")
+    )
+
     @Composable
     override fun Content() {
-        // --- 상태 변수 정의 ---
-        // 1. 주민등록번호 필드를 보여줄지 여부를 결정하는 상태
-        var showRnnField by remember { mutableStateOf(false) }
 
-        // 이름 입력 상태
+        var currentStep by remember { mutableStateOf(1) }
         var nickname by remember { mutableStateOf("") }
-
-        // 주민등록번호 입력 상태
         var rnnFront by remember { mutableStateOf("") }
         var rnnBack by remember { mutableStateOf("") }
+
+        var showTelecomSheet by remember { mutableStateOf(false) }
+        var selectedTelecom by remember { mutableStateOf<Telecom?>(null) }
 
         // 버튼 활성화 로직
         val isButtonEnabled = nickname.isNotBlank()
 
-
-        Scaffold { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold { innerPadding ->
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .weight(1f) // 하단 버튼을 제외한 모든 공간을 차지
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 ) {
-                    Text(
-                        text = if (showRnnField) "주민등록번호를 입력해주세요." else "이름을 입력해주세요.",
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
-                    )
-
-                    if (showRnnField) {
-                        TextFieldRNN(
-                            frontValue = rnnFront,
-                            onFrontValueChange = { rnnFront = it },
-                            backValue = rnnBack,
-                            onBackValueChange = { rnnBack = it },
-                            onDone = {
-                                // 주민번호 입력 완료 시 로그 출력
-                                println("주민등록번호 입력 완료: $rnnFront-$rnnBack")
-                                // TODO: 서버로 모든 정보 전송 및 로그인 완료 처리
-                            }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .weight(1f) // 하단 버튼을 제외한 모든 공간을 차지
+                    ) {
+                        Text(
+                            text = when (currentStep) {
+                                1 -> "이름을 입력해주세요."
+                                2 -> "주민등록번호를 입력해주세요."
+                                3 -> "통신사를 선택해주세요."
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
+                        )
+                        if (currentStep >= 3) {
+                            TextField(
+                                value = selectedTelecom?.displayName ?: "",
+                                onValueChange = {},
+                                title = "통신사",
+                                placeholder = "통신사",
+                                enabled = false,
+                                onBodyClick = {
+                                    println("통신사 TextField 클릭됨!")
+                                    showTelecomSheet = true
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                        if (currentStep >= 2) {
+                            TextFieldRNN(
+                                frontValue = rnnFront,
+                                onFrontValueChange = { rnnFront = it },
+                                backValue = rnnBack,
+                                onBackValueChange = { rnnBack = it },
+                                onDone = { newBackValue ->
+                                    println("주민등록번호 입력 완료: $rnnFront-$newBackValue")
+                                    if (currentStep < 3) currentStep = 3
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
+                        TextField(
+                            value = nickname,
+                            onValueChange = { nickname = it },
+                            title = "이름",
+                            placeholder = "입력"
                         )
                     }
-                    Spacer(modifier = Modifier.height(20.dp)) // 이름 필드와의 간격
-                    TextField(
-                        value = nickname,
-                        onValueChange = { nickname = it },
-                        title = "이름",
-                        placeholder = "입력"
-                    )
-                }
 
-                // --- 하단 버튼 ---
-                // 4. showRnnField가 true이면 버튼을 숨깁니다.
-                if (!showRnnField) {
-                    LargeButton(
-                        text = "다음",
-                        onClick = {
-                            if (isButtonEnabled) {
-                                // 버튼 클릭 시 주민번호 필드를 보이도록 상태 변경
-                                showRnnField = true
-                            }
-                        },
-                        enabled = isButtonEnabled
-                    )
+                    if (currentStep == 1) {
+                        LargeButton(
+                            text = "다음",
+                            onClick = {
+                                if (isButtonEnabled) {
+                                    currentStep = 2
+                                }
+                            },
+                            enabled = isButtonEnabled
+                        )
+                    }
                 }
+            }
+            if (showTelecomSheet) {
+                ListBottomSheet(
+                    title = "통신사 선택",
+                    items = telecomOptions,
+                    onDismissRequest = { showTelecomSheet = false },
+                    onSelect = { telecom ->
+                        selectedTelecom = telecom
+                    }
+                )
             }
         }
     }

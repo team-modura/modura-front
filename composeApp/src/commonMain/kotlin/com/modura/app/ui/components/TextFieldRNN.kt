@@ -2,6 +2,7 @@ package com.modura.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,7 +39,7 @@ fun TextFieldRNN(
     onFrontValueChange: (String) -> Unit,
     backValue: String,
     onBackValueChange: (String) -> Unit,
-    onDone: () -> Unit,
+    onDone: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     val shape = RoundedCornerShape(8.dp)
@@ -53,19 +53,13 @@ fun TextFieldRNN(
         }
     }
 
-    LaunchedEffect(backValue) {
-        if (backValue.length == 7) {
-            keyboardController?.hide()
-            onDone()
-        }
-    }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
             .background(White)
             .border(width = 1.dp, color = White, shape = shape)
+            .clip(shape)
             .padding(horizontal = 10.dp, vertical = 10.dp)
     ) {
         Text(
@@ -87,7 +81,9 @@ fun TextFieldRNN(
                     imeAction = ImeAction.Next
                 ),
                 decorationBox = {
-                    Row {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
                         frontValue.padEnd(6, '_').forEach { char ->
                             Text(
                                 text = char.toString(),
@@ -105,8 +101,13 @@ fun TextFieldRNN(
             BasicTextField(
                 value = backValue,
                 onValueChange = {
-                    if (it.length <= 7) {
-                        onBackValueChange(it.filter { char -> char.isDigit() })
+                    val newText = it.filter { char -> char.isDigit() }
+                    if (newText.length == 1 && backValue.isEmpty()) {
+                        onBackValueChange(newText)
+                        keyboardController?.hide()
+                        onDone(newText)
+                    } else if (newText.isEmpty()) {
+                        onBackValueChange(newText)
                     }
                 },
                 modifier = Modifier.focusRequester(backFocusRequester),
@@ -114,12 +115,10 @@ fun TextFieldRNN(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
-                keyboardActions = KeyboardActions(onDone = {
-                    keyboardController?.hide()
-                    onDone()
-                }),
                 decorationBox = {
-                    Row {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
                         val firstChar = backValue.getOrNull(0)?.toString() ?: "_"
                         Text(
                             text = firstChar,
