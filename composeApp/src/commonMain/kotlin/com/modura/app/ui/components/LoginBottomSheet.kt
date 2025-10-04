@@ -84,7 +84,6 @@ fun LoginBottomSheet(
                 onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802ebee3ff3fe67e4d74") },
                 text = "개인정보 수집 및 이용 동의"
             )
-            Spacer(modifier = Modifier.height(5.dp))
 
             CheckTextDetail(
                 checked = agreeTermsOfService,
@@ -92,7 +91,6 @@ fun LoginBottomSheet(
                 onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802aa738d091b0813d01") },
                 text = "서비스 이용약관"
             )
-            Spacer(modifier = Modifier.height(5.dp))
 
             CheckTextDetail(
                 checked = agreePrivacyProcessing,
@@ -100,7 +98,7 @@ fun LoginBottomSheet(
                 onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d8061a547fa50f02c6b3f") },
                 text = "개인정보 처리방침"
             )
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             MiddleButton(
                 text = "확인",
