@@ -15,6 +15,7 @@ junit = "4.13.2"
 kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
 voyager = "1.0.0" # 네비게이션 라이브러리
+kotlinx-datetime = "0.6.0"
 
 [libraries]
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCore" }
@@ -37,6 +38,8 @@ voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", vers
 voyager-tabNavigator = { group = "cafe.adriel.voyager", name = "voyager-tab-navigator", version.ref = "voyager" }
 
 okio = { module = "com.squareup.okio:okio", version = "3.9.0" }
+
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
