@@ -118,7 +118,7 @@ class SignupVCScreen : Screen {
                             if(isButtonEnabled) {
                                 if (verificationCode == correctCode) {
                                     println("인증 성공! StartScreen으로 이동합니다.")
-                                    navigator.popUntilRoot()
+                                    navigator.push(StartScreen())
                                 } else {
                                     toastMessage = "인증번호가 틀렸습니다."
                                     showToast = true

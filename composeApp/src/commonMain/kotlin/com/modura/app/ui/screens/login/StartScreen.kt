@@ -4,8 +4,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,23 +26,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.modura.app.data.AuthRepository
-import com.modura.app.ui.components.LoginBottomSheet
-import kotlinx.coroutines.flow.flowOf
+import com.modura.app.ui.screens.main.MainScreen
+import com.modura.app.ui.theme.White
+import kotlinx.coroutines.delay
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_file
-import modura.composeapp.generated.resources.img_kakao_login
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-class LoginScreen(private val authRepository: AuthRepository) : Screen {
-    override val key: String = "LoginScreenKey"
+class StartScreen : Screen {
+    override val key: String = "StartScreen"
 
     @Composable
     override fun Content() {
@@ -59,6 +53,9 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
 
         LaunchedEffect(Unit) {
             startAnimation = true
+            delay(5000)
+            navigator.replaceAll(MainScreen)
+            println("5초 경과! HomeScreen으로 이동합니다.")
         }
 
         val image1OffsetY by animateDpAsState(
@@ -73,20 +70,6 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
             targetValue = if (startAnimation) 1f else 0f, // 1f: 불투명, 0f: 투명
             animationSpec = tween(durationMillis = 1000, delayMillis = 600) // 0.6초 뒤에 시작
         )
-
-        if (showBottomSheet) {
-            LoginBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                onLoginClicked = {
-                    showBottomSheet = false
-                    navigator.push(SignupScreen(onSignupComplete = {
-
-                    }))
-                }
-            )
-        }
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -111,11 +94,10 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
                     contentScale = ContentScale.Fit
                 )
 
-                // 상단 텍스트 및 하단 로그인 버튼
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 120.dp), // 화면 전체 패딩
+                        .padding(start = 20.dp, top = 120.dp, end=20.dp, bottom=20.dp), // 화면 전체 패딩
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
@@ -123,48 +105,24 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
                         modifier = Modifier.alpha(textAlpha)
                     ) {
                         Text(
-                            text = "Modura",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = "나에게 필요했던 복지",
+                            text = "로그인 완료!",
                             style = MaterialTheme.typography.labelLarge
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Text(
+                            text = "김승혁님\n환영합니다!",
+                            style = MaterialTheme.typography.headlineMedium,
+                            textAlign = TextAlign.Center
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-
-                    Image(
-                        painter = painterResource(Res.drawable.img_kakao_login),
-                        contentDescription = "Kakao Login",
-                        modifier =Modifier
-                            .width(300.dp)
-                            .height(45.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                showBottomSheet = true
-                            }
+                    Text(
+                        text = "modura",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = White
                     )
                 }
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-    val dummyDataStore: DataStore<Preferences> = object : DataStore<Preferences> {
-        override val data = flowOf<Preferences>()
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
-            throw NotImplementedError("This dummy implementation should not be called.")
-        }
-    }
-
-    val dummyAuthRepository = AuthRepository(dummyDataStore)
-
-    LoginScreen(dummyAuthRepository).Content()
 }
