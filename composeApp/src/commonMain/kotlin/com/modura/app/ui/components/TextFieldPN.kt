@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,28 +31,39 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Gray500
-import com.modura.app.ui.theme.Gray600
 import com.modura.app.ui.theme.Gray800
 import com.modura.app.ui.theme.White
 
 @Composable
-fun TextFieldRNN(
-    frontValue: String,
-    onFrontValueChange: (String) -> Unit,
-    backValue: String,
-    onBackValueChange: (String) -> Unit,
-    onDone: (String) -> Unit,
+fun TextFieldPN(
+    middleValue: String,
+    onMiddleValueChange: (String) -> Unit,
+    lastValue: String,
+    onLastValueChange: (String) -> Unit,
+    onDone: () -> Unit,
     onClear: () -> Unit,
     modifier: Modifier = Modifier
 ){
     val shape = RoundedCornerShape(8.dp)
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val backFocusRequester = remember { FocusRequester() }
+    val middleFocusRequester = remember { FocusRequester() }
+    val lastFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(frontValue) {
-        if (frontValue.length == 6) {
-            backFocusRequester.requestFocus()
+    LaunchedEffect(Unit) {
+        middleFocusRequester.requestFocus()
+    }
+
+    LaunchedEffect(middleValue) {
+        if (middleValue.length == 4) {
+            lastFocusRequester.requestFocus()
+        }
+    }
+
+    LaunchedEffect(lastValue) {
+        if (lastValue.length == 4) {
+            keyboardController?.hide()
+            onDone()
         }
     }
 
@@ -61,9 +72,9 @@ fun TextFieldRNN(
             .fillMaxWidth()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-//                indication = null,
+                indication = null,
                 onClick = {
-                    if (frontValue.isNotBlank()) {
+                    if (middleValue.isNotBlank() || lastValue.isNotBlank()) {
                         onClear()
                     }
                 }
@@ -75,28 +86,38 @@ fun TextFieldRNN(
             .padding(horizontal = 10.dp, vertical = 10.dp)
     ) {
         Text(
-            text="주민등록번호",
+            text="휴대폰 번호",
             style=MaterialTheme.typography.bodySmall,
             color=Gray500
         )
         Spacer(modifier = Modifier.height(5.dp))
         Row(verticalAlignment = Alignment.CenterVertically){
+            // --- 010 (고정) ---
+            Text(
+                text = "010",
+                style = MaterialTheme.typography.titleLarge,
+                color = Gray800,
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text("-", style = MaterialTheme.typography.titleLarge, color = Gray800)
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // --- 중간 4자리 ---
             BasicTextField(
-                value = frontValue,
+                value = middleValue,
                 onValueChange = {
-                    if (it.length <= 6) {
-                        onFrontValueChange(it.filter { char -> char.isDigit() })
+                    if (it.length <= 4) {
+                        onMiddleValueChange(it.filter { char -> char.isDigit() })
                     }
                 },
+                modifier = Modifier.focusRequester(middleFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 decorationBox = {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        frontValue.padEnd(6, ' ').forEach { char ->
+                    Row {
+                        middleValue.padEnd(4, ' ').forEach { char ->
                             Text(
                                 text = char.toString(),
                                 style = MaterialTheme.typography.titleLarge,
@@ -110,39 +131,31 @@ fun TextFieldRNN(
             Spacer(modifier = Modifier.width(10.dp))
             Text("-", style = MaterialTheme.typography.titleLarge, color = Gray800)
             Spacer(modifier = Modifier.width(10.dp))
+
+            // --- 마지막 4자리 ---
             BasicTextField(
-                value = backValue,
+                value = lastValue,
                 onValueChange = {
-                    val newText = it.filter { char -> char.isDigit() }
-                    if (newText.length == 1 && backValue.isEmpty()) {
-                        onBackValueChange(newText)
-                        keyboardController?.hide()
-                        onDone(newText)
-                    } else if (newText.isEmpty()) {
-                        onBackValueChange(newText)
+                    if (it.length <= 4) {
+                        onLastValueChange(it.filter { char -> char.isDigit() })
                     }
                 },
-                modifier = Modifier.focusRequester(backFocusRequester),
+                modifier = Modifier.focusRequester(lastFocusRequester),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
+                keyboardActions = KeyboardActions(onDone = {
+                    keyboardController?.hide()
+                    onDone()
+                }),
                 decorationBox = {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        val firstChar = backValue.getOrNull(0)?.toString() ?: " "
-                        Text(
-                            text = firstChar,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Gray800,
-                            textAlign = TextAlign.Center
-                        )
-                        repeat(6) {
+                    Row {
+                        lastValue.padEnd(4, ' ').forEach { char ->
                             Text(
-                                text = "●",
+                                text = char.toString(),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = Gray600,
+                                color = Gray800,
                                 textAlign = TextAlign.Center
                             )
                         }

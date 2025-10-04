@@ -22,6 +22,7 @@ import com.modura.app.ui.components.DisplayableItem
 import com.modura.app.ui.components.LargeButton
 import com.modura.app.ui.components.ListBottomSheet
 import com.modura.app.ui.components.TextField
+import com.modura.app.ui.components.TextFieldPN
 import com.modura.app.ui.components.TextFieldRNN
 
 data class Telecom(val id: String, override val displayName: String) : DisplayableItem
@@ -47,6 +48,9 @@ class SignupScreen(
         var rnnFront by remember { mutableStateOf("") }
         var rnnBack by remember { mutableStateOf("") }
 
+        var pnMiddle by remember { mutableStateOf("") }
+        var pnLast by remember { mutableStateOf("") }
+
         var showTelecomSheet by remember { mutableStateOf(false) }
         var selectedTelecom by remember { mutableStateOf<Telecom?>(null) }
 
@@ -71,11 +75,29 @@ class SignupScreen(
                                 1 -> "이름을 입력해주세요."
                                 2 -> "주민등록번호를 입력해주세요."
                                 3 -> "통신사를 선택해주세요."
+                                4 -> "휴대폰 번호를 입력해주세요."
                                 else -> ""
                             },
                             style = MaterialTheme.typography.headlineLarge,
                             modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
                         )
+                        if (currentStep >= 4) {
+                            TextFieldPN(
+                                middleValue = pnMiddle,
+                                onMiddleValueChange = { pnMiddle = it },
+                                lastValue = pnLast,
+                                onLastValueChange = { pnLast = it },
+                                onDone = {
+                                    println("전화번호 입력 완료: 010-$pnMiddle-$pnLast")
+                                    // TODO: 최종 완료 로직 (예: onSignupComplete() 호출)
+                                },
+                                onClear = {
+                                    pnMiddle = ""
+                                    pnLast = ""
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                        }
                         if (currentStep >= 3) {
                             TextField(
                                 value = selectedTelecom?.displayName ?: "",
@@ -99,6 +121,10 @@ class SignupScreen(
                                 onDone = { newBackValue ->
                                     println("주민등록번호 입력 완료: $rnnFront-$newBackValue")
                                     if (currentStep < 3) currentStep = 3
+                                },
+                                onClear = {
+                                    rnnFront = ""
+                                    rnnBack = ""
                                 }
                             )
                             Spacer(modifier = Modifier.height(20.dp))
@@ -131,6 +157,8 @@ class SignupScreen(
                     onDismissRequest = { showTelecomSheet = false },
                     onSelect = { telecom ->
                         selectedTelecom = telecom
+                        currentStep = 4
+                        showTelecomSheet = false
                     }
                 )
             }
