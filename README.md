@@ -20,43 +20,44 @@
 ```
 composeApp/
 ├── androidMain/
-│          ├── kotlin/com/modura/app/
+│          └── kotlin/com/modura/app/
 │                 ├── data/
 │                 ├── platform/
 │                 └── util/
 ├── commonMain/
-          ├── composeResources/ 
-          │       ├── drawable/
-          │       └── font/
-          └── kotlin/com/modura/app/
-                    ├── data/
-                    │        ├── datasource/
-                    │        ├── datasourceImpl/
-                    │        ├── dto/
-                    │        │       ├── request/
-                    │        │       └── response/
-                    │        ├── repositoryImpl/
-                    │        ├── service/
-                    ├── di/
-                    ├── domain/
-                    │        ├── model/
-                    │        │       ├── request/
-                    │        │       └── response/
-                    │        └── repository/
-                    ├── ui/
-                    │        ├── compose/
-                    │        └── screens/
-                    ├── util/
-                    │        ├── extension/
-                    │        ├── platform/
-                    │        └── network/
-                    └── res/
+│         ├── composeResources/ 
+│         │       ├── drawable/
+│         │       └── font/
+│         └── kotlin/com/modura/app/
+│                   ├── data/
+│                   │        ├── datasource/
+│                   │        ├── datasourceImpl/
+│                   │        ├── dto/
+│                   │        │       ├── request/
+│                   │        │       └── response/
+│                   │        ├── repositoryImpl/
+│                   │        ├── service/
+│                   ├── di/
+│                   ├── domain/
+│                   │        ├── model/
+│                   │        │       ├── request/
+│                   │        │       └── response/
+│                   │        └── repository/
+│                   ├── ui/
+│                   │        ├── components/
+│                   │        ├── navigation/
+│                   │        ├── screens/                    
+│                   │        └── theme/
+│                  ├── util/
+│                            ├── extension/
+│                            ├── platform/
+│                            └── network/
 ├── iosMain/
-│          ├── kotlin/com/modura/app/
-│                 ├── data/
-│                 ├── platform/
-│                 └── util/
-└── build.gradle.kts/
+           └── kotlin/com/modura/app/
+                  ├── data/
+                  ├── platform/
+                  └── util/
+
 ```
 
 ### 2.2. 모듈별 상세 역할
