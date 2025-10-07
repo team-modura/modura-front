@@ -18,14 +18,44 @@
 
 ### 2.1. 프로젝트 구조
 ```
-ModuraApp/
-├── androidApp/          # Android 플랫폼 UI 구현
-└── shared/              # 플랫폼 독립적인 핵심 로직 (KMP Core)
-├── src/
-│   ├── commonMain/  # 공통 비즈니스 로직
-│   ├── androidMain/ # Android 플랫폼 종속 코드
-│   └── iosMain/     # iOS 플랫폼 종속 코드
-└── build.gradle.kts # KMP 타겟 및 의존성 정의
+composeApp/
+├── androidMain/
+│          ├── kotlin/com/modura/app/
+│                 ├── data/
+│                 ├── platform/
+│                 └── util/
+├── commonMain/
+          ├── composeResources/ 
+          │       ├── drawable/
+          │       └── font/
+          └── kotlin/com/modura/app/
+                    ├── data/
+                    │        ├── datasource/
+                    │        ├── datasourceImpl/
+                    │        ├── dto/
+                    │        │       ├── request/
+                    │        │       └── response/
+                    │        ├── repositoryImpl/
+                    │        ├── service/
+                    ├── di/
+                    ├── domain/
+                    │        ├── model/
+                    │        │       ├── request/
+                    │        │       └── response/
+                    │        └── repository/
+                    ├── ui/
+                    │        ├── compose/
+                    │        └── screens/
+                    ├── util/
+                    │        ├── extension/
+                    │        └── network/
+                    └── res/
+├── iosMain/
+│          ├── kotlin/com/modura/app/
+│                 ├── data/
+│                 ├── platform/
+│                 └── util/
+└── build.gradle.kts/
 ```
 
 ### 2.2. 모듈별 상세 역할
