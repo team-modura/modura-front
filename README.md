@@ -52,7 +52,7 @@ composeApp/
 │                            ├── extension/
 │                            ├── platform/
 │                            └── network/
-├── iosMain/
+└── iosMain/
            └── kotlin/com/modura/app/
                   ├── data/
                   ├── platform/
@@ -62,12 +62,13 @@ composeApp/
 
 ### 2.2. 모듈별 상세 역할
 
-| 모듈 이름 | 주요 역할 및 기능 |
+| 경로 (Path) | 주요 역할 및 기능 |
 | :--- | :--- |
-| **`:shared`** | **핵심 비즈니스 로직을 포함합니다.** 복지 혜택을 추천하는 **AI 엔진** 로직, 모든 **데이터 모델 정의**, Ktor를 사용한 **REST API 통신 인터페이스**가 위치합니다. |
-| **`commonMain`** | **플랫폼 독립적인 코드**를 작성하는 공간입니다. 복지 추천 알고리즘 및 Local API 호출 인터페이스 (`expect` 함수)가 포함됩니다. |
-| **`androidMain` / `iosMain`** | 지도 출력 등 네이티브 기능이 필요할 때 `commonMain`의 `expect` 함수를 구현하는 **`actual` 코드**가 위치합니다. (각 플랫폼의 네이티브 SDK 사용) |
-| **`:androidApp`** | `shared` 모듈을 종속성으로 가져와 **Jetpack Compose UI**를 구성하고 실행하는 Android 애플리케이션의 진입점입니다. (Windows 개발 환경의 주 타겟) |
+| commonMain | 모든 플랫폼(Android, iOS)에서 공유되는 핵심 로직과 UI의 집합입니다.<br/>• data: Ktor를 이용한 네트워크 통신, 데이터 모델(DTO), Repository 구현 등 데이터 소스와 관련된 모든 로직을 포함합니다.<br/>• domain: 순수 비즈니스 로직, 데이터 모델, 그리고 데이터 계층과 UI 계층을 연결하는 Repository 인터페이스를 정의합니다.<br/>• ui: Jetpack Compose로 작성된 공통 UI 로직입니다. 재사용 가능한 컴포넌트(components), 화면 구성(screens), 내비게이션(navigation), 앱 테마(theme)를 관리합니다.<br/>• di: Koin 등을 사용한 의존성 주입 설정을 담당합니다.<br/>• util: 날짜 포맷팅, 확장 함수 등 프로젝트 전반에서 사용되는 공통 유틸리티 코드를 포함합니다. |
+| androidMain | Android 플랫폼에만 특화된 코드를 작성하는 공간입니다.<br/>• platform: commonMain에 선언된 expect 기능을 Android 네이티브 API로 실제 구현(actual)하는 곳입니다. (예: 지도 SDK 연동, 알림, 센서 접근 등)<br/>• data: Android 고유의 데이터 저장소(Room, SharedPreferences, DataStore)를 사용해야 할 경우 이곳에 구현합니다.<br/>• util: Android Context가 필요한 유틸리티나 Android 전용 로직을 포함합니다. |
+| iosMain | iOS 플랫폼에만 특화된 코드를 작성하는 공간입니다.<br/>• platform: commonMain의 expect 기능을 iOS 네이티브 프레임워크(UIKit, MapKit, CoreLocation 등)로 실제 구현(actual)하는 곳입니다.<br/>• data: iOS 고유의 데이터 저장소(CoreData, Keychain)를 사용해야 할 경우 이곳에 구현합니다.<br/>• util: iOS 전용 유틸리티나 로직을 포함합니다. |
+| composeResources | 모든 플랫폼에서 공통으로 사용하는 리소스 폴더입니다.<br/>• drawable: 아이콘, 로고 등 이미지 파일을 저장합니다.<br/>• font: 앱에서 사용할 커스텀 폰트 파일을 관리합니다. | | (프로젝트 루트)/iosApp | iOS 앱을 빌드하고 실행하기 위한 Xcode 프로젝트입니다.<br/>• iOS 앱의 진입점(AppDelegate, iOSApp.swift) 역할을 하며, commonMain에 작성된 공통 UI를 화면에 띄우는 초기화 코드를 포함합니다.<br/>• 앱 아이콘, Info.plist 설정, 코드 서명 등 iOS 배포에 필요한 모든 설정을 관리합니다. |
+| (프로젝트 루트)/androidApp | Android 앱을 빌드하고 실행하기 위한 Android 애플리케이션 모듈입니다.<br/>• Android 앱의 진입점(Activity) 역할을 하며, commonMain의 공통 UI를 로드합니다.<br/>• AndroidManifest.xml, 앱 테마, 권한 설정 등 Android 앱 실행에 필요한 모든 설정을 포함합니다. |
 
 ### 2.3. 지도 연동 전략
 
