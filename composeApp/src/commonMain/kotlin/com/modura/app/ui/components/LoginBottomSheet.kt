@@ -20,8 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import com.modura.app.platform.openUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +30,8 @@ fun LoginBottomSheet(
     onLoginClicked: () -> Unit,
     isPreview: Boolean = false
 ) {
+    val uriHandler = LocalUriHandler.current
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
         confirmValueChange = { true },
@@ -78,21 +80,21 @@ fun LoginBottomSheet(
             CheckTextDetail(
                 checked = agreePrivacyPolicy,
                 onCheckedChange = { agreePrivacyPolicy = it },
-                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802ebee3ff3fe67e4d74") },
+                onDetailClick = { uriHandler.openUri("https://seoyeoneel02.notion.site/281d2078608d802ebee3ff3fe67e4d74") },
                 text = "개인정보 수집 및 이용 동의"
             )
 
             CheckTextDetail(
                 checked = agreeTermsOfService,
                 onCheckedChange = { agreeTermsOfService = it },
-                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d802aa738d091b0813d01") },
+                onDetailClick = {  uriHandler.openUri("https://seoyeoneel02.notion.site/281d2078608d802aa738d091b0813d01") },
                 text = "서비스 이용약관"
             )
 
             CheckTextDetail(
                 checked = agreePrivacyProcessing,
                 onCheckedChange = { agreePrivacyProcessing = it },
-                onDetailClick = { openUrl("https://seoyeoneel02.notion.site/281d2078608d8061a547fa50f02c6b3f") },
+                onDetailClick = {  uriHandler.openUri("https://seoyeoneel02.notion.site/281d2078608d8061a547fa50f02c6b3f") },
                 text = "개인정보 처리방침"
             )
             Spacer(modifier = Modifier.height(20.dp))

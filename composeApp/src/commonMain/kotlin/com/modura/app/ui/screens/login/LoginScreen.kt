@@ -35,7 +35,6 @@ import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.modura.app.data.AuthRepository
 import com.modura.app.ui.components.LoginBottomSheet
 import kotlinx.coroutines.flow.flowOf
 import modura.composeapp.generated.resources.Res
@@ -44,7 +43,7 @@ import modura.composeapp.generated.resources.img_kakao_login
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-class LoginScreen(private val authRepository: AuthRepository) : Screen {
+class LoginScreen() : Screen {
     override val key: String = "LoginScreenKey"
 
     @Composable
@@ -151,20 +150,4 @@ class LoginScreen(private val authRepository: AuthRepository) : Screen {
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-    val dummyDataStore: DataStore<Preferences> = object : DataStore<Preferences> {
-        override val data = flowOf<Preferences>()
-        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
-            throw NotImplementedError("This dummy implementation should not be called.")
-        }
-    }
-
-    val dummyAuthRepository = AuthRepository(dummyDataStore)
-
-    LoginScreen(dummyAuthRepository).Content()
 }

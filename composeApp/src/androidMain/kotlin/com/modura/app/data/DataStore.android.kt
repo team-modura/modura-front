@@ -1,7 +1,11 @@
 package com.modura.app.data
 
-import okio.Path
+
 import okio.Path.Companion.toPath
-internal actual fun Context.dataStoreFile(fileName: String): Path {
-    return androidContext.filesDir.resolve(fileName).absolutePath.toPath()
+import android.content.Context
+import okio.Path
+
+internal actual fun dataStoreFile(context: Any, fileName: String): Path {
+    val androidContext = context as Context
+    return context.filesDir.resolve(fileName).absolutePath.toPath()
 }

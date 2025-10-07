@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalForeignApi::class)
-
 package com.modura.app.data
 
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -9,7 +7,8 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
-internal actual fun Context.dataStoreFile(fileName: String): Path {
+@OptIn(ExperimentalForeignApi::class)
+internal actual fun dataStoreFile(context: Any, fileName: String): Path {
     val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
         directory = NSDocumentDirectory,
         inDomain = NSUserDomainMask,
