@@ -31,9 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import com.modura.app.model.WelfareBenefit
+import com.modura.app.data.dev.DummyProvider
+import com.modura.app.ui.components.AnnouncementListItem
 import com.modura.app.ui.components.CommonSearch
-import com.modura.app.ui.components.WelfareListItem
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Green700
@@ -61,32 +61,8 @@ object HomeScreen : Screen {
         val scrollState = rememberScrollState()
 
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        val sampleList = listOf(
-            WelfareBenefit(
-                "1",
-                "서울",
-                LocalDate(today.year, 12, 31),
-                "청년 월세 지원 사업",
-                "최대 20만원",
-                "만 19세 ~ 39세 무주택 청년"
-            ),
-            WelfareBenefit(
-                "2",
-                "경기",
-                today.plus(30, DateTimeUnit.DAY),
-                "청년 면접수당",
-                "최대 50만원",
-                "만 18세 ~ 39세 미취업 청년"
-            ),
-            WelfareBenefit(
-                "3",
-                "전국",
-                today.plus(7, DateTimeUnit.DAY),
-                "국민취업지원제도",
-                "월 50만원 x 6개월",
-                "만 15세 ~ 69세 구직자"
-            )
-        )
+
+        val announcementList = DummyProvider.dummyAnnouncements
 
         Box(
             modifier = Modifier
@@ -130,14 +106,14 @@ object HomeScreen : Screen {
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Spacer(Modifier.height(10.dp))
-                sampleList.forEachIndexed { index, benefitItem ->
-                    WelfareListItem(
+                announcementList.forEachIndexed { index, benefitItem ->
+                    AnnouncementListItem(
                         item = benefitItem,
                         onItemClick = {
-                            println("${it.name} 클릭됨")
+                            println("${it.description} 클릭됨")
                         }
                     )
-                    if (index < sampleList.lastIndex) {
+                    if (index < announcementList.lastIndex) {
                         Spacer(Modifier.height(10.dp))
                     }
                 }

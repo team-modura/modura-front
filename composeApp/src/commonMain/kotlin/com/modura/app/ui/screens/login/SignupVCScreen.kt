@@ -25,7 +25,7 @@ import com.modura.app.ui.components.CommonChips
 import com.modura.app.ui.components.CommonToast
 import com.modura.app.ui.components.LargeButton
 import com.modura.app.ui.components.TextFieldVC
-import com.modura.app.util.getCurrentTimeMillis
+import com.modura.app.util.platform.getCurrentTimeMillis
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 

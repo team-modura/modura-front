@@ -16,25 +16,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.modura.app.model.WelfareBenefit
+import com.modura.app.data.dto.response.list.AnnouncementResponseDto
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray500
 import com.modura.app.ui.theme.Gray600
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
+import kotlinx.datetime.toLocalDate
 import kotlinx.datetime.todayIn
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun WelfareListItem(
-    item: WelfareBenefit,
-    onItemClick: (WelfareBenefit) -> Unit,
+fun AnnouncementListItem(
+    item: AnnouncementResponseDto,
+    onItemClick: (AnnouncementResponseDto) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val endDate = item.endDate.toLocalDate()
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    val daysUntil = today.daysUntil(item.endDate)
+    val daysUntil = today.daysUntil(endDate)
     val dDayText = when {
         daysUntil < 0 -> "기간 만료"
         daysUntil == 0 -> "D-Day"
@@ -67,15 +69,15 @@ fun WelfareListItem(
         }
 
         Text(
-            text = item.name,
+            text = item.description,
             color = Black,
             style = MaterialTheme.typography.titleLarge
         )
 
         // 5. 지원 금액 및 주요 대상
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            InfoRow(title = "지원 금액", content = item.supportAmount)
-            InfoRow(title = "주요 대상", content = item.targetAudience)
+            InfoRow(title = "지원 금액", content = "${item.subsidy/10000}만원")
+            InfoRow(title = "주요 대상", content = item.eligibility)
         }
     }
 }
