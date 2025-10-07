@@ -69,10 +69,3 @@ composeApp/
 | iosMain | iOS 플랫폼에만 특화된 코드를 작성하는 공간입니다.<br/>• platform: commonMain의 expect 기능을 iOS 네이티브 프레임워크(UIKit, MapKit, CoreLocation 등)로 실제 구현(actual)하는 곳입니다.<br/>• data: iOS 고유의 데이터 저장소(CoreData, Keychain)를 사용해야 할 경우 이곳에 구현합니다.<br/>• util: iOS 전용 유틸리티나 로직을 포함합니다. |
 | composeResources | 모든 플랫폼에서 공통으로 사용하는 리소스 폴더입니다.<br/>• drawable: 아이콘, 로고 등 이미지 파일을 저장합니다.<br/>• font: 앱에서 사용할 커스텀 폰트 파일을 관리합니다. | | (프로젝트 루트)/iosApp | iOS 앱을 빌드하고 실행하기 위한 Xcode 프로젝트입니다.<br/>• iOS 앱의 진입점(AppDelegate, iOSApp.swift) 역할을 하며, commonMain에 작성된 공통 UI를 화면에 띄우는 초기화 코드를 포함합니다.<br/>• 앱 아이콘, Info.plist 설정, 코드 서명 등 iOS 배포에 필요한 모든 설정을 관리합니다. |
 | (프로젝트 루트)/androidApp | Android 앱을 빌드하고 실행하기 위한 Android 애플리케이션 모듈입니다.<br/>• Android 앱의 진입점(Activity) 역할을 하며, commonMain의 공통 UI를 로드합니다.<br/>• AndroidManifest.xml, 앱 테마, 권한 설정 등 Android 앱 실행에 필요한 모든 설정을 포함합니다. |
-
-### 2.3. 지도 연동 전략
-
-| 구분 | 전략 | 역할 |
-| :--- | :--- | :--- |
-| **Common Code** | **Naver/Kakao Local REST API** | 복지 시설의 주소를 **GPS 좌표로 변환**하거나 시설 정보를 검색하는 데이터 처리 로직을 담당합니다. |
-| **Native Code** | **Native SDK & `expect/actual`** | Common 코드에서 처리된 좌표 데이터를 받아 Android에서는 **Naver/Kakao Android SDK**를 통해 지도 화면에 시설 마커를 렌더링합니다. |
