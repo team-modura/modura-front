@@ -29,26 +29,26 @@ composeApp/
 │         │       ├── drawable/
 │         │       └── font/
 │         └── kotlin/com/modura/app/
-│                   ├── data/
-│                   │        ├── datasource/
-│                   │        ├── datasourceImpl/
-│                   │        ├── dto/
-│                   │        │       ├── request/
-│                   │        │       └── response/
-│                   │        ├── repositoryImpl/
-│                   │        ├── service/
-│                   ├── di/
-│                   ├── domain/
-│                   │        ├── model/
-│                   │        │       ├── request/
-│                   │        │       └── response/
-│                   │        └── repository/
-│                   ├── ui/
-│                   │        ├── components/
-│                   │        ├── navigation/
-│                   │        ├── screens/                    
-│                   │        └── theme/
-│                  ├── util/
+│                 ├── data/
+│                 │        ├── datasource/
+│                 │        ├── datasourceImpl/
+│                 │        ├── dto/
+│                 │        │       ├── request/
+│                 │        │       └── response/
+│                 │        ├── repositoryImpl/
+│                 │        ├── service/
+│                 ├── di/
+│                 ├── domain/
+│                 │        ├── model/
+│                 │        │       ├── request/
+│                 │        │       └── response/
+│                 │        └── repository/
+│                 ├── ui/
+│                 │        ├── components/
+│                 │        ├── navigation/
+│                 │        ├── screens/                    
+│                 │        └── theme/
+│                 └── util/
 │                            ├── extension/
 │                            ├── platform/
 │                            └── network/
