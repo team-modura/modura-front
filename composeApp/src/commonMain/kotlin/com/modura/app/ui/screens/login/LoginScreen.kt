@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -34,12 +35,16 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.ui.components.LoginBottomSheet
+import com.modura.app.ui.screens.home.HomeScreen
+import com.modura.app.ui.screens.main.MainScreen
 import kotlinx.coroutines.flow.flowOf
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_file
+import modura.composeapp.generated.resources.img_flicker_1
+import modura.composeapp.generated.resources.img_flicker_2
 import modura.composeapp.generated.resources.img_kakao_login
+import modura.composeapp.generated.resources.img_logo_text
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -48,29 +53,21 @@ class LoginScreen() : Screen {
 
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
+        val navigator = LocalNavigator.current
 
         val coroutineScope = rememberCoroutineScope()
-        var isLoading by remember { mutableStateOf(false) }
-        var startAnimation by remember { mutableStateOf(false) }
-
+        var isLoading by remember { mutableStateOf(false) }   //loading effect 조건
+        var startAnimation by remember { mutableStateOf(false) }   //추후 애니메이션 추가 예정
         var showBottomSheet by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
             startAnimation = true
         }
 
-        val image1OffsetY by animateDpAsState(
-            targetValue = if (startAnimation) 358.dp else 1000.dp, // 목표 위치 vs 화면 아래
-            animationSpec = tween(durationMillis = 1000, delayMillis = 200) // 1초 동안, 0.2초 후 시작
-        )
-        val image2OffsetY by animateDpAsState(
-            targetValue = if (startAnimation)438.dp else 1100.dp, // 목표 위치 vs 화면 아래
-            animationSpec = tween(durationMillis = 1000, delayMillis = 400) // 1초 동안, 0.4초 후 시작
-        )
-        val textAlpha by animateFloatAsState(
-            targetValue = if (startAnimation) 1f else 0f, // 1f: 불투명, 0f: 투명
-            animationSpec = tween(durationMillis = 1000, delayMillis = 600) // 0.6초 뒤에 시작
+        //text 나타나는 효과
+        val animationAlpha by animateFloatAsState(
+            targetValue = if (startAnimation) 1f else 0f,
+            animationSpec = tween(durationMillis = 1000, delayMillis = 600)
         )
 
         if (showBottomSheet) {
@@ -80,9 +77,7 @@ class LoginScreen() : Screen {
                 },
                 onLoginClicked = {
                     showBottomSheet = false
-                    navigator.push(SignupScreen(onSignupComplete = {
-
-                    }))
+                    navigator?.push(MainScreen)
                 }
             )
         }
@@ -94,40 +89,38 @@ class LoginScreen() : Screen {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
                 Image(
-                    painter = painterResource(Res.drawable.img_file),
+                    painter = painterResource(Res.drawable.img_flicker_1),
                     contentDescription = "Background Image 1",
                     modifier = Modifier
-                        .size(300.dp, 850.dp)
-                        .offset(x = 129.dp, y = image1OffsetY),
-                    contentScale = ContentScale.Fit
+                        .fillMaxSize()
+                        .offset(y=120.dp)
                 )
                 Image(
-                    painter = painterResource(Res.drawable.img_file),
+                    painter = painterResource(Res.drawable.img_flicker_2),
                     contentDescription = "Background Image 2",
                     modifier = Modifier
-                        .size(300.dp, 850.dp)
-                        .offset(x = 49.dp, y = image2OffsetY),
-                    contentScale = ContentScale.Fit
+                        .fillMaxSize()
+                        .offset(x=50.dp,y=120.dp)
                 )
 
-                // 상단 텍스트 및 하단 로그인 버튼
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 120.dp), // 화면 전체 패딩
+                        .padding(horizontal = 24.dp, vertical = 60.dp), // 화면 전체 패딩
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.alpha(textAlpha)
+                        modifier = Modifier.alpha(animationAlpha).padding(start = 40.dp, top=120.dp, end = 40.dp, bottom =0.dp)
                     ) {
-                        Text(
-                            text = "Modura",
-                            style = MaterialTheme.typography.headlineSmall
+                        Image(
+                            painter = painterResource(Res.drawable.img_logo_text),
+                            contentDescription = "Logo Text",
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "나에게 필요했던 복지",
+                            text = "AI가 추천하는 K-콘텐츠 로드맵",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -137,6 +130,7 @@ class LoginScreen() : Screen {
                         painter = painterResource(Res.drawable.img_kakao_login),
                         contentDescription = "Kakao Login",
                         modifier =Modifier
+                            .alpha(animationAlpha)
                             .width(300.dp)
                             .height(45.dp)
                             .clickable(
@@ -150,4 +144,10 @@ class LoginScreen() : Screen {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen().Content()
 }
