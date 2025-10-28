@@ -1,35 +1,45 @@
-package com.modura.app.navigation
+package com.modura.app.ui.navigation
 
 import cafe.adriel.voyager.core.screen.Screen
+import com.modura.app.ui.screens.Map.MapScreen
 import com.modura.app.ui.screens.home.HomeScreen
-import com.modura.app.ui.screens.list.ListScreen
+import com.modura.app.ui.screens.search.SearchScreen
 import com.modura.app.ui.screens.mypage.MyPageScreen
 import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_home
-import modura.composeapp.generated.resources.ic_list
-import modura.composeapp.generated.resources.ic_mypage
+import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.DrawableResource
 
 sealed class BottomNavItem(
     val route: Screen,
     val title: String,
-    val icon: DrawableResource
+    val selectedIcon: DrawableResource,
+    val unselectedIcon: DrawableResource
 ) {
     object Home : BottomNavItem(
         route = HomeScreen,
         title = "Home",
-        icon = Res.drawable.ic_home
+        selectedIcon = Res.drawable.ic_home_selected,
+        unselectedIcon = Res.drawable.ic_home_unselected
     )
 
-    object List : BottomNavItem(
-        route = ListScreen,
-        title = "list",
-        icon = Res.drawable.ic_list
+    object Search : BottomNavItem(
+        route = SearchScreen,
+        title = "search",
+        selectedIcon = Res.drawable.ic_search_selected,
+        unselectedIcon = Res.drawable.ic_search_unselected
+    )
+
+    object Map : BottomNavItem(
+        route = MapScreen,
+        title = "map",
+        selectedIcon = Res.drawable.ic_map_selected,
+        unselectedIcon = Res.drawable.ic_map_unselected
     )
 
     object MyPage : BottomNavItem(
         route = MyPageScreen,
         title = "mypage",
-        icon = Res.drawable.ic_mypage
+        selectedIcon = Res.drawable.ic_mypage_selected,
+        unselectedIcon = Res.drawable.ic_mypage_unselected
     )
 }
