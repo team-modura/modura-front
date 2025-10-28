@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
@@ -18,7 +19,9 @@ import com.modura.app.ui.theme.ModuraTheme
 @Composable
 fun App() {
     ModuraTheme {
-        MainAppContent()
+        Navigator(screen = LoginScreen()) {
+            CurrentScreen()
+        }
     }
 }
 
