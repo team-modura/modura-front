@@ -1,4 +1,4 @@
-package com.modura.app.ui.screens.list
+package com.modura.app.ui.screens.Map
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 
-object ListScreen : Screen {
-    override val key: String = "ListScreenKey"
+object MapScreen : Screen {
+    override val key: String = "MapScreenKey"
     @Composable
     override fun Content() {
         Column(
@@ -18,7 +18,7 @@ object ListScreen : Screen {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("List Screen Content")
+            Text("Map Screen Content")
         }
     }
 }

@@ -57,6 +57,10 @@ kotlin {
                 api(libs.okio)
 
                 implementation(libs.kotlinx.datetime)
+
+                //이미지 로딩 라이브러리 Coil
+                implementation(libs.coil.compose)
+                //implementation(libs.coil.network.ktor)
             }
         }
 
@@ -68,11 +72,19 @@ kotlin {
 
         val iosMain by creating {
             dependsOn(commonMain)
-            val iosArm64Main by getting
-            val iosSimulatorArm64Main by getting
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
+            dependencies {
+               // implementation(libs.ktor.client.darwin)
+            }
         }
+
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
     }
 }
 

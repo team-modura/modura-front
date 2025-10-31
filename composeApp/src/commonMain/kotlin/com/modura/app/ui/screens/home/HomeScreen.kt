@@ -1,17 +1,22 @@
 package com.modura.app.ui.screens.home
 
+import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -28,26 +33,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.data.dev.DummyProvider
-import com.modura.app.ui.components.AnnouncementListItem
-import com.modura.app.ui.components.CommonSearch
-import com.modura.app.ui.theme.Black
-import com.modura.app.ui.theme.Gray100
-import com.modura.app.ui.theme.Green700
-import com.modura.app.ui.theme.White
+import com.modura.app.ui.components.ContentItemSmall
+import com.modura.app.ui.components.LocationItemSmall
+import com.modura.app.ui.theme.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
-import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_alarm
-import modura.composeapp.generated.resources.ic_chevron_right_1dp
-import modura.composeapp.generated.resources.img_diagnosis
+import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.time.ExperimentalTime
@@ -62,7 +63,7 @@ object HomeScreen : Screen {
 
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-        val announcementList = DummyProvider.dummyAnnouncements
+        val mediaList = DummyProvider.dummyMedia
 
         Box(
             modifier = Modifier
@@ -70,112 +71,119 @@ object HomeScreen : Screen {
         ) {
             Column(modifier = Modifier .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(20.dp)
             ) {
-                Row(){
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Image(
+                        painter = painterResource(Res.drawable.img_logo_text),
+                        contentDescription = "로고",
+                        modifier = Modifier.height(15.dp)
+                    )
                     Spacer(Modifier.weight(1f))
                     Icon(
-                        painter = painterResource(Res.drawable.ic_alarm),
-                        tint = Green700,
-                        contentDescription = "알림",
+                        painter = painterResource(Res.drawable.ic_search),
+                        contentDescription = "검색",
                         modifier = Modifier
                             .clickable {
-                                println("알림 아이콘 클릭됨")
+                                println("검색 아이콘 클릭됨")
                             }
                     )
                 }
                 Spacer(Modifier.height(20.dp))
-                CommonSearch(
-                    value = searchText,
-                    onValueChange = { newText ->
-                        searchText = newText
-                    }
-                )
-                Spacer(Modifier.height(20.dp))
                 Image(
                     modifier = Modifier
+                        .padding(horizontal = 20.dp)
                         .fillMaxWidth()
-                        .height(90.dp),
+                        .aspectRatio(16f/9f)
+                        .shadow(elevation =2.dp, shape = RoundedCornerShape(8.dp), clip = false)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(width = 0.5.dp, color = Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)),
                     painter = painterResource(Res.drawable.img_diagnosis),
                     contentDescription = "30초 만에 진단",
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "000님을 위한 추천 혜택",
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    text = "TOP 10 Series",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Spacer(Modifier.height(10.dp))
-                announcementList.forEachIndexed { index, benefitItem ->
-                    AnnouncementListItem(
-                        item = benefitItem,
-                        onItemClick = {
-                            println("${it.description} 클릭됨")
-                        }
-                    )
-                    if (index < announcementList.lastIndex) {
-                        Spacer(Modifier.height(10.dp))
-                    }
-                }
-                Spacer(Modifier.height(20.dp))
-                Row(modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = "NEW 혜택",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Spacer(Modifier.weight(1f))
-                    Row(verticalAlignment = Alignment.CenterVertically){
-                        Text(
-                            text = "전체보기",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_right_1dp),
-                            tint = Black,
-                            contentDescription = "전체보기"
-                        )
-                    }
-                }
                 Spacer(Modifier.height(5.dp))
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
-                    items(3) { index ->
-                        val imageRes = when (index) {
-                            0 -> Res.drawable.img_diagnosis
-                            1 -> Res.drawable.img_diagnosis
-                            else -> Res.drawable.img_diagnosis
-                        }
+                    items(mediaList.size) { index ->
+                        val item = mediaList[index]
 
-                        Image(
-                            painter = painterResource(imageRes),
-                            contentDescription = "New 혜택 ${index + 1}",
-                            modifier = Modifier
-                                .width(200.dp)
-                                .height(100.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    println("New 혜택 ${index + 1} 클릭됨")
-                                },
-                            contentScale = ContentScale.Crop
+                        ContentItemSmall(
+                            bookmark = item.bookmark,
+                            ott = item.ott,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,
+                            onClick = {
+                                println("${item.title} 클릭됨")
+                            }
                         )
                     }
                 }
                 Spacer(Modifier.height(20.dp))
-                Box(
+                Text(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(White, RoundedCornerShape(8.dp))
-                ){
-                    Text(
-                        modifier = Modifier.padding(16.dp),
-                        text = "내 주변 복지 시설 찾아보기",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                        .padding(horizontal = 20.dp),
+                    text = "TOP 10 촬영지",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(5.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
+                ) {
+                    items(5) { index ->
+
+                        LocationItemSmall(
+/*                            bookmark = item.bookmark,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,*/
+                            onClick = {
+                                println("클릭됨")
+                            }
+                        )
+                    }
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(20.dp))
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    text = "힐링이 필요할 때",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(5.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
+                ) {
+                    items(mediaList.size) { index ->
+                        val item = mediaList[index]
+
+                        ContentItemSmall(
+                            bookmark = item.bookmark,
+                            ott = item.ott,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,
+                            onClick = {
+                                println("${item.title} 클릭됨")
+                            }
+                        )
+                    }
+                }
+                Spacer(Modifier.height(20.dp))
             }
         }
     }

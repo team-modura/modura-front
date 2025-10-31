@@ -2,7 +2,6 @@ package com.modura.app.ui.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -12,43 +11,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.tab.Tab
-import com.modura.app.navigation.HomeScreenTab
-import com.modura.app.navigation.ListScreenTab
-import com.modura.app.navigation.MyPageScreenTab
+import com.modura.app.ui.navigation.BottomNavItem
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun BottomNavigationBar(
-    currentScreen: Tab,
-    onTabSelected: (Tab) -> Unit
+    currentTab: Tab,
+    onTabSelected: (BottomNavItem) -> Unit
 ) {
-    val tabs = listOf(HomeScreenTab, ListScreenTab, MyPageScreenTab)
+    val items = listOf(
+        BottomNavItem.Home,
+        BottomNavItem.Search,
+        BottomNavItem.Map,
+        BottomNavItem.MyPage
+    )
+
 
     NavigationBar (
         modifier = Modifier
-            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
         containerColor = Color.White
     ){
-        tabs.forEach { tab ->
-            val title = tab.options.title
-            val iconPainter = tab.options.icon ?: return@forEach
-
+        items.forEach { item ->
+            val isSelected = item.route.key == currentTab.key
             NavigationBarItem(
-                selected = currentScreen == tab,
-                onClick = { onTabSelected(tab) },
+                selected = isSelected,
+                onClick = { onTabSelected(item) },
                 icon = {
                     Icon(
-                        painter = iconPainter,
-                        contentDescription = title
+                        painter = painterResource(if (isSelected) item.selectedIcon else item.unselectedIcon),
+                        contentDescription = item.title
                     )
                 },
-                label = { Text(title) },
-                alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    selectedTextColor = Color.Black,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    selectedIconColor = Color.Unspecified,
+                    unselectedIconColor = Color.Unspecified,
                     indicatorColor = Color.Transparent
                 )
             )
