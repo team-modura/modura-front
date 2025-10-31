@@ -29,16 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
-import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_bookmark_big_selected
-import modura.composeapp.generated.resources.ic_bookmark_big_unselected
-import modura.composeapp.generated.resources.img_coopang
-import modura.composeapp.generated.resources.img_disney
-import modura.composeapp.generated.resources.img_example
-import modura.composeapp.generated.resources.img_netflix
-import modura.composeapp.generated.resources.img_tving
-import modura.composeapp.generated.resources.img_watcha
-import modura.composeapp.generated.resources.img_wave
+import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.sqrt
@@ -54,7 +45,7 @@ fun ContentItemSmall(
 ){
     /*val painter = if (image.isNotBlank()) { rememberAsyncImagePainter(image)
     } else { painterResource(Res.drawable.img_example) }*/
-    val bookmark=if(bookmark) painterResource(Res.drawable.ic_bookmark_big_selected) else painterResource(Res.drawable.ic_bookmark_big_unselected)
+    val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 
     Box(
         modifier = Modifier
@@ -85,6 +76,7 @@ fun ContentItemSmall(
                 Icon(
                     painter = bookmark,
                     contentDescription = "북마크",
+                    tint = Color.Unspecified,
                     modifier = Modifier
                         .width(20.dp)
                         .height(36.dp)

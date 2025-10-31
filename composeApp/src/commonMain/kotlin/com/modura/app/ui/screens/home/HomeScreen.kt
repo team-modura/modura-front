@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -38,8 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.data.dev.DummyProvider
-import com.modura.app.ui.components.AnnouncementListItem
-import com.modura.app.ui.components.CommonSearch
+import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.theme.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -62,7 +62,7 @@ object HomeScreen : Screen {
 
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-        val announcementList = DummyProvider.dummyAnnouncements
+        val mediaList = DummyProvider.dummyMedia
 
         Box(
             modifier = Modifier
@@ -70,10 +70,9 @@ object HomeScreen : Screen {
         ) {
             Column(modifier = Modifier .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(20.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     Image(
@@ -94,6 +93,7 @@ object HomeScreen : Screen {
                 Spacer(Modifier.height(20.dp))
                 Image(
                     modifier = Modifier
+                        .padding(horizontal = 20.dp)
                         .fillMaxWidth()
                         .aspectRatio(16f/9f)
                         .shadow(elevation =2.dp, shape = RoundedCornerShape(8.dp), clip = false)
@@ -105,42 +105,38 @@ object HomeScreen : Screen {
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
                     text = "TOP 10 Series",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Spacer(Modifier.height(10.dp))
-                announcementList.forEachIndexed { index, benefitItem ->
-                    AnnouncementListItem(
-                        item = benefitItem,
-                        onItemClick = {
-                            println("${it.description} 클릭됨")
-                        }
-                    )
-                    if (index < announcementList.lastIndex) {
-                        Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(5.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
+                ) {
+                    items(mediaList.size) { index ->
+                        val item = mediaList[index]
+
+                        ContentItemSmall(
+                            bookmark = item.bookmark,
+                            ott = item.ott,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,
+                            onClick = {
+                                println("${item.title} 클릭됨")
+                            }
+                        )
                     }
                 }
                 Spacer(Modifier.height(20.dp))
-                Row(modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically){
-                    Text(
-                        text = "NEW 혜택",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Spacer(Modifier.weight(1f))
-                    Row(verticalAlignment = Alignment.CenterVertically){
-                        Text(
-                            text = "전체보기",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_right_1dp),
-                            tint = Black,
-                            contentDescription = "전체보기"
-                        )
-                    }
-                }
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp),
+                    text = "TOP 10 촬영지",
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 Spacer(Modifier.height(5.dp))
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
