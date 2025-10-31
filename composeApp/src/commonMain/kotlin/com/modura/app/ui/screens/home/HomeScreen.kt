@@ -1,17 +1,21 @@
 package com.modura.app.ui.screens.home
 
+import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -28,26 +32,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.AnnouncementListItem
 import com.modura.app.ui.components.CommonSearch
-import com.modura.app.ui.theme.Black
-import com.modura.app.ui.theme.Gray100
-import com.modura.app.ui.theme.Green700
-import com.modura.app.ui.theme.White
+import com.modura.app.ui.theme.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
-import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_alarm
-import modura.composeapp.generated.resources.ic_chevron_right_1dp
-import modura.composeapp.generated.resources.img_diagnosis
+import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.time.ExperimentalTime
@@ -72,37 +72,40 @@ object HomeScreen : Screen {
                 .verticalScroll(scrollState)
                 .padding(20.dp)
             ) {
-                Row(){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Image(
+                        painter = painterResource(Res.drawable.img_logo_text),
+                        contentDescription = "로고",
+                        modifier = Modifier.height(15.dp)
+                    )
                     Spacer(Modifier.weight(1f))
                     Icon(
-                        painter = painterResource(Res.drawable.ic_alarm),
-                        tint = Green700,
-                        contentDescription = "알림",
+                        painter = painterResource(Res.drawable.ic_search),
+                        contentDescription = "검색",
                         modifier = Modifier
                             .clickable {
-                                println("알림 아이콘 클릭됨")
+                                println("검색 아이콘 클릭됨")
                             }
                     )
                 }
                 Spacer(Modifier.height(20.dp))
-                CommonSearch(
-                    value = searchText,
-                    onValueChange = { newText ->
-                        searchText = newText
-                    }
-                )
-                Spacer(Modifier.height(20.dp))
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp),
+                        .aspectRatio(16f/9f)
+                        .shadow(elevation =2.dp, shape = RoundedCornerShape(8.dp), clip = false)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(width = 0.5.dp, color = Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)),
                     painter = painterResource(Res.drawable.img_diagnosis),
                     contentDescription = "30초 만에 진단",
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "000님을 위한 추천 혜택",
+                    text = "TOP 10 Series",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Spacer(Modifier.height(10.dp))

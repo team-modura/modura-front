@@ -16,6 +16,8 @@ kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
 voyager = "1.0.0" # 네비게이션 라이브러리
 kotlinx-datetime = "0.6.0"
+coil = "2.6.0"
+#ktor = "2.3.9"
 
 [libraries]
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCore" }
@@ -40,6 +42,11 @@ voyager-tabNavigator = { group = "cafe.adriel.voyager", name = "voyager-tab-navi
 okio = { module = "com.squareup.okio:okio", version = "3.9.0" }
 
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+#coil-network-ktor = {module = "io.coil-kt:coil-network-ktor", version.ref = "coil"}
+#ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+#ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

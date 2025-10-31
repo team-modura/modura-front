@@ -4,6 +4,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF000000)
+val BlackTransparent = Color(0x00000000)
+
 val White = Color(0xFFFFFFFF)
 val Gray100 = Color(0xFFF4F4F4)
 val Gray300 = Color(0xffDADADA)
