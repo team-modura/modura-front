@@ -18,7 +18,7 @@ object DummyProvider {
             rank = "2",
             title = "더 글로리",
             bookmark = false,
-            ott = listOf("disney", "coopang"),
+            ott = listOf("disney", "coupang"),
             image = "더 글로리"
         ),
         MediaResponseDto(

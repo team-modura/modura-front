@@ -52,6 +52,7 @@ fun ContentItemSmall(
             .width(105.dp)
             .height(148.dp)
             .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
     ){
         Image(
             painter = painterResource(Res.drawable.img_example), //추후 api 내부에 있는 이미지로 수정
@@ -95,7 +96,7 @@ fun ContentItemSmall(
                             "netflix" -> Image(painter = painterResource(Res.drawable.img_netflix), contentDescription = "Netflix", modifier = Modifier.size(16.dp))
                             "watcha" -> Image(painter = painterResource(Res.drawable.img_watcha), contentDescription = "Watcha", modifier = Modifier.size(16.dp))
                             "disney" -> Image(painter = painterResource(Res.drawable.img_disney), contentDescription = "disney", modifier = Modifier.size(16.dp))
-                            "coopang" -> Image(painter = painterResource(Res.drawable.img_coopang), contentDescription = "coopang", modifier = Modifier.size(16.dp))
+                            "coupang" -> Image(painter = painterResource(Res.drawable.img_coupang), contentDescription = "coupang", modifier = Modifier.size(16.dp))
                             "wave" -> Image(painter = painterResource(Res.drawable.img_wave),contentDescription = "wave", modifier = Modifier.size(16.dp))
                             "tving" -> Image(painter = painterResource(Res.drawable.img_tving), contentDescription = "tving", modifier = Modifier.size(16.dp))
                             else -> {}

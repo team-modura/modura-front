@@ -38,9 +38,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.components.LocationItemSmall
+import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.main.MainScreen
 import com.modura.app.ui.theme.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -58,11 +63,8 @@ object HomeScreen : Screen {
     @OptIn(ExperimentalTime::class)
     @Composable
     override fun Content() {
-        var searchText by remember { mutableStateOf("") }
+        val navigator = LocalRootNavigator.current!!
         val scrollState = rememberScrollState()
-
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-
         val mediaList = DummyProvider.dummyMedia
 
         Box(
@@ -127,6 +129,7 @@ object HomeScreen : Screen {
                             rank = item.rank,
                             onClick = {
                                 println("${item.title} 클릭됨")
+                                navigator.push(ContentDetailScreen)
                             }
                         )
                     }
@@ -151,7 +154,7 @@ object HomeScreen : Screen {
                             title = item.title,
                             rank = item.rank,*/
                             onClick = {
-                                println("클릭됨")
+                                println("ㅇㅇ 클릭됨")
                             }
                         )
                     }
