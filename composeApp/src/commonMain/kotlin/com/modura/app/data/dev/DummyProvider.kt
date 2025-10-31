@@ -38,6 +38,7 @@ object DummyProvider {
             image = "환승연애"
         )
     )
-
     val dummyMediaDetail = dummyMedia[0]
+
+
 }

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentItemSmall
+import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.theme.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -139,42 +140,50 @@ object HomeScreen : Screen {
                 )
                 Spacer(Modifier.height(5.dp))
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
-                    items(3) { index ->
-                        val imageRes = when (index) {
-                            0 -> Res.drawable.img_diagnosis
-                            1 -> Res.drawable.img_diagnosis
-                            else -> Res.drawable.img_diagnosis
-                        }
+                    items(5) { index ->
 
-                        Image(
-                            painter = painterResource(imageRes),
-                            contentDescription = "New 혜택 ${index + 1}",
-                            modifier = Modifier
-                                .width(200.dp)
-                                .height(100.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    println("New 혜택 ${index + 1} 클릭됨")
-                                },
-                            contentScale = ContentScale.Crop
+                        LocationItemSmall(
+/*                            bookmark = item.bookmark,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,*/
+                            onClick = {
+                                println("클릭됨")
+                            }
                         )
                     }
                 }
                 Spacer(Modifier.height(20.dp))
-                Box(
+                Text(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(White, RoundedCornerShape(8.dp))
-                ){
-                    Text(
-                        modifier = Modifier.padding(16.dp),
-                        text = "내 주변 복지 시설 찾아보기",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                        .padding(horizontal = 20.dp),
+                    text = "힐링이 필요할 때",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(5.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
+                ) {
+                    items(mediaList.size) { index ->
+                        val item = mediaList[index]
+
+                        ContentItemSmall(
+                            bookmark = item.bookmark,
+                            ott = item.ott,
+                            image = item.image,
+                            title = item.title,
+                            rank = item.rank,
+                            onClick = {
+                                println("${item.title} 클릭됨")
+                            }
+                        )
+                    }
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(20.dp))
             }
         }
     }

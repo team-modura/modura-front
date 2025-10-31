@@ -29,18 +29,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
+import com.modura.app.ui.theme.light8
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.sqrt
 
 @Composable
-fun ContentItemSmall(
+fun LocationItemSmall(
     bookmark: Boolean = false,
-    ott: List<String> = listOf("netflix", "watcha"),
-    image: String = "",
+    rank: String = "0",
     title: String = "제목",
-    rank: String = "순위",
+    region: String = "지역",
+    location: String = "장소",
+    image: String = "",
     onClick: () -> Unit = {}
 ){
     /*val painter = if (image.isNotBlank()) { rememberAsyncImagePainter(image)
@@ -49,8 +51,8 @@ fun ContentItemSmall(
 
     Box(
         modifier = Modifier
-            .width(105.dp)
-            .height(148.dp)
+            .width(150.dp)
+            .height(100.dp)
             .clip(RoundedCornerShape(8.dp))
     ){
         Image(
@@ -62,7 +64,7 @@ fun ContentItemSmall(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.5f)
+                .fillMaxHeight(0.3f)
                 .align(Alignment.BottomCenter)
                 .background(
                     brush = Brush.verticalGradient(
@@ -78,45 +80,43 @@ fun ContentItemSmall(
                     contentDescription = "북마크",
                     tint = Color.Unspecified,
                     modifier = Modifier
-                        .width(20.dp)
-                        .height(36.dp)
+                        .align(Alignment.TopEnd)
+                        .width(13.dp)
+                        .height(23.dp)
                         .clickable{
                             //클릭하면 북마크 되도록 수정
                         }
                 )
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(vertical = 10.dp) ,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    ott.forEach { platform ->
-                        when(platform) {
-                            "netflix" -> Image(painter = painterResource(Res.drawable.img_netflix), contentDescription = "Netflix", modifier = Modifier.size(16.dp))
-                            "watcha" -> Image(painter = painterResource(Res.drawable.img_watcha), contentDescription = "Watcha", modifier = Modifier.size(16.dp))
-                            "disney" -> Image(painter = painterResource(Res.drawable.img_disney), contentDescription = "disney", modifier = Modifier.size(16.dp))
-                            "coopang" -> Image(painter = painterResource(Res.drawable.img_coopang), contentDescription = "coopang", modifier = Modifier.size(16.dp))
-                            "wave" -> Image(painter = painterResource(Res.drawable.img_wave),contentDescription = "wave", modifier = Modifier.size(16.dp))
-                            "tving" -> Image(painter = painterResource(Res.drawable.img_tving), contentDescription = "tving", modifier = Modifier.size(16.dp))
-                            else -> {}
-                        }
-                    }
-                }
             }
             Box(modifier = Modifier.weight(1f))
-            Column(
-                modifier = Modifier.padding(5.dp)
-            ) {
+            Row(modifier = Modifier.padding(5.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)){
                 Text(
                     text = rank,
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    text = title,
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Column {
+                    Text(
+                        text = title,
+                        color = Color.White,
+                        style = MaterialTheme.typography.light8
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ){
+                        Text(
+                            text = location,
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Box(modifier = Modifier.weight(1f))
+                        Text(
+                            text = region,
+                            color = Color.White,
+                            style = MaterialTheme.typography.light8
+                        )
+                    }
+                }
             }
         }
     }
@@ -125,11 +125,9 @@ fun ContentItemSmall(
 @Preview
 @Composable
 private fun Preview(){
-    ContentItemSmall(
+    LocationItemSmall(
         bookmark = false,
         image = "",
         title = "기묘한 이야기",
-        rank = "1",
-        onClick = { /* 프리뷰에서는 비워둬도 됩니다 */ }
     )
 }
