@@ -79,6 +79,9 @@ kotlin {
 
                 implementation(compose.components.resources)
 
+                implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+                implementation("com.russhwolf:multiplatform-settings-serialization:1.1.1")
+
                 //implementation(libs.coil.compose)
             }
         }
