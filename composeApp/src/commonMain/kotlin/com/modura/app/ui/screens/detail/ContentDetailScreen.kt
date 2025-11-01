@@ -3,36 +3,18 @@ package com.modura.app.ui.screens.detail
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,34 +23,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
-import com.modura.app.ui.components.Cast
-import com.modura.app.ui.components.LocationItemSmall
-import com.modura.app.ui.components.OttPlayButton
-import com.modura.app.ui.components.Review
-import com.modura.app.ui.components.ReviewList
-import com.modura.app.ui.components.ReviewStar
-import com.modura.app.ui.components.ReviewStarInput
-import com.modura.app.ui.screens.home.HomeScreen
-import com.modura.app.ui.theme.BlackTransparent
-import com.modura.app.ui.theme.Gray100
-import com.modura.app.ui.theme.Gray700
-import com.modura.app.ui.theme.Gray900
-import com.modura.app.ui.theme.White
+import com.modura.app.ui.components.*
+import com.modura.app.ui.theme.*
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import kotlin.time.ExperimentalTime
 
-object ContentDetailScreen : Screen {
-    override val key: String = "ContentDetailScreenKey"
+
+data class ContentDetailScreen(val title: String) : Screen {
+    override val key: String = "ContentDetailScreen_$title"
 
     @Composable
     override fun Content() {
+        val screenModel: DetailScreenModel = getScreenModel()
+        val uiState by screenModel.uiState
+
+        LaunchedEffect(Unit) {
+            screenModel.getYoutubeVideos("기묘한 이야기 공식 예고편")
+        }
         val ott: List<String> = listOf("netflix", "watcha")
         val categories = listOf("공포", "SF", "스릴러", "미국", "다크 판타지", "미스터리", "시대극")
         val story = "인디애나주의 작은 마을에서 행방불명된 소년. 이와 함께 미스터리한 힘을 가진 소녀가 나타나고, 마을에는 기묘한 현상들이 일어나기 시작한다. 아들을 찾으려는 엄마와 마을 사람들은 이제 정부의 일급비밀 실험의 실체와 무시무시한 기묘한 현상들에 맞서야 한다"
@@ -117,8 +96,9 @@ object ContentDetailScreen : Screen {
                                 .background(Gray100)
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                                modifier = Modifier.padding(horizontal = 20.dp)
                             ) {
+                                Spacer(Modifier.height(8.dp))
                                 Text(
                                     "줄거리",
                                     style = MaterialTheme.typography.titleLarge
@@ -139,23 +119,36 @@ object ContentDetailScreen : Screen {
                                         )
                                     }
                                 }
-                                Column(Modifier.padding(vertical = 12.dp)){
-                                    Row{
+                                Column(Modifier.padding(vertical = 12.dp)) {
+                                    Row {
                                         Text("리뷰", style = MaterialTheme.typography.titleLarge)
                                         Spacer(Modifier.weight(1f))
                                         Text("전체보기", style = MaterialTheme.typography.bodySmall)
                                     }
                                     Spacer(Modifier.height(4.dp))
-                                    Box(modifier = Modifier.background(White).clip(RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center){
-                                        Review(4.5f, listOf(10,4,6,2,3))
+                                    Box(
+                                        modifier = Modifier.background(White)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Review(4.5f, listOf(10, 4, 6, 2, 3))
                                     }
                                     Spacer(Modifier.height(20.dp))
-                                    Column(Modifier.background(White).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp), ) {
-                                        Text("감상 후기를 남겨주세요!", style = MaterialTheme.typography.bodyMedium, color = Gray700, modifier = Modifier.padding(top=12.dp))
+                                    Column(
+                                        Modifier.background(White).fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        Text(
+                                            "감상 후기를 남겨주세요!",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Gray700,
+                                            modifier = Modifier.padding(top = 12.dp)
+                                        )
                                         var userRating by remember { mutableStateOf(0) }
                                         ReviewStarInput(
                                             rating = userRating,
-                                            onRatingChange = {newRating ->
+                                            onRatingChange = { newRating ->
                                                 userRating = newRating
                                                 //리뷰 작성 칸 활성화
                                             }
@@ -163,7 +156,10 @@ object ContentDetailScreen : Screen {
                                         Spacer(Modifier.height(12.dp))
                                     }
                                     Spacer(Modifier.height(4.dp))
-                                    Column(modifier = Modifier.background(White),verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(
+                                        modifier = Modifier.background(White),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
                                         ReviewList(
                                             "김승혁",
                                             4.5f,
@@ -177,8 +173,15 @@ object ContentDetailScreen : Screen {
                                             "스토리, 음악, 캐릭터까지 '슈퍼 에이트'보다 더 7080스럽고 사랑스럽지만 동시에 중독성 강한 SF호러. 아동, 하이틴, 미스터리를 모두 아름답게 조화시키며 깜찍함과 공포를 둘 다 느낄 수 있는 러브레터 이상의 수작."
                                         )
                                     }
+                                }
+                            }
+
                                     Spacer(Modifier.height(20.dp))
-                                    Text("촬영지", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Text(
+                                        "촬영지",
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
                                     Spacer(Modifier.height(4.dp))
                                     LazyRow(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -198,7 +201,11 @@ object ContentDetailScreen : Screen {
                                         }
                                     }
                                     Spacer(Modifier.height(20.dp))
-                                    Text("촬영지", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Text(
+                                        "출연진",
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
                                     Spacer(Modifier.height(4.dp))
                                     LazyRow(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -209,21 +216,61 @@ object ContentDetailScreen : Screen {
                                         }
                                     }
                                     Spacer(Modifier.height(20.dp))
-                                    Text("영상", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Text(
+                                        "영상",
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
                                     Spacer(Modifier.height(4.dp))
-                                    LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(horizontal = 20.dp)
-                                    ){
-                                        items(5){index ->
-                                            Image(
-                                                painterResource(Res.drawable.img_example),
-                                                modifier= Modifier
-                                                    .width(284.dp).height(160.dp)
-                                                    .clip(RoundedCornerShape(8.dp)),
-                                                contentScale = ContentScale.Crop,
-                                                contentDescription = "영상"
+
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(horizontal = 20.dp)
+                            ) {
+                                when {
+                                    uiState.isYoutubeLoading -> {
+                                        item {
+                                            Box(
+                                                modifier = Modifier.width(284.dp)
+                                                    .height(160.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator()
+                                            }
+                                        }
+                                    }
+                                    uiState.videos.isNotEmpty() -> {
+                                        items(
+                                            items = uiState.videos,
+                                            key = { video -> video.videoId }
+                                        ) { video ->
+                                            val uriHandler = LocalUriHandler.current
+
+                                            YoutubeVideoItem(
+                                                video = video,
+                                                onClick = {
+                                                    val youtubeUrl =
+                                                        "https://www.youtube.com/watch?v=${video.videoId}"
+                                                    uriHandler.openUri(youtubeUrl)
+                                                }
                                             )
+                                        }
+                                    }
+                                    else -> {
+                                        item {
+                                            Box(
+                                                modifier = Modifier.width(284.dp)
+                                                    .height(160.dp)
+                                                    .padding(16.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = uiState.youtubeErrorMessage
+                                                        ?: "관련 영상이 없습니다.",
+                                                    color = Gray700,
+                                                    fontSize = 14.sp
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -338,10 +385,4 @@ object ContentDetailScreen : Screen {
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun Preview() {
-    ContentDetailScreen.Content()
 }
