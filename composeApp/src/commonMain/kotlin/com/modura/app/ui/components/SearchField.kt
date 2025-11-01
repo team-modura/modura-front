@@ -31,7 +31,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
-    onSearch: (String) -> Unit, // 검색 실행을 위한 콜백 추가
+    onSearch:(String) -> Unit, // 검색 실행을 위한 콜백 추가
     modifier: Modifier = Modifier,
     placeholder: String = "검색어를 입력해주세요."
 ){

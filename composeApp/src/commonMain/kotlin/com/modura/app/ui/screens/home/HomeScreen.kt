@@ -3,7 +3,6 @@ package com.modura.app.ui.screens.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,10 +34,8 @@ import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.screens.detail.ContentDetailScreen
-import com.modura.app.ui.screens.search.SearchScreen
 import com.modura.app.ui.theme.Gray100
 import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_search
 import modura.composeapp.generated.resources.img_diagnosis
 import modura.composeapp.generated.resources.img_logo_text
 import org.jetbrains.compose.resources.painterResource
@@ -72,15 +68,6 @@ object HomeScreen : Screen {
                         modifier = Modifier.height(15.dp)
                     )
                     Spacer(Modifier.weight(1f))
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_search),
-                        contentDescription = "검색",
-                        modifier = Modifier
-                            .clickable {
-                                println("검색 아이콘 클릭됨")
-                                navigator?.push(SearchScreen)
-                            }
-                    )
                 }
                 Spacer(Modifier.height(20.dp))
                 Image(

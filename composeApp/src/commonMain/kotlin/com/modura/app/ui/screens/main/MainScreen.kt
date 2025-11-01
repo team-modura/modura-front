@@ -24,7 +24,7 @@ object MainScreen : Screen {
                 bottomBar = {
                     BottomNavigationBar(
                         currentTab = tabNavigator.current,
-                        onTabSelected = { selectedItem ->tabNavigator.current = selectedItem.route.toTab()}
+                        onTabSelected = { selectedTab -> tabNavigator.current = selectedTab }
                     )
                 }
             )

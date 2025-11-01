@@ -19,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
 import com.modura.app.domain.repository.LocalRepository
 import com.modura.app.ui.components.PopularSearchTerm
@@ -35,6 +37,7 @@ object SearchScreen : Screen {
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var searchValue by remember { mutableStateOf("") }
         val popularSearches = listOf("자켓", "청바지", "슬랙스", "니트", "신발")
@@ -51,7 +54,6 @@ object SearchScreen : Screen {
                     .padding(20.dp)
                     .fillMaxSize(),
             ) {
-                Spacer(Modifier.height(40.dp))
                 SearchField(
                     value = searchValue,
                     onValueChange = { searchValue = it },
@@ -60,6 +62,7 @@ object SearchScreen : Screen {
                             localRepository.addSearchTerm(searchTerm)
                             recentSearches = localRepository.getRecentSearches()
                             searchValue = ""
+                            navigator.push(SearchResultScreen(searchTerm))
                         }
                     })
                 Spacer(Modifier.height(40.dp))
@@ -72,6 +75,7 @@ object SearchScreen : Screen {
                             term = term,
                             onClick = {
                                 searchValue = term
+                                navigator.push(SearchResultScreen(searchValue))
                             }
                         )
                     }
@@ -90,7 +94,10 @@ object SearchScreen : Screen {
                         recentSearches.take(5).forEach { term ->
                             RecentSearch(
                                 term = term,
-                                onClick = { searchValue = term },
+                                onClick = {
+                                    searchValue = term
+                                    navigator.push(SearchResultScreen(searchValue))
+                                },
                                 onDelete = {
                                     localRepository.removeSearchTerm(term)
                                     recentSearches = localRepository.getRecentSearches()
