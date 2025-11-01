@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -40,10 +42,12 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.OttPlayButton
+import com.modura.app.ui.components.Review
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.theme.BlackTransparent
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray900
+import com.modura.app.ui.theme.White
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -131,7 +135,9 @@ object ContentDetailScreen : Screen {
                                         Text("전체보기", style = MaterialTheme.typography.bodySmall)
                                     }
                                     Spacer(Modifier.height(4.dp))
-
+                                    Box(modifier = Modifier.background(White).clip(RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center){
+                                        Review(4.5f, listOf(10,4,6,2,3))
+                                    }
                                 }
                             }
                             Spacer(Modifier.height(400.dp))

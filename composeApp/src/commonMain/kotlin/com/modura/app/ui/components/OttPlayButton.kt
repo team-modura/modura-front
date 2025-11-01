@@ -68,10 +68,10 @@ fun OttPlayButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(10.dp,5.dp),
+                .background(White),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row{
+            Row(Modifier.padding(10.dp,5.dp),verticalAlignment = Alignment.CenterVertically ){
                 Image(
                     painter = painterResource(logoResource),
                     contentDescription = "$ott 로고",
@@ -82,7 +82,7 @@ fun OttPlayButton(
 
                 Text(
                     text = textResource,
-                    color = Color.White,
+                    color = Color.Black,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -93,6 +93,7 @@ fun OttPlayButton(
                 contentDescription = "재생",
                 modifier = Modifier.size(16.dp)
             )
+            Spacer(Modifier.width(10.dp))
         }
     }
 }
