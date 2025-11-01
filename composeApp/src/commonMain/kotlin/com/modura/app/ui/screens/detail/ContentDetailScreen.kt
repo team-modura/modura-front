@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
+import com.modura.app.ui.components.Cast
+import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.OttPlayButton
 import com.modura.app.ui.components.Review
 import com.modura.app.ui.components.ReviewList
@@ -171,6 +176,55 @@ object ContentDetailScreen : Screen {
                                             "2004.06.11",
                                             "스토리, 음악, 캐릭터까지 '슈퍼 에이트'보다 더 7080스럽고 사랑스럽지만 동시에 중독성 강한 SF호러. 아동, 하이틴, 미스터리를 모두 아름답게 조화시키며 깜찍함과 공포를 둘 다 느낄 수 있는 러브레터 이상의 수작."
                                         )
+                                    }
+                                    Spacer(Modifier.height(20.dp))
+                                    Text("촬영지", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Spacer(Modifier.height(4.dp))
+                                    LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 20.dp)
+                                    ) {
+                                        items(5) { index ->
+                                            LocationItemSmall(
+                                                /*
+                                                bookmark = item.bookmark,
+                                                image = item.image,
+                                                title = item.title,
+                                                rank = item.rank,*/
+                                                onClick = {
+                                                    println("ㅇㅇ 클릭됨")
+                                                }
+                                            )
+                                        }
+                                    }
+                                    Spacer(Modifier.height(20.dp))
+                                    Text("촬영지", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Spacer(Modifier.height(4.dp))
+                                    LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 20.dp)
+                                    ){
+                                        items(5){index ->
+                                            Cast("김승혁", "감독")
+                                        }
+                                    }
+                                    Spacer(Modifier.height(20.dp))
+                                    Text("영상", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium,)
+                                    Spacer(Modifier.height(4.dp))
+                                    LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 20.dp)
+                                    ){
+                                        items(5){index ->
+                                            Image(
+                                                painterResource(Res.drawable.img_example),
+                                                modifier= Modifier
+                                                    .width(284.dp).height(160.dp)
+                                                    .clip(RoundedCornerShape(8.dp)),
+                                                contentScale = ContentScale.Crop,
+                                                contentDescription = "영상"
+                                            )
+                                        }
                                     }
                                 }
                             }

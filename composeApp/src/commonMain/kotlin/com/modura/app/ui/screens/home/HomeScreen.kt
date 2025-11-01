@@ -115,7 +115,7 @@ object HomeScreen : Screen {
                 )
                 Spacer(Modifier.height(5.dp))
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
                     items(mediaList.size) { index ->
@@ -143,7 +143,7 @@ object HomeScreen : Screen {
                 )
                 Spacer(Modifier.height(5.dp))
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
                     items(5) { index ->
