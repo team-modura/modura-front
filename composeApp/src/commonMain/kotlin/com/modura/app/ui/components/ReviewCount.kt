@@ -44,7 +44,7 @@ fun ReviewCount(
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically){
-        Text("${num}점",style = MaterialTheme.typography.bodySmall, color = Gray800,modifier=Modifier.width(30.dp))
+        Text("${num}점",style = MaterialTheme.typography.bodySmall, color = Gray800,modifier=Modifier.width(20.dp))
         Box(
             modifier = Modifier.weight(1f)
                 .height(6.dp)
