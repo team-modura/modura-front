@@ -1,10 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -30,6 +32,8 @@ kotlin {
             dependencies {
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
+
+                implementation(libs.ktor.client.android)
             }
         }
 
@@ -49,6 +53,7 @@ kotlin {
                 implementation(libs.voyager.screenModel)
                 implementation(libs.voyager.transitions)
                 implementation(libs.voyager.tabNavigator)
+                implementation(libs.voyager.koin)
 
                 //상태관리
                 implementation(libs.kotlinx.coroutines.core)
@@ -58,9 +63,23 @@ kotlin {
 
                 implementation(libs.kotlinx.datetime)
 
-                //이미지 로딩 라이브러리 Coil
-                implementation(libs.coil.compose)
-                //implementation(libs.coil.network.ktor)
+                // Ktor (네트워크 통신)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+
+                // Kotlinx Serialization
+                implementation(libs.kotlinx.serialization.json)
+
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.voyager.koin)
+                implementation(libs.slf4j.simple)
+
+                implementation(compose.components.resources)
+
+                //implementation(libs.coil.compose)
             }
         }
 
@@ -74,6 +93,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                // implementation(libs.ktor.client.darwin)
+                implementation("io.ktor:ktor-client-darwin:3.3.1")
             }
         }
 
@@ -103,15 +123,28 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildFeatures {
+            buildConfig = true
+        }
     }
+    val localProperties = Properties()
+    val localPropertiesFile = project.rootProject.file("local.properties")    // 파일을 읽을 수 있는 경우에만 내용을 로드하도록 함
+    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
     buildTypes {
-        getByName("release") {
+        debug {
+            buildConfigField("String", "YOUTUBE_API_KEY", "\"${localProperties.getProperty("YOUTUBE_API_KEY") ?: ""}\"")
+        }
+        release{
             isMinifyEnabled = false
+            buildConfigField("String", "YOUTUBE_API_KEY", "\"${localProperties.getProperty("YOUTUBE_API_KEY") ?: ""}\"")
         }
     }
     compileOptions {

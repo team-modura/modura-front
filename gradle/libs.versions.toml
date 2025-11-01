@@ -14,9 +14,13 @@ datastorePreferencesCore = "1.1.7"
 junit = "4.13.2"
 kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
-voyager = "1.0.0" # 네비게이션 라이브러리
+voyager = "1.0.1" # 네비게이션 라이브러리
 kotlinx-datetime = "0.6.0"
-coil = "2.6.0"
+coil = "2.7.0"
+koin = "4.1.1"
+slf4j = "2.0.17"
+ktor = "3.3.1"
+kotlinxSerialization = "1.9.0"
 #ktor = "2.3.9"
 
 [libraries]
@@ -43,10 +47,17 @@ okio = { module = "com.squareup.okio:okio", version = "3.9.0" }
 
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-#coil-network-ktor = {module = "io.coil-kt:coil-network-ktor", version.ref = "coil"}
-#ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-#ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+koin-compose = {module = "io.insert-koin:koin-compose", version.ref = "koin"}
+koin-core = {module = "io.insert-koin:koin-core", version.ref = "koin"}
+voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -54,3 +65,4 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

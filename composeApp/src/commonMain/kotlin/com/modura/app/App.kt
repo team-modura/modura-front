@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -19,11 +21,15 @@ import com.modura.app.ui.navigation.BottomNavItem
 import com.modura.app.ui.screens.login.LoginScreen
 import com.modura.app.ui.theme.ModuraTheme
 
+val LocalRootNavigator = compositionLocalOf<Navigator?> { null }
+
 @Composable
 fun App() {
     ModuraTheme {
-        Navigator(screen = LoginScreen()) {
-            CurrentScreen()
+        Navigator(screen = LoginScreen()) { navigator ->
+            CompositionLocalProvider(LocalRootNavigator provides navigator) {
+                CurrentScreen()
+            }
         }
     }
 }

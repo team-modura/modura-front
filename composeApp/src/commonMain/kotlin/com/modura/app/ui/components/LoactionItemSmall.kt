@@ -54,6 +54,7 @@ fun LocationItemSmall(
             .width(150.dp)
             .height(100.dp)
             .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
     ){
         Image(
             painter = painterResource(Res.drawable.img_example), //추후 api 내부에 있는 이미지로 수정
