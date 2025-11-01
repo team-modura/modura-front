@@ -27,7 +27,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,9 +46,12 @@ import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.OttPlayButton
 import com.modura.app.ui.components.Review
 import com.modura.app.ui.components.ReviewList
+import com.modura.app.ui.components.ReviewStar
+import com.modura.app.ui.components.ReviewStarInput
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.theme.BlackTransparent
 import com.modura.app.ui.theme.Gray100
+import com.modura.app.ui.theme.Gray700
 import com.modura.app.ui.theme.Gray900
 import com.modura.app.ui.theme.White
 import modura.composeapp.generated.resources.*
@@ -139,6 +144,19 @@ object ContentDetailScreen : Screen {
                                     Box(modifier = Modifier.background(White).clip(RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center){
                                         Review(4.5f, listOf(10,4,6,2,3))
                                     }
+                                    Spacer(Modifier.height(20.dp))
+                                    Column(Modifier.background(White).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp), ) {
+                                        Text("감상 후기를 남겨주세요!", style = MaterialTheme.typography.bodyMedium, color = Gray700, modifier = Modifier.padding(top=12.dp))
+                                        var userRating by remember { mutableStateOf(0) }
+                                        ReviewStarInput(
+                                            rating = userRating,
+                                            onRatingChange = {newRating ->
+                                                userRating = newRating
+                                                //리뷰 작성 칸 활성화
+                                            }
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                    }
                                     Spacer(Modifier.height(4.dp))
                                     Column(modifier = Modifier.background(White),verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         ReviewList(
@@ -156,7 +174,7 @@ object ContentDetailScreen : Screen {
                                     }
                                 }
                             }
-                            Spacer(Modifier.height(400.dp))
+                            Spacer(Modifier.height(20.dp))
                         }
                     }
                 }
