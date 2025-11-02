@@ -27,6 +27,7 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven("https://devrepo.kakao.com/nexus/content/groups/public/")
     }
 }
 

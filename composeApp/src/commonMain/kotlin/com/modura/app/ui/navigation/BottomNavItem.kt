@@ -1,7 +1,7 @@
 package com.modura.app.ui.navigation
 
 import cafe.adriel.voyager.navigator.tab.Tab
-import com.modura.app.ui.screens.Map.MapTab
+import com.modura.app.ui.screens.map.MapTab
 import com.modura.app.ui.screens.home.HomeTab
 import com.modura.app.ui.screens.mypage.MypageTab
 import com.modura.app.ui.screens.search.SearchTab
