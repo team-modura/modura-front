@@ -39,7 +39,6 @@ import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_diagnosis
 import modura.composeapp.generated.resources.img_logo_text
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.time.ExperimentalTime
 
 object HomeScreen : Screen {
@@ -165,11 +164,4 @@ object HomeScreen : Screen {
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-private fun HomeScreenPreview() {
-    HomeScreen.Content()
 }
