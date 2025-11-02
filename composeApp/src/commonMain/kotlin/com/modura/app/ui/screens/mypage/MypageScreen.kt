@@ -1,6 +1,7 @@
 package com.modura.app.ui.screens.mypage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,7 +46,7 @@ object MyPageScreen : Screen {
                 Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Text("찜한 컨텐츠", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.weight(1f))
-                    Text("전체보기", style = MaterialTheme.typography.bodySmall)
+                    Text("전체보기", style = MaterialTheme.typography.bodySmall, modifier = Modifier.clickable { navigator.push(MypageContentScreen)})
                 }
                 Spacer(Modifier.height(4.dp))
                 LazyRow(
@@ -73,7 +74,7 @@ object MyPageScreen : Screen {
                 Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Text("찜한 장소", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.weight(1f))
-                    Text("전체보기", style = MaterialTheme.typography.bodySmall)
+                    Text("전체보기", style = MaterialTheme.typography.bodySmall,  modifier = Modifier.clickable { navigator.push(MypageLocationScreen)})
                 }
                 Spacer(Modifier.height(4.dp))
                 LazyRow(
@@ -96,8 +97,8 @@ object MyPageScreen : Screen {
             Spacer(Modifier.height(20.dp))
             Column(modifier = Modifier.padding(horizontal = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                 Text("명장면 모음", style = MaterialTheme.typography.bodyMedium)
-                Text("리뷰 관리", style = MaterialTheme.typography.bodyMedium)
+                 Text("명장면 모음", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { navigator.push(MypageStillcutScreen)})
+                Text("리뷰 관리", style = MaterialTheme.typography.bodyMedium,  modifier = Modifier.clickable { navigator.push(MypageReviewScreen)})
                 Text("로그아웃", style = MaterialTheme.typography.bodyMedium)
                 Text("계정탈퇴", style = MaterialTheme.typography.bodyMedium)
                 Text("약관 동의", style = MaterialTheme.typography.bodyMedium)
