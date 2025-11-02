@@ -79,7 +79,7 @@ object HomeScreen : Screen {
                         .clip(RoundedCornerShape(8.dp))
                         .border(width = 0.5.dp, color = Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)),
                     painter = painterResource(Res.drawable.img_diagnosis),
-                    contentDescription = "30초 만에 진단",
+                    contentDescription = "상단 배너",
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(20.dp))
