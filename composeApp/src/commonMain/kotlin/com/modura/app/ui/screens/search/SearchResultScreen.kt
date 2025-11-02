@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
@@ -48,6 +50,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
+        val tabNavigator  = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var searchValue by remember { mutableStateOf(searchTerm) }
 
@@ -102,6 +105,13 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
             }
         }
 
+        LaunchedEffect(searchValue) {
+            if (searchValue.isEmpty()) {
+                tabNavigator.pop()
+            }
+        }
+
+
         Box(
             modifier = Modifier.background(Gray100)
         ) {
@@ -118,6 +128,8 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                         if (searchTerm.isNotBlank()) {
                             localRepository.addSearchTerm(searchTerm)
                             searchValue = searchTerm
+                        } else{
+                            tabNavigator.pop()
                         }
                     })
                 Spacer(Modifier.height(10.dp))
