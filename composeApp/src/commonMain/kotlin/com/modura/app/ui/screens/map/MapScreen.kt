@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -97,9 +101,33 @@ object MapScreen : Screen {
                     })
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("AI 추천 촬영지", style = MaterialTheme.typography.bodySmall)
-                    Text("인기 촬영지", style = MaterialTheme.typography.bodySmall)
-                    Text("주변 촬영지", style = MaterialTheme.typography.bodySmall)
+                    //여유있을 때 chip으로
+                    Text(text = "AI 추천 촬영지",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable { println("AI 추천 촬영지 클릭됨") }
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                    Text(
+                        text = "인기 촬영지",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
+                            .clickable { println("인기 촬영지 클릭됨") }
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                    Text(
+                        text = "주변 촬영지",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
+                            .clickable { println("주변 촬영지 클릭됨") }
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
                 }
             }
             PlaceListBlock(
