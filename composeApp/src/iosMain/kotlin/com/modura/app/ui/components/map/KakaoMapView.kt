@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.UIKitView
+import com.modura.app.data.dev.LatLng
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIView
 /*import platform.KakaoMapsSDK.KMController
@@ -21,8 +22,6 @@ import platform.KakaoMapsSDK.MapPoint*/
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun KakaoMapView(
-    modifier: Modifier
-) {
+actual fun KakaoMapView(modifier: Modifier) {
 
 }

@@ -33,6 +33,12 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.ktor.client.android)
                 implementation(libs.kakao.map)
+                implementation(libs.maps.compose)
+                implementation(libs.maps.compose.utils)
+                implementation(libs.google.play.services.location)
+                implementation(libs.accompanist.permissions)
+                implementation(libs.androidx.lifecycle.viewmodel.compose)
+                implementation(libs.androidx.lifecycle.runtime.compose)
             }
         }
 
@@ -44,8 +50,6 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
-                implementation(libs.androidx.lifecycle.viewmodelCompose)
-                implementation(libs.androidx.lifecycle.runtimeCompose)
                 implementation(libs.voyager.navigator)
                 implementation(libs.voyager.screenModel)
                 implementation(libs.voyager.transitions)
