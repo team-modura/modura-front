@@ -1,4 +1,4 @@
-package com.modura.app.ui.screens.Map
+package com.modura.app.ui.screens.map
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
