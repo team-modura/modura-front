@@ -1,7 +1,7 @@
 package com.modura.app.data.dev
 
 data class PlaceInfo(
-    val id: String,
+    val id: Int,
     val name: String,
     val address: String,
     val distance: Int, //m 단위

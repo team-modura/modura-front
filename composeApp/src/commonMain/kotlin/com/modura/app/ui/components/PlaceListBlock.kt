@@ -37,7 +37,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.ui.screens.detail.LocationDetailScreen
 import kotlin.math.roundToInt
 
 @Composable
@@ -52,6 +54,7 @@ fun PlaceListBlock(
 ) {
     //var translationY by remember { mutableFloatStateOf(0f) }
     val listState = rememberLazyListState()
+    val navigator = LocalRootNavigator.current!!
 
 /*    LaunchedEffect(isExpanded) { if (isExpanded) { listState.animateScrollToItem(0) } }
 
@@ -117,7 +120,8 @@ fun PlaceListBlock(
             ) { place ->
                 ListMapItem(
                     place = place,
-                    onClick = { onPlaceClick(place.id) }
+                    onClick = { onPlaceClick(place.id.toString())
+                        navigator?.push(LocationDetailScreen(place.id))}
                 )
             }
         }

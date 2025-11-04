@@ -42,7 +42,7 @@ object DummyProvider {
 
     val dummyPlaces = listOf(
         PlaceInfo(
-            id = "p001",
+            id = 1,
             name = "아르떼뮤지엄 강릉",
             address = "강원 강릉시 난설헌로 131",
             distance = 150,
@@ -53,7 +53,7 @@ object DummyProvider {
             filmedContent = listOf("눈물의 여왕", "사랑의 불시착")
         ),
         PlaceInfo(
-            id = "p002",
+            id = 2,
             name = "주문진 해변",
             address = "강원 강릉시 주문진읍 해안로 1609",
             distance = 550,
@@ -64,7 +64,7 @@ object DummyProvider {
             filmedContent = listOf("도깨비")
         ),
         PlaceInfo(
-            id = "p003",
+            id = 3,
             name = "낙산사",
             address = "강원 양양군 강현면 낙산사로 100",
             distance = 1200, // 1.2km
@@ -75,7 +75,7 @@ object DummyProvider {
             filmedContent = emptyList() // 촬영 정보가 없는 경우
         ),
         PlaceInfo(
-            id = "p004",
+            id = 4,
             name = "이음이네 슈퍼",
             address = "인천 미추홀구 석정로 220",
             distance = 25000, // 25km
