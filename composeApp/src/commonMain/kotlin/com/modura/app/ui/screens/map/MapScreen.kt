@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.LatLng
 import com.modura.app.data.dev.PlaceInfo
@@ -40,6 +41,8 @@ import com.modura.app.ui.components.LoginBottomSheet
 import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
+import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.ui.screens.main.MainScreen
 import com.modura.app.ui.screens.search.SearchResultScreen
 import com.russhwolf.settings.Settings
@@ -49,6 +52,7 @@ object MapScreen : Screen {
 
     @Composable
     override fun Content() {
+        val navigator = LocalRootNavigator.current!!
 
         var searchValue by remember { mutableStateOf("") }
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
@@ -135,7 +139,7 @@ object MapScreen : Screen {
                 places = places,
                 onPlaceClick = { placeId ->
                     println("장소 ID 클릭됨: $placeId")
-                },
+        },
                 onHandleClick = {
                     isPlaceListExpanded = !isPlaceListExpanded
                 },
