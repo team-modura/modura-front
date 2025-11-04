@@ -67,12 +67,12 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
         ) {
             if (place != null) { //추후 삭제
                 item {
-                    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(top = 60.dp, bottom = 20.dp)) {
                         Row {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_back),
                                 contentDescription = "뒤로가기",
-                                modifier = Modifier.width(24.dp).height(64.dp).padding(top = 40.dp)
+                                modifier = Modifier.width(24.dp).height(24.dp).padding(top = 40.dp)
                                     .clickable {
                                         rootNavigator?.pop()
                                     }
