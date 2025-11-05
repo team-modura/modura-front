@@ -4,16 +4,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,10 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import com.modura.app.ui.components.SceneScoreDetail
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
 import dev.icerock.moko.permissions.Permission
@@ -48,111 +56,141 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
     @Composable
     override fun Content() {
         val factory = rememberPermissionsControllerFactory()
-        val coroutineScope = rememberCoroutineScope() // 1. 코루틴 스코프를 다시 사용합니다.
+        val coroutineScope = rememberCoroutineScope()
         val permissionsController: PermissionsController =
             remember(factory) { factory.createPermissionsController() }
-        var hasPermission by remember { mutableStateOf(false) }
-        var capturedImage by remember { mutableStateOf<ImageBitmap?>(null) }
-        var similarity by remember { mutableStateOf<Double?>(null) }
 
-        val launchCamera = rememberCameraManager { imageBitmap ->
-            capturedImage = imageBitmap
-            if (imageBitmap != null) {
-                println("촬영 성공!")
-            } else {
-                println("촬영이 취소되었거나 실패했습니다.")
-            }
-        }
+        var capturedImage by remember { mutableStateOf<ImageBitmap?>(null) }
+        var isLoading by remember { mutableStateOf(false) }
+
+        //점수 저장
+        var totalScore by remember { mutableStateOf<Double?>(null) }
+        var structureScore by remember { mutableStateOf<Double?>(null) }
+        var clarityScore by remember { mutableStateOf<Double?>(null) }
+        var toneScore by remember { mutableStateOf<Double?>(null) }
+        var paletteScore by remember { mutableStateOf<Double?>(null) }
+
+
+        val launchCamera = rememberCameraManager { imageBitmap -> capturedImage = imageBitmap }
         val originalBitmap = imageResource(Res.drawable.img_scene_example)
+
         LaunchedEffect(capturedImage) {
             if (capturedImage != null) {
-                println("촬영 성공! 원본과 유사도를 계산합니다.")
-                similarity = ImageComparator.calculateSimilarity(originalBitmap, capturedImage!!)
-                println("계산된 유사도: $similarity%")
+                isLoading = true
+                val captured = capturedImage!!
+                val toneSim = ImageComparator.calculateSimilarity(originalBitmap, captured)
+                val paletteSim = ImageComparator.calculatePaletteSimilarity(
+                    ImageComparator.extractPalette(originalBitmap, 5),
+                    ImageComparator.extractPalette(captured, 5)
+                )
+                val structSim =
+                    ImageComparator.calculateStructuralSimilarity(originalBitmap, captured)
+                val clarity = ImageComparator.calculateClarity(captured)
+
+                // 가중치: 구도(30%), 선명도(20%), 색감(25%), 색구성(25%)
+                totalScore =
+                    (structSim * 0.3) + (clarity * 0.2) + (toneSim * 0.25) + (paletteSim * 0.25)
+                structureScore = structSim
+                clarityScore = clarity
+                toneScore = toneSim
+                paletteScore = paletteSim
+
+                isLoading = false
             } else {
-                similarity = null
-                println("이미지가 초기화되었습니다.")
+                // '다시 찍기' 시 모든 상태 초기화
+                totalScore = null; structureScore = null; clarityScore = null; toneScore =
+                    null; paletteScore = null
+                isLoading = false
             }
         }
 
+
+
         if (capturedImage != null) {
-            // --- 촬영 후 화면 ---
             Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp), // 이 화면은 Column이 적합합니다.
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (similarity != null) {
-                    Text(
-                        "명장면과 ${(similarity!! * 10).toInt() / 10.0}% 일치합니다!",
-                        style = MaterialTheme.typography.titleMedium
+                // 1. 종합 점수
+                Text("유사도", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "${totalScore?.toInt() ?: 0}%",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 2. 이미지 비교
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Image(
+                        bitmap = originalBitmap,
+                        contentDescription = "원본 사진",
+                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Image(
+                        bitmap = capturedImage!!,
+                        contentDescription = "촬영한 사진",
+                        modifier = Modifier.weight(1f).clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // 3. 세부 점수
+                if (isLoading) {
+                    CircularProgressIndicator()
                 } else {
-                    Text("유사도를 계산하는 중...")
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        SceneScoreDetail(label = "구도", score = structureScore)
+                        SceneScoreDetail(label = "선명도", score = clarityScore)
+                        SceneScoreDetail(label = "색감", score = toneScore)
+                        SceneScoreDetail(label = "색 구성", score = paletteScore)
+                    }
                 }
 
-                Image(
-                    bitmap = capturedImage!!,
-                    contentDescription = "촬영된 사진",
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentScale = ContentScale.Fit
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { capturedImage = null }) {
-                    Text("다시 찍기")
+                // 4. 하단 버튼
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    TextButton(onClick = { capturedImage = null }) {
+                        Text("다시 찍기", fontSize = 16.sp)
+                    }
+                    TextButton(onClick =  { println("저장하기 버튼 클릭됨. 저장 기능은 구현 필요.")
+                    }) {
+                        Text("저장하기", fontSize = 16.sp)
+                    }
                 }
             }
         } else {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            val onLaunchCamera:() -> Unit = {
+                coroutineScope.launch {
+                    val hasPermission = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        permissionsController.getPermissionState(Permission.CAMERA) == PermissionState.Granted
+                    }
+                    if (hasPermission) launchCamera() else println("카메라 권한이 없습니다.")
+                }
+            }
+            Box(modifier = Modifier.fillMaxSize()) {
                 Image(
                     painter = painterResource(Res.drawable.img_scene_example),
                     contentDescription = "원본 명장면",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
                 Button(
-                    onClick = {
-                        coroutineScope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                            println("카메라 열기 버튼 클릭, 메인 스레드 코루틴 시작!")
-
-                            val permissionState = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                println("IO 스레드에서 getPermissionState 호출 시작...")
-                                permissionsController.getPermissionState(Permission.CAMERA)
-                            }
-                            println("현재 permissionState: $permissionState")
-
-                            if (permissionState == PermissionState.Granted) {
-                                println("권한이 이미 있으므로 카메라를 실행합니다.")
-                                launchCamera()
-                            } else {
-                                println("권한이 없으므로 권한을 요청합니다.")
-                                permissionsController.providePermission(Permission.CAMERA)
-
-                                val newState =
-                                    permissionsController.getPermissionState(Permission.CAMERA)
-                                println("요청 후 newState: $newState")
-
-                                if (newState == PermissionState.Granted) {
-                                    println("사용자가 권한을 허용했습니다. 카메라를 실행합니다.")
-                                    launchCamera()
-                                } else {
-                                    println("카메라 권한이 최종적으로 허용되지 않았습니다.")
-                                }
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 32.dp)
+                    onClick = onLaunchCamera,
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
                 ) {
                     Text("카메라 열기")
                 }
             }
         }
     }
-        }
+}
