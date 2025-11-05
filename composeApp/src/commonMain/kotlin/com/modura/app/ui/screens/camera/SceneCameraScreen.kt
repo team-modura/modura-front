@@ -35,7 +35,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.SceneScoreDetail
+import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
 import dev.icerock.moko.permissions.Permission
@@ -60,6 +62,8 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
         val permissionsController: PermissionsController =
             remember(factory) { factory.createPermissionsController() }
 
+        val rootNavigator = LocalRootNavigator.current
+
         var capturedImage by remember { mutableStateOf<ImageBitmap?>(null) }
         var isLoading by remember { mutableStateOf(false) }
 
@@ -77,25 +81,32 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
         LaunchedEffect(capturedImage) {
             if (capturedImage != null) {
                 isLoading = true
-                val captured = capturedImage!!
-                val toneSim = ImageComparator.calculateSimilarity(originalBitmap, captured)
-                val paletteSim = ImageComparator.calculatePaletteSimilarity(
-                    ImageComparator.extractPalette(originalBitmap, 5),
-                    ImageComparator.extractPalette(captured, 5)
-                )
-                val structSim =
-                    ImageComparator.calculateStructuralSimilarity(originalBitmap, captured)
-                val clarity = ImageComparator.calculateClarity(captured)
+                withContext(kotlinx.coroutines.Dispatchers.Default) {
+                    println("백그라운드 스레드에서 이미지 분석 시작")
+                    val captured = capturedImage!!
+                    val toneSim = ImageComparator.calculateSimilarity(originalBitmap, captured)
+                    val paletteSim = ImageComparator.calculatePaletteSimilarity(
+                        ImageComparator.extractPalette(originalBitmap, 5),
+                        ImageComparator.extractPalette(captured, 5)
+                    )
+                    val structSim =
+                        ImageComparator.calculateStructuralSimilarity(originalBitmap, captured)
+                    val clarity = ImageComparator.calculateClarity(captured)
 
-                // 가중치: 구도(30%), 선명도(20%), 색감(25%), 색구성(25%)
-                totalScore =
-                    (structSim * 0.3) + (clarity * 0.2) + (toneSim * 0.25) + (paletteSim * 0.25)
-                structureScore = structSim
-                clarityScore = clarity
-                toneScore = toneSim
-                paletteScore = paletteSim
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        println("메인 스레드로 복귀하여 UI 상태 업데이트")
+                        // 가중치: 구도(30%), 선명도(20%), 색감(25%), 색구성(25%)
+                        totalScore =
+                            (structSim * 0.3) + (clarity * 0.2) + (toneSim * 0.25) + (paletteSim * 0.25)
+                        structureScore = structSim
+                        clarityScore = clarity
+                        toneScore = toneSim
+                        paletteScore = paletteSim
 
-                isLoading = false
+                        // 4. 모든 UI 상태 업데이트가 끝나면 로딩 상태를 해제한다.
+                        isLoading = false
+                    }
+                }
             } else {
                 // '다시 찍기' 시 모든 상태 초기화
                 totalScore = null; structureScore = null; clarityScore = null; toneScore =
@@ -108,23 +119,23 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
 
         if (capturedImage != null) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 1. 종합 점수
-                Text("유사도", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "${totalScore?.toInt() ?: 0}%",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(Modifier.height(60.dp))
+                Text("유사도", style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.height(12.dp))
+                if (isLoading) {
+                    Text("계산중입니다", style = MaterialTheme.typography.headlineLarge)
+                } else {
+                    Text("${totalScore?.toInt() ?: 0}%", style = MaterialTheme.typography.headlineLarge)
+                }
+                Spacer(modifier = Modifier.height(80.dp))
 
-                // 2. 이미지 비교
                 Row(
                     modifier = Modifier.fillMaxWidth().height(120.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Image(
                         bitmap = originalBitmap,
@@ -139,13 +150,13 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                         contentScale = ContentScale.Crop
                     )
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(80.dp))
 
                 // 3. 세부 점수
                 if (isLoading) {
                     CircularProgressIndicator()
                 } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(50.dp)) {
                         SceneScoreDetail(label = "구도", score = structureScore)
                         SceneScoreDetail(label = "선명도", score = clarityScore)
                         SceneScoreDetail(label = "색감", score = toneScore)
@@ -162,7 +173,8 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     TextButton(onClick = { capturedImage = null }) {
                         Text("다시 찍기", fontSize = 16.sp)
                     }
-                    TextButton(onClick =  { println("저장하기 버튼 클릭됨. 저장 기능은 구현 필요.")
+                    TextButton(onClick =  {
+                        rootNavigator?.push(LocationDetailScreen(id = 1))
                     }) {
                         Text("저장하기", fontSize = 16.sp)
                     }

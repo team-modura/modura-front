@@ -97,8 +97,11 @@ object ImageComparator {
         return similarity * 100.0
     }
 
-    private fun colorDistance(c1: Color, c2: Color): Float {
-        return sqrt((c1.red - c2.red).pow(2) + (c1.green - c2.green).pow(2) + (c1.blue - c2.blue).pow(2))
+    private fun colorDistance(c1: Color, c2: Color): Double {
+        val rDiff = (c1.red - c2.red).toDouble()
+        val gDiff = (c1.green - c2.green).toDouble()
+        val bDiff = (c1.blue - c2.blue).toDouble()
+        return sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff)
     }
 
     private fun averageColor(colors: List<Color>): Color {
@@ -166,14 +169,21 @@ object ImageComparator {
                 for (i in -1..1) {
                     for (j in -1..1) {
                         val pixel = pixelMap[x + j, y + i]
-                        sum += (pixel.red * 0.299 + pixel.green * 0.587 + pixel.blue * 0.114) * laplacianKernel[i + 1][j + 1]
+                        val grayscale = pixel.red * 0.299 + pixel.green * 0.587 + pixel.blue * 0.114
+                        sum += grayscale * laplacianKernel[i + 1][j + 1]
                     }
                 }
                 sumOfVariances += abs(sum)
             }
         }
-        val variance = sumOfVariances / (pixelMap.width * pixelMap.height)
-        val normalizedScore = (variance / 3.0).coerceIn(0.0, 1.0)
+        val totalPixels = (pixelMap.width * pixelMap.height).toDouble()
+
+        if (totalPixels == 0.0) return 0.0
+        val variance = sumOfVariances / totalPixels
+
+        val normalizationFactor = 0.1
+        var normalizedScore = (variance / normalizationFactor).coerceIn(0.0, 1.0)
+
         return normalizedScore * 100.0
     }
 }

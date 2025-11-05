@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.modura.app.ui.theme.Gray100
 
 @Composable
 fun SceneScoreBar(progress: Float, modifier: Modifier = Modifier) {
@@ -28,7 +29,7 @@ fun SceneScoreBar(progress: Float, modifier: Modifier = Modifier) {
         modifier = modifier
             .height(12.dp)
             .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(Gray100)
     ) {
         Box(
             modifier = Modifier
