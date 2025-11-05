@@ -84,7 +84,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                                 contentDescription = "카메라",
                                 modifier = Modifier.size(24.dp).clickable {
                                     // 스틸컷 네비 추가
-                                    rootNavigator?.push(SceneCameraScreen(sceneImageRes = "img_example"))
+                                    rootNavigator?.push(SceneCameraScreen(sceneImageRes = "img_scene_example"))
                                     println("스틸컷 찍으러가보자")
                                 }
                             )
