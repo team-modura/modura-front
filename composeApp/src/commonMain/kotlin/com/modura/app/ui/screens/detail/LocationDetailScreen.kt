@@ -36,6 +36,7 @@ import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.ui.components.*
+import com.modura.app.ui.screens.camera.SceneCameraScreen
 import com.modura.app.ui.theme.*
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -67,12 +68,12 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
         ) {
             if (place != null) { //추후 삭제
                 item {
-                    Column(modifier = Modifier.fillMaxWidth().padding(top = 60.dp, bottom = 20.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(top = 60.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)) {
                         Row {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_back),
                                 contentDescription = "뒤로가기",
-                                modifier = Modifier.width(24.dp).height(24.dp).padding(top = 40.dp)
+                                modifier = Modifier.size(24.dp)
                                     .clickable {
                                         rootNavigator?.pop()
                                     }
@@ -81,8 +82,9 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_camera),
                                 contentDescription = "카메라",
-                                modifier = Modifier.width(20.dp).height(20.dp).clickable {
+                                modifier = Modifier.size(24.dp).clickable {
                                     // 스틸컷 네비 추가
+                                    rootNavigator?.push(SceneCameraScreen(sceneImageRes = "img_scene_example"))
                                     println("스틸컷 찍으러가보자")
                                 }
                             )
