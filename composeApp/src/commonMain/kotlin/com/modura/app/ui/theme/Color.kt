@@ -6,6 +6,9 @@ import androidx.compose.ui.graphics.Color
 val Black = Color(0xFF000000)
 val BlackTransparent = Color(0x00000000)
 
+val Black50P = Color(0x80000000)
+
+
 val White = Color(0xFFFFFFFF)
 val Yellow500 = Color(0xffFFE100)
 val Gray100 = Color(0xFFF4F4F4)

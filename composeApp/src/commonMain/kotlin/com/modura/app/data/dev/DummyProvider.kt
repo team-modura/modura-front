@@ -88,4 +88,12 @@ object DummyProvider {
         Res.drawable.img_stillcut_example9,
         Res.drawable.img_stillcut_example5,
         )
+    val dummyReviews = listOf(
+        MypageReview(1, "시리즈", "선재 업고 튀어", name="김모두", score=4.5f, date="2024.06.12", text="인생 최고의 드라마... 선재야..."),
+        MypageReview(2, "장소", "수원 행궁", location="화성행궁", region="경기", name="박모두", score=5.0f, date="2024.06.11", text="너무 예쁘고 산책하기 좋아요!"),
+        MypageReview(3, "영화", "파묘", name="최모두", score=4.0f, date="2024.06.10", text="한국 오컬트의 정점! 몰입감 최고."),
+        MypageReview(4, "장소", "낙산공원", location="낙산공원", region="서울", name="이모두", score=3.5f, date="2024.06.09", text="야경이 정말 멋진 곳이지만 사람이 너무 많아요."),
+        MypageReview(5, "시리즈", "눈물의 여왕", name="정모두", score=5.0f, date="2024.06.08", text="김수현, 김지원 배우의 연기력에 감탄하며 봤습니다."),
+        MypageReview(6, "영화", "범죄도시4", name="강모두", score=3.0f, date="2024.06.07", text="역시 마동석! 시원한 액션이 일품입니다."),
+    )
 }

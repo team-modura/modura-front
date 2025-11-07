@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +40,8 @@ import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.components.LocationItemSmall
+import com.modura.app.ui.components.MypageReviewContent
+import com.modura.app.ui.components.MypageReviewLocation
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
 import com.modura.app.ui.theme.Black
@@ -171,7 +175,66 @@ object MyPageScreen : Screen {
                 }
             }
             else if (selectedTab == "리뷰") {
-                Text("리뷰")
+                var selectedReviewType by remember { mutableStateOf("전체") }
+                Spacer(Modifier.height(20.dp))
+                Row(modifier = Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)){
+                    Text(
+                        "전체", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedReviewType == "전체") Black else Gray500,
+                        modifier = Modifier.clickable { selectedReviewType = "전체" }
+                    )
+                    Text(
+                        "시리즈", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedReviewType == "시리즈") Black else Gray500,
+                        modifier = Modifier.clickable { selectedReviewType = "시리즈" }
+                    )
+                    Text(
+                        "영화", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedReviewType == "영화") Black else Gray500,
+                        modifier = Modifier.clickable { selectedReviewType = "영화" })
+                    Text(
+                        "장소", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedReviewType == "장소") Black else Gray500,
+                        modifier = Modifier.clickable { selectedReviewType = "장소" })
+                }
+                Spacer(Modifier.height(10.dp))
+
+                val reviewList = DummyProvider.dummyReviews
+                val filteredReviews = when (selectedReviewType) {
+                    "전체" -> reviewList
+                    "시리즈" -> reviewList.filter { it.type == "시리즈" }
+                    "영화" -> reviewList.filter { it.type == "영화" }
+                    "장소" -> reviewList.filter { it.type == "장소" }
+                    else -> emptyList()
+                }
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp))
+                {
+                    items(filteredReviews)  { review ->
+                        if (review.type == "장소") {
+                            MypageReviewLocation(
+                                title = review.title,
+                                location = review.location ?: "",
+                                region = review.region ?: "",
+                                name = review.name,
+                                score = review.score,
+                                date = review.date,
+                                text = review.text,
+                                onClick = { println("장소 리뷰 ${review.id} 클릭") }
+                            )
+                        } else {
+                            MypageReviewContent(
+                                type = review.type,
+                                title = review.title,
+                                name = review.name,
+                                score = review.score,
+                                date = review.date,
+                                text = review.text,
+                                onClick = { println("콘텐츠 리뷰 ${review.id} 클릭") }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

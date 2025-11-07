@@ -122,15 +122,3 @@ fun ContentItemSmall(
         }
     }
 }
-
-@Preview
-@Composable
-private fun Preview(){
-    ContentItemSmall(
-        bookmark = false,
-        image = "",
-        title = "기묘한 이야기",
-        rank = "1",
-        onClick = { /* 프리뷰에서는 비워둬도 됩니다 */ }
-    )
-}
