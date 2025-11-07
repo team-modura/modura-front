@@ -1,6 +1,7 @@
 package com.modura.app.data.dev
 
 import com.modura.app.data.dto.response.list.MediaResponseDto
+import modura.composeapp.generated.resources.*
 
 object DummyProvider {
 
@@ -75,4 +76,16 @@ object DummyProvider {
             filmedContent = listOf("선재 업고 튀어")
         )
     )
+    val dummyStillCuts = listOf(
+        Res.drawable.img_stillcut_example,
+        Res.drawable.img_stillcut_example2,
+        Res.drawable.img_stillcut_example3,
+        Res.drawable.img_stillcut_example4,
+        Res.drawable.img_stillcut_example5,
+        Res.drawable.img_stillcut_example6,
+        Res.drawable.img_stillcut_example7,
+        Res.drawable.img_stillcut_example8,
+        Res.drawable.img_stillcut_example9,
+        Res.drawable.img_stillcut_example5,
+        )
 }

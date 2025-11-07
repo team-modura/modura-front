@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
@@ -53,11 +55,11 @@ object MyPageScreen : Screen {
         val mediaList = DummyProvider.dummyMedia
 
         Column(
-            modifier = Modifier.background(Gray100).padding(20.dp)
+            modifier = Modifier.background(Gray100)
         ) {
             val name: String? = "김승혁"
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -73,15 +75,16 @@ object MyPageScreen : Screen {
                     //.clickable { navigator.push(SettingScreen) }
                 )
             }
-            Spacer(Modifier.height(60.dp))
-            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(40.dp))
+            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
             Spacer(Modifier.height(20.dp))
 
             var selectedTab by remember { mutableStateOf("찜") }
 
             Column {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.padding(horizontal = 20.dp)
                 ) {
                     TabItem(
                         text = "찜",
@@ -106,47 +109,70 @@ object MyPageScreen : Screen {
                         .background(Gray500)
                 )
             }
-
-            var selectedContentType by remember { mutableStateOf("시리즈") }
-            Spacer(Modifier.height(20.dp))
-            Row() {
-                Text(
-                    "시리즈", style = MaterialTheme.typography.titleMedium,
-                    color = if (selectedContentType == "시리즈") Black else Gray500,
-                    modifier = Modifier.clickable { selectedContentType = "시리즈" }
-                )
-                Spacer(Modifier.width(20.dp))
-                Text(
-                    "영화", style = MaterialTheme.typography.titleMedium,
-                    color = if (selectedContentType == "영화") Black else Gray500,
-                    modifier = Modifier.clickable { selectedContentType = "영화" })
-            }
-            Spacer(Modifier.height(10.dp))
-
-            val filteredList = when (selectedContentType) {
-                "시리즈" -> mediaList.filter { "netflix" in it.ott }
-                "영화" -> mediaList.filter { "netflix" !in it.ott }
-                else -> mediaList
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(filteredList.size) { index ->
-                    val item = filteredList[index]
-                    ContentGrid(
-                        image = item.image,
-                        title = item.title,
-                        onClick = {
-                            println("${item.title} 클릭됨")
-                            navigator.push(ContentDetailScreen(title = item.title))
-                        }
+            if (selectedTab == "찜") {
+                var selectedContentType by remember { mutableStateOf("시리즈") }
+                Spacer(Modifier.height(20.dp))
+                Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    Text(
+                        "시리즈", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedContentType == "시리즈") Black else Gray500,
+                        modifier = Modifier.clickable { selectedContentType = "시리즈" }
                     )
+                    Spacer(Modifier.width(20.dp))
+                    Text(
+                        "영화", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedContentType == "영화") Black else Gray500,
+                        modifier = Modifier.clickable { selectedContentType = "영화" })
+                }
+                Spacer(Modifier.height(10.dp))
+
+                val filteredList = when (selectedContentType) {
+                    "시리즈" -> mediaList.filter { "netflix" in it.ott }
+                    "영화" -> mediaList.filter { "netflix" !in it.ott }
+                    else -> mediaList
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(filteredList.size) { index ->
+                        val item = filteredList[index]
+                        ContentGrid(
+                            image = item.image,
+                            title = item.title,
+                            onClick = {
+                                println("${item.title} 클릭됨")
+                                navigator.push(ContentDetailScreen(title = item.title))
+                            }
+                        )
+                    }
+                }
+            }else if(selectedTab == "스틸컷") {
+                val stillCutList = DummyProvider.dummyStillCuts
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                ) {
+                    items(stillCutList.size) { index ->
+                        val stillCutImage = stillCutList[index]
+                        Image(
+                            painter = painterResource(stillCutImage),
+                            contentDescription = "스틸컷 이미지 $index",
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .clickable {
+                                    println("스틸컷 $index 클릭됨")
+                                },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
-
+            else if (selectedTab == "리뷰") {
+                Text("리뷰")
+            }
         }
     }
 }
