@@ -5,38 +5,27 @@ import com.modura.app.data.dto.response.list.MediaResponseDto
 object DummyProvider {
 
     val dummyMedia = listOf(
-        MediaResponseDto(
-            id = 1,
-            rank = "1",
-            title = "기묘한 이야기",
-            bookmark = true,
-            ott = listOf("netflix", "watcha"),
-            image ="기묘한 이야기"
-        ),
-        MediaResponseDto(
-            id = 2,
-            rank = "2",
-            title = "더 글로리",
-            bookmark = false,
-            ott = listOf("disney", "coupang"),
-            image = "더 글로리"
-        ),
-        MediaResponseDto(
-            id = 3,
-            rank = "3",
-            title = "카지노",
-            bookmark = true,
-            ott = listOf(),
-            image = "카지노"
-        ),
-        MediaResponseDto(
-            id = 4,
-            rank = "4",
-            title = "환승연애",
-            bookmark = false,
-            ott = listOf("wave", "tving"),
-            image = "환승연애"
-        )
+        MediaResponseDto(id = 1, rank = "1", title = "기묘한 이야기", bookmark = true, ott = listOf("netflix", "watcha"), image ="기묘한 이야기"),
+        MediaResponseDto(id = 2, rank = "2", title = "더 글로리", bookmark = false, ott = listOf("disney", "coupang"), image = "더 글로리"),
+        MediaResponseDto(id = 3, rank = "3", title = "카지노", bookmark = true, ott = listOf(), image = "카지노"),
+        MediaResponseDto(id = 4, rank = "4", title = "환승연애", bookmark = false, ott = listOf("wave", "tving"), image = "환승연애"),
+        MediaResponseDto(5, "5", "선재 업고 튀어", true, listOf("tving"), "선재 업고 튀어"),
+        MediaResponseDto(6, "6", "눈물의 여왕", false, listOf("netflix", "tving"), "눈물의 여왕"),
+        MediaResponseDto(7, "7", "무빙", true, listOf("disney"), "무빙"),
+        MediaResponseDto(8, "8", "살인자ㅇ난감", false, listOf("netflix"), "살인자ㅇ난감"),
+        MediaResponseDto(9, "9", "최애의 아이", true, listOf("netflix"), "최애의 아이"),
+        MediaResponseDto(10, "10", "주술회전", false, listOf("netflix", "tving", "watcha"), "주술회전"),
+        MediaResponseDto(11, "11", "나는 솔로", true, listOf("netflix", "coupang"), "나는 솔로"),
+        MediaResponseDto(12, "12", "크라임씬 리턴즈", false, listOf("tving"), "크라임씬 리턴즈"),
+        MediaResponseDto(13, "13", "삼체", true, listOf("netflix"), "삼체"),
+        MediaResponseDto(14, "14", "피라미드 게임", false, listOf("tving"), "피라미드 게임"),
+        MediaResponseDto(15, "15", "파묘", true, listOf("coupang", "wave"), "파묘"),
+        MediaResponseDto(16, "16", "범죄도시4", false, listOf("disney"), "범죄도시4"),
+        MediaResponseDto(17, "17", "하이라키", true, listOf("netflix"), "하이라키"),
+        MediaResponseDto(18, "18", "The 8 Show (더 에이트 쇼)", false, listOf("netflix"), "The 8 Show (더 에이트 쇼)"),
+        MediaResponseDto(19, "19", "돌풍", true, listOf("netflix"), "돌풍"),
+        MediaResponseDto(20, "20", "플레이어 2: 꾼들의 전쟁", false, listOf("tving", "disney"), "플레이어 2: 꾼들의 전쟁")
+
     )
     val dummyMediaDetail = dummyMedia[0]
 
