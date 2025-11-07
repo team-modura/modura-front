@@ -104,7 +104,8 @@ object HomeScreen : Screen {
                             rank = item.rank,
                             onClick = {
                                 println("${item.title} 클릭됨")
-                                navigator?.push(ContentDetailScreen(title = item.title))                            }
+                                navigator?.push(ContentDetailScreen(title = item.title))
+                            }
                         )
                     }
                 }
