@@ -76,10 +76,10 @@ object MyPageScreen : Screen {
                     painter = painterResource(Res.drawable.ic_setting),
                     contentDescription = "설정",
                     modifier = Modifier.size(20.dp)
-                    //.clickable { navigator.push(SettingScreen) }
+                    .clickable { navigator.push(MypageSettingScreen) }
                 )
             }
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(20.dp))
             Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
             Spacer(Modifier.height(20.dp))
 
@@ -138,7 +138,6 @@ object MyPageScreen : Screen {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredList.size) { index ->
@@ -239,75 +238,3 @@ object MyPageScreen : Screen {
         }
     }
 }
-
-
-
-
-
-/*
-옛날코드
-            Column {
-                Row(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    Text("찜한 컨텐츠", style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.weight(1f))
-                    Text("전체보기", style = MaterialTheme.typography.bodySmall, modifier = Modifier.clickable { navigator.push(MypageContentScreen)})
-                }
-                Spacer(Modifier.height(4.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(mediaList.size) { index ->
-                        val item = mediaList[index]
-
-                        ContentItemSmall(
-                            bookmark = item.bookmark,
-                            ott = item.ott,
-                            image = item.image,
-                            title = item.title,
-                            rank = item.rank,
-                            onClick = {
-                                println("${item.title} 클릭됨")
-                                navigator?.push(ContentDetailScreen(title = item.title))                            }
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(20.dp))
-            Column {
-                Row(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    Text("찜한 장소", style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.weight(1f))
-                    Text("전체보기", style = MaterialTheme.typography.bodySmall,  modifier = Modifier.clickable { navigator.push(MypageLocationScreen)})
-                }
-                Spacer(Modifier.height(4.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(5) { index ->
-                        LocationItemSmall(
-                            *//* bookmark = item.bookmark,
-                            image = item.image,
-                            title = item.title,
-                            rank = item.rank,*//*
-                            onClick = {
-                                println("ㅇㅇ 클릭됨")
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(20.dp))
-            Column(modifier = Modifier.padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                 Text("명장면 모음", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { navigator.push(MypageStillcutScreen)})
-                Text("리뷰 관리", style = MaterialTheme.typography.bodyMedium,  modifier = Modifier.clickable { navigator.push(MypageReviewScreen)})
-                Text("로그아웃", style = MaterialTheme.typography.bodyMedium)
-                Text("계정탈퇴", style = MaterialTheme.typography.bodyMedium)
-                Text("약관 동의", style = MaterialTheme.typography.bodyMedium)
-                Text("설정", style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-    }
-}*/

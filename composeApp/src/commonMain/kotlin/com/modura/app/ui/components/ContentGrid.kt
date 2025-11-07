@@ -56,6 +56,6 @@ fun ContentGrid(
             contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Text(title,style = MaterialTheme.typography.labelLarge)
+        Text(title,style = MaterialTheme.typography.labelLarge, modifier = Modifier.height(40.dp))
     }
 }
