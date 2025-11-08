@@ -31,6 +31,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.*
+import com.modura.app.ui.screens.camera.SceneCameraScreen
 import com.modura.app.ui.theme.*
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -44,6 +45,7 @@ data class ContentDetailScreen(val title: String) : Screen {
     override fun Content() {
         val screenModel: DetailScreenModel = getScreenModel()
         val uiState by screenModel.uiState
+        val rootNavigator = LocalRootNavigator.current
 
         LaunchedEffect(Unit) {
             screenModel.getYoutubeVideos("기묘한 이야기 공식 예고편")
@@ -150,7 +152,7 @@ data class ContentDetailScreen(val title: String) : Screen {
                                             rating = userRating,
                                             onRatingChange = { newRating ->
                                                 userRating = newRating
-                                                //리뷰 작성 칸 활성화
+                                                rootNavigator?.push(ReviewScreen(1))
                                             }
                                         )
                                         Spacer(Modifier.height(12.dp))
