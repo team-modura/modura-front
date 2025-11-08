@@ -37,10 +37,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
+import com.modura.app.data.dev.MypageReview
 import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ContentItemSmall
+import com.modura.app.ui.components.ListBottomSheet
 import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.MypageReviewContent
 import com.modura.app.ui.components.MypageReviewLocation
@@ -62,6 +64,33 @@ object MyPageScreen : Screen {
         val navigator = LocalRootNavigator.current!!
         val mediaList = DummyProvider.dummyMedia
         val placeList = DummyProvider.dummyPlaces
+
+        var showBottomSheet by remember { mutableStateOf(false) }
+        var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
+        val bottomSheetItems = listOf("상세보기", "수정", "삭제")
+
+        if (showBottomSheet && selectedReview != null) {
+            ListBottomSheet(
+                items = bottomSheetItems,
+                onDismissRequest = { showBottomSheet = false },
+                onSelect = { selectedOption ->
+                    // 2. 옵션 선택 시 동작 정의
+                    when (selectedOption) {
+                        "상세보기" -> {
+                            if (selectedReview!!.type == "장소") {
+                                navigator.push(LocationDetailScreen(selectedReview!!.id))
+                                println("장소 상세보기: ${selectedReview!!.title}")
+                            } else {
+                                navigator.push(ContentDetailScreen(selectedReview!!.title))
+                            }
+                        }
+                        "수정" -> { /* TODO: 수정 로직 */ println("수정: ${selectedReview!!.title}") }
+                        "삭제" -> { /* TODO: 삭제 로직 */ println("삭제: ${selectedReview!!.title}") }
+                    }
+                    showBottomSheet = false
+                }
+            )
+        }
 
         Column(
             modifier = Modifier.background(Gray100)
@@ -229,6 +258,38 @@ object MyPageScreen : Screen {
                     "영화" -> reviewList.filter { it.type == "영화" }
                     "장소" -> reviewList.filter { it.type == "장소" }
                     else -> emptyList()
+                }
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp))
+                {
+                    items(filteredReviews)  { review ->
+                        if (review.type == "장소") {
+                            MypageReviewLocation(
+                                title = review.title,
+                                location = review.location ?: "",
+                                region = review.region ?: "",
+                                name = review.name,
+                                score = review.score,
+                                date = review.date,
+                                text = review.text,
+                                onClick = { selectedReview = review
+                                    showBottomSheet = true
+                                    println("장소 리뷰 ${review.id} 클릭") }
+                            )
+                        } else {
+                            MypageReviewContent(
+                                type = review.type,
+                                title = review.title,
+                                name = review.name,
+                                score = review.score,
+                                date = review.date,
+                                text = review.text,
+                                onClick = { selectedReview = review
+                                    showBottomSheet = true
+                                    println("콘텐츠 리뷰 ${review.id} 클릭") }
+                            )
+                        }
+                    }
                 }
             }
         }

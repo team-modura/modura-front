@@ -26,15 +26,15 @@ import com.modura.app.ui.theme.Gray800
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : DisplayableItem> ListBottomSheet(
-    title: String,
-    items: List<T>,
+fun ListBottomSheet(
+    title: String?= null,
+    items: List<String>,
     onDismissRequest: () -> Unit,
-    onSelect: (T) -> Unit,
-) {
+    onSelect: (String) -> Unit,
+    ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var selectedItem by remember { mutableStateOf<T?>(null) }
+    var selectedItem by remember { mutableStateOf<String>("") }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -48,22 +48,22 @@ fun <T : DisplayableItem> ListBottomSheet(
                 .padding(20.dp, 50.dp, 20.dp, 30.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = title, style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(20.dp))
-
+            if(title!=null){
+                Text(text = title, style = MaterialTheme.typography.headlineMedium)
+                Spacer(modifier = Modifier.height(20.dp))
+            }
             Column {
                 items.forEach { item ->
                     Text(
-                        text = item.displayName,
+                        text = item,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 selectedItem = item
                                 onSelect(item)
-                                onDismissRequest()
                             }
                             .padding(vertical = 10.dp),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = if (selectedItem == item) Gray800 else Gray500,
                         fontWeight = if (selectedItem == item) FontWeight.Bold else FontWeight.Normal
                     )
@@ -72,10 +72,3 @@ fun <T : DisplayableItem> ListBottomSheet(
         }
     }
 }
-
-interface DisplayableItem {
-    val displayName: String
-}
-
-data class Telecom(val id: String, override val displayName: String) : DisplayableItem
-data class Bank(val code: String, override val displayName: String) : DisplayableItem
