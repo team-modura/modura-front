@@ -35,7 +35,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.LoginBottomSheet
+import com.modura.app.ui.screens.detail.ReviewScreen
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.screens.main.MainScreen
 import kotlinx.coroutines.flow.flowOf
@@ -48,12 +50,13 @@ import modura.composeapp.generated.resources.img_logo_text
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-class LoginScreen() : Screen {
+class LoginScreen : Screen {
     override val key: String = "LoginScreenKey"
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
+        val rootNavigator = LocalRootNavigator.current
 
         val coroutineScope = rememberCoroutineScope()
         var isLoading by remember { mutableStateOf(false) }   //loading effect 조건
@@ -77,7 +80,7 @@ class LoginScreen() : Screen {
                 },
                 onLoginClicked = {
                     showBottomSheet = false
-                    navigator?.push(MainScreen)
+                    rootNavigator?.push(SignupScreen())
                 }
             )
         }
@@ -144,10 +147,4 @@ class LoginScreen() : Screen {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen().Content()
 }
