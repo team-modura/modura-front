@@ -2,6 +2,7 @@ package com.modura.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,10 @@ fun TabItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val density = LocalDensity.current
 
     Column(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -43,7 +47,7 @@ fun TabItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
             color = textColor,
             fontWeight = fontWeight,
             fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 20.dp),
+            modifier = Modifier.padding(start = 20.dp, top=20.dp, end = 20.dp),
             onTextLayout = { textLayoutResult ->
                 textWidth = with(density) { textLayoutResult.size.width.toDp() }
             }

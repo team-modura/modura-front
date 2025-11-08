@@ -37,13 +37,17 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
+import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.MypageReviewContent
 import com.modura.app.ui.components.MypageReviewLocation
+import com.modura.app.ui.components.PlaceGrid
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
@@ -57,6 +61,7 @@ object MyPageScreen : Screen {
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
         val mediaList = DummyProvider.dummyMedia
+        val placeList = DummyProvider.dummyPlaces
 
         Column(
             modifier = Modifier.background(Gray100)
@@ -81,7 +86,6 @@ object MyPageScreen : Screen {
             }
             Spacer(Modifier.height(20.dp))
             Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
-            Spacer(Modifier.height(20.dp))
 
             var selectedTab by remember { mutableStateOf("찜") }
 
@@ -114,42 +118,62 @@ object MyPageScreen : Screen {
                 )
             }
             if (selectedTab == "찜") {
-                var selectedContentType by remember { mutableStateOf("시리즈") }
+                var selectedType by remember { mutableStateOf("시리즈") }
                 Spacer(Modifier.height(20.dp))
-                Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                     Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedContentType == "시리즈") Black else Gray500,
-                        modifier = Modifier.clickable { selectedContentType = "시리즈" }
-                    )
-                    Spacer(Modifier.width(20.dp))
+                        color = if (selectedType == "시리즈") Black else Gray500,
+                        modifier = Modifier.clickable { selectedType = "시리즈" })
                     Text(
                         "영화", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedContentType == "영화") Black else Gray500,
-                        modifier = Modifier.clickable { selectedContentType = "영화" })
+                        color = if (selectedType == "영화") Black else Gray500,
+                        modifier = Modifier.clickable { selectedType = "영화" })
+                    Text(
+                        "장소", style = MaterialTheme.typography.titleMedium,
+                        color = if (selectedType == "장소") Black else Gray500,
+                        modifier = Modifier.clickable { selectedType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))
 
-                val filteredList = when (selectedContentType) {
+                val filteredList = when (selectedType) {
                     "시리즈" -> mediaList.filter { "netflix" in it.ott }
                     "영화" -> mediaList.filter { "netflix" !in it.ott }
-                    else -> mediaList
+                    "장소" -> placeList
+                    else -> emptyList()
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(filteredList.size) { index ->
-                        val item = filteredList[index]
-                        ContentGrid(
-                            image = item.image,
-                            title = item.title,
-                            onClick = {
-                                println("${item.title} 클릭됨")
-                                navigator.push(ContentDetailScreen(title = item.title))
-                            }
-                        )
+                    if (selectedType == "장소") {
+                        items(filteredList.size) { index ->
+                            val item = filteredList[index] as PlaceInfo
+                            PlaceGrid(
+                                image = item.photoUrl?: "",
+                                title = item.name,
+                                onClick = {
+                                    println("${item.name} 클릭됨")
+                                    navigator.push(LocationDetailScreen(item.id))
+                                }
+                            )
+                        }
+                    } else {
+                        items(filteredList.size) { index ->
+                            val item = filteredList[index] as MediaResponseDto
+                            ContentGrid(
+                                image = item.image,
+                                title = item.title,
+                                onClick = {
+                                    println("${item.title} 클릭됨")
+                                    navigator.push(ContentDetailScreen(title = item.title))
+                                }
+                            )
+                        }
                     }
                 }
             }else if(selectedTab == "스틸컷") {
@@ -205,34 +229,6 @@ object MyPageScreen : Screen {
                     "영화" -> reviewList.filter { it.type == "영화" }
                     "장소" -> reviewList.filter { it.type == "장소" }
                     else -> emptyList()
-                }
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp))
-                {
-                    items(filteredReviews)  { review ->
-                        if (review.type == "장소") {
-                            MypageReviewLocation(
-                                title = review.title,
-                                location = review.location ?: "",
-                                region = review.region ?: "",
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { println("장소 리뷰 ${review.id} 클릭") }
-                            )
-                        } else {
-                            MypageReviewContent(
-                                type = review.type,
-                                title = review.title,
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { println("콘텐츠 리뷰 ${review.id} 클릭") }
-                            )
-                        }
-                    }
                 }
             }
         }
