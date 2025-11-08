@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -34,13 +36,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ReviewStar(
     fraction: Float,
-    modifier: Modifier = Modifier.size(12.dp)
+    modifier: Modifier = Modifier.size(12.dp),
+    color: Color = Gray700
 ) {
     Box(modifier = modifier) {
         Image(
             painter = painterResource(Res.drawable.ic_star_unfill),
             contentDescription = "빈 별",
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            colorFilter = ColorFilter.tint(color)
         )
 
         if (fraction > 0f) {
@@ -50,7 +54,8 @@ fun ReviewStar(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RectangleShape)
-                    .clip(FractionalClip(fraction))
+                    .clip(FractionalClip(fraction)),
+                colorFilter = ColorFilter.tint(color)
             )
         }
     }
