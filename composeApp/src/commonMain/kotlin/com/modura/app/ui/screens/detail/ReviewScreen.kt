@@ -44,8 +44,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
-data class ReviewScreen(val id: Int) : Screen {
-    override val key: String = "ReviewScreen_$id"
+data class ReviewScreen(val id: Int, val reviewType: String) : Screen {
+    override val key: String = "ReviewScreen_${reviewType}_$id"
 
     @Composable
     override fun Content() {
@@ -118,29 +118,30 @@ data class ReviewScreen(val id: Int) : Screen {
                 ),
                 textStyle = MaterialTheme.typography.bodyMedium
             )
-            LazyRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item {
-                    PhotoAddButton(
-                        count = selectedPhotos.size,
-                        limit = 5,
-                        onClick = {
-                            imagePicker.pickImages()
-                        }
-                    )
-                }
-                items(selectedPhotos) { photoUri ->
-                    PhotoItem(
-                        photoUri = photoUri,
-                        onDelete = {
-                            selectedPhotos.remove(photoUri)
-                        }
-                    )
+            if (reviewType == "장소") {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        PhotoAddButton(
+                            count = selectedPhotos.size,
+                            limit = 5,
+                            onClick = {
+                                imagePicker.pickImages()
+                            }
+                        )
+                    }
+                    items(selectedPhotos) { photoUri ->
+                        PhotoItem(
+                            photoUri = photoUri,
+                            onDelete = {
+                                selectedPhotos.remove(photoUri)
+                            }
+                        )
+                    }
                 }
             }
-
         }
     }
 }

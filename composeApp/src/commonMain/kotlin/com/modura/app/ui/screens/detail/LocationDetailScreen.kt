@@ -184,7 +184,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                             rating = userRating,
                             onRatingChange = { newRating ->
                                 userRating = newRating
-                                rootNavigator?.push(ReviewScreen(1))
+                                rootNavigator?.push(ReviewScreen(1,"장소"))
                             }
                         )
                         Spacer(Modifier.height(12.dp))

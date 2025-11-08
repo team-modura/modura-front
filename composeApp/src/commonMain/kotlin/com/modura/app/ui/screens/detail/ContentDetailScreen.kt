@@ -156,7 +156,7 @@ data class ContentDetailScreen(val title: String) : Screen {
                                             rating = userRating,
                                             onRatingChange = { newRating ->
                                                 userRating = newRating
-                                                rootNavigator?.push(ReviewScreen(1))
+                                                rootNavigator?.push(ReviewScreen(1,"콘텐츠"))
                                             }
                                         )
                                         Spacer(Modifier.height(12.dp))
