@@ -90,13 +90,6 @@ fun LoginBottomSheet(
                 onDetailClick = {  uriHandler.openUri("https://seoyeoneel02.notion.site/281d2078608d802aa738d091b0813d01") },
                 text = "서비스 이용약관"
             )
-
-            CheckTextDetail(
-                checked = agreePrivacyProcessing,
-                onCheckedChange = { agreePrivacyProcessing = it },
-                onDetailClick = {  uriHandler.openUri("https://seoyeoneel02.notion.site/281d2078608d8061a547fa50f02c6b3f") },
-                text = "개인정보 처리방침"
-            )
             Spacer(modifier = Modifier.height(20.dp))
 
             MiddleButton(

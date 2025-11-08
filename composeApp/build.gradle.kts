@@ -75,7 +75,7 @@ kotlin {
                 implementation("dev.icerock.moko:resources-compose:0.25.1")
                 implementation("dev.icerock.moko:media-compose:0.11.1")
                 implementation(libs.coil.compose)
-                implementation(libs.coil.network )
+                implementation(libs.coil.network)
             }
         }
 
