@@ -97,21 +97,24 @@ data class ContentDetailScreen(val title: String) : Screen {
                             modifier = Modifier
                                 .background(Gray100)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 20.dp)
-                            ) {
+                            Column {
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     "줄거리",
-                                    style = MaterialTheme.typography.titleLarge
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.padding(horizontal = 20.dp)
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     story,
-                                    style = MaterialTheme.typography.bodySmall
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(horizontal = 20.dp)
                                 )
                                 Spacer(Modifier.height(12.dp))
-                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.padding(horizontal = 20.dp)
+                                ) {
                                     ott.forEach { platform ->
                                         OttPlayButton(
                                             ott = platform,
@@ -122,7 +125,7 @@ data class ContentDetailScreen(val title: String) : Screen {
                                     }
                                 }
                                 Column(Modifier.padding(vertical = 12.dp)) {
-                                    Row {
+                                    Row(modifier = Modifier.padding(horizontal = 20.dp)) {
                                         Text("리뷰", style = MaterialTheme.typography.titleLarge)
                                         Spacer(Modifier.weight(1f))
                                         Text("전체보기", style = MaterialTheme.typography.bodySmall)
@@ -130,7 +133,8 @@ data class ContentDetailScreen(val title: String) : Screen {
                                     Spacer(Modifier.height(4.dp))
                                     Box(
                                         modifier = Modifier.background(White)
-                                            .clip(RoundedCornerShape(8.dp)),
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .padding(horizontal = 20.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Review(4.5f, listOf(10, 4, 6, 2, 3))

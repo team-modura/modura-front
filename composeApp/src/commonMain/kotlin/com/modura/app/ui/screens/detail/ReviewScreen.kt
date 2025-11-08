@@ -33,10 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.*
 import com.modura.app.ui.screens.camera.SceneCameraScreen
 import com.modura.app.ui.theme.*
+import com.modura.app.util.platform.rememberImagePicker
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -48,9 +50,19 @@ data class ReviewScreen(val id: Int) : Screen {
     @Composable
     override fun Content() {
         val rootNavigator = LocalRootNavigator.current
+        val navigator = LocalRootNavigator.currentOrThrow
         val title = "작품명"
         var userRating by remember { mutableStateOf(0) }
         val selectedPhotos = remember { mutableStateListOf<String>() }
+
+
+        val imagePicker = rememberImagePicker { uris ->
+            if (selectedPhotos.size + uris.size <= 5) {
+                selectedPhotos.addAll(uris)
+            } else {
+                println("사진은 최대 5개까지 선택할 수 있습니다.")
+            }
+        }
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
@@ -108,24 +120,17 @@ data class ReviewScreen(val id: Int) : Screen {
             )
             LazyRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp) // 아이템 간 간격
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // 3. 사진 추가 버튼
                 item {
                     PhotoAddButton(
                         count = selectedPhotos.size,
                         limit = 5,
                         onClick = {
-                            // TODO: 갤러리 또는 카메라 실행 로직
-                            // 임시로 예시 이미지 추가
-                            if (selectedPhotos.size < 5) {
-                                selectedPhotos.add("Res.drawable.img_stillcut_example") // 실제로는 URI나 Bitmap 추가
-                            }
+                            imagePicker.pickImages()
                         }
                     )
                 }
-
-                // 4. 추가된 사진 목록
                 items(selectedPhotos) { photoUri ->
                     PhotoItem(
                         photoUri = photoUri,
