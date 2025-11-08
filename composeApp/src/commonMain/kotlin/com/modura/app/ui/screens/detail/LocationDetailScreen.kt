@@ -184,7 +184,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                             rating = userRating,
                             onRatingChange = { newRating ->
                                 userRating = newRating
-                                //리뷰 작성 칸 활성화
+                                rootNavigator?.push(ReviewScreen(1,"장소"))
                             }
                         )
                         Spacer(Modifier.height(12.dp))

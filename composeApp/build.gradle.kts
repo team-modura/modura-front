@@ -74,7 +74,8 @@ kotlin {
                 implementation("com.russhwolf:multiplatform-settings-serialization:1.1.1")
                 implementation("dev.icerock.moko:resources-compose:0.25.1")
                 implementation("dev.icerock.moko:media-compose:0.11.1")
-                //implementation("com.google.accompanist:accompanist-permissions:0.20.1")
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network )
             }
         }
 

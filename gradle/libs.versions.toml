@@ -17,7 +17,7 @@ kotlin = "2.2.20"
 kotlinxCoroutinesCore = "1.10.2"
 voyager = "1.0.1" # 네비게이션 라이브러리
 kotlinx-datetime = "0.6.0"
-coil = "2.7.0"
+coil = "3.3.0"
 koin = "4.1.1"
 slf4j = "2.0.17"
 ktor = "3.3.1"
@@ -70,6 +70,9 @@ kakao-map = { module = "com.kakao.maps.open:android", version.ref = "kakao-map" 
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps-compose" }
 maps-compose-utils = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "maps-compose" }
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version = "21.3.0" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil"}
+coil-network = {module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
