@@ -1,6 +1,7 @@
 package com.modura.app.ui.screens.camera
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -195,22 +197,20 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     if (hasPermission) launchCamera() else println("카메라 권한이 없습니다.")
                 }
             }
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().padding(top=40.dp)) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth().padding(20.dp)
                 ) {
-                    IconButton(onClick = { rootNavigator?.pop() }) {
                         Icon(
                             painter = painterResource(Res.drawable.ic_back),
-                            contentDescription = "뒤로가기"
+                            contentDescription = "뒤로가기",
+                            Modifier.size(24.dp).clickable{rootNavigator?.pop()}
                         )
-                    }
                 }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                    contentPadding = PaddingValues( bottom = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(stillcut) { scene ->
