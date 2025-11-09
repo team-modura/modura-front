@@ -40,6 +40,7 @@ kotlin {
                 implementation(libs.accompanist.permissions)
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
                 implementation(libs.androidx.lifecycle.runtime.compose)
+                implementation(libs.coil.network)
             }
         }
 
@@ -75,7 +76,7 @@ kotlin {
                 implementation("dev.icerock.moko:resources-compose:0.25.1")
                 implementation("dev.icerock.moko:media-compose:0.11.1")
                 implementation(libs.coil.compose)
-                implementation(libs.coil.network)
+                implementation(libs.coil.core)
             }
         }
 
@@ -89,6 +90,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:3.3.1")
+                implementation(libs.coil.network.darwin)
             }
         }
 

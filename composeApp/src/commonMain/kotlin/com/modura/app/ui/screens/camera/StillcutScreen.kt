@@ -1,20 +1,24 @@
 package com.modura.app.ui.screens.camera
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,19 +31,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import coil3.ImageLoader
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import com.modura.app.LocalRootNavigator
+import com.modura.app.data.dev.DummyProvider.stillcut
 import com.modura.app.ui.components.SceneScoreDetail
+import com.modura.app.ui.components.StillcutItem
 import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.PermissionsController
@@ -48,20 +58,20 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.img_example
+import modura.composeapp.generated.resources.ic_back
 import modura.composeapp.generated.resources.img_scene_example
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 
-data class SceneCameraScreen(val sceneImageRes: String) : Screen {
+class StillcutScreen() : Screen {
 
     @Composable
     override fun Content() {
         val factory = rememberPermissionsControllerFactory()
         val coroutineScope = rememberCoroutineScope()
-        val permissionsController: PermissionsController =
-            remember(factory) { factory.createPermissionsController() }
-
+        val context = LocalPlatformContext.current
+        val permissionsController: PermissionsController = remember(factory) { factory.createPermissionsController() }
+        val imageLoader = remember { ImageLoader(context) }
         val rootNavigator = LocalRootNavigator.current
 
         var capturedImage by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -76,21 +86,22 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
 
 
         val launchCamera = rememberCameraManager { imageBitmap -> capturedImage = imageBitmap }
-        val originalBitmap = imageResource(Res.drawable.img_scene_example)
+        var originalBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
         LaunchedEffect(capturedImage) {
-            if (capturedImage != null) {
+            if (capturedImage != null && originalBitmap != null) {
                 isLoading = true
                 withContext(kotlinx.coroutines.Dispatchers.Default) {
                     println("백그라운드 스레드에서 이미지 분석 시작")
                     val captured = capturedImage!!
-                    val toneSim = ImageComparator.calculateSimilarity(originalBitmap, captured)
+                    val original = originalBitmap!!
+
+                    val toneSim = ImageComparator.calculateSimilarity(original, captured)
                     val paletteSim = ImageComparator.calculatePaletteSimilarity(
-                        ImageComparator.extractPalette(originalBitmap, 5),
+                        ImageComparator.extractPalette(original, 5),
                         ImageComparator.extractPalette(captured, 5)
                     )
-                    val structSim =
-                        ImageComparator.calculateStructuralSimilarity(originalBitmap, captured)
+                    val structSim = ImageComparator.calculateStructuralSimilarity(original, captured)
                     val clarity = ImageComparator.calculateClarity(captured)
 
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
@@ -138,7 +149,7 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Image(
-                        bitmap = originalBitmap,
+                        bitmap = originalBitmap!!,
                         contentDescription = "원본 사진",
                         modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
@@ -146,7 +157,7 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     Image(
                         bitmap = capturedImage!!,
                         contentDescription = "촬영한 사진",
-                        modifier = Modifier.weight(1f).clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp)),
+                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -189,18 +200,47 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     if (hasPermission) launchCamera() else println("카메라 권한이 없습니다.")
                 }
             }
-            Box(modifier = Modifier.fillMaxSize()) {
-                Image(
-                    painter = painterResource(Res.drawable.img_scene_example),
-                    contentDescription = "원본 명장면",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                Button(
-                    onClick = onLaunchCamera,
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
+            Column(modifier = Modifier.fillMaxSize().padding(top=40.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(20.dp)
                 ) {
-                    Text("카메라 열기")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_back),
+                            contentDescription = "뒤로가기",
+                            Modifier.size(24.dp).clickable{rootNavigator?.pop()}
+                        )
+                }
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues( bottom = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(stillcut) { scene ->
+                        var isImageLoading by remember { mutableStateOf(false) }
+                        StillcutItem(
+                            scene = scene,
+                            onClick = {
+                                isImageLoading = true
+                            }
+                        )
+                        if (isImageLoading) {
+                            rememberImageBitmapFromUrl(
+                                url = scene.imageResId,
+                                onSuccess = { loadedBitmap ->
+                                    originalBitmap = loadedBitmap
+                                    onLaunchCamera()
+                                    println("${scene.title} 선택됨, 이미지 URL: ${scene.imageResId}")
+                                    println(originalBitmap)
+                                    isImageLoading = false // 로딩 완료
+                                },
+                                onFailure = { errorMessage ->
+                                    println("이미지 로딩 실패: $errorMessage")
+                                    isImageLoading = false // 로딩 완료
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

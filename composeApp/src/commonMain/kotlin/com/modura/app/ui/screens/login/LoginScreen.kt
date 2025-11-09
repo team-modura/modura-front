@@ -4,8 +4,10 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
@@ -42,6 +46,7 @@ import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.screens.main.MainScreen
 import kotlinx.coroutines.flow.flowOf
 import modura.composeapp.generated.resources.Res
+import modura.composeapp.generated.resources.ic_logo
 import modura.composeapp.generated.resources.img_file
 import modura.composeapp.generated.resources.img_flicker_1
 import modura.composeapp.generated.resources.img_flicker_2
@@ -62,6 +67,9 @@ class LoginScreen : Screen {
         var isLoading by remember { mutableStateOf(false) }   //loading effect 조건
         var startAnimation by remember { mutableStateOf(false) }   //추후 애니메이션 추가 예정
         var showBottomSheet by remember { mutableStateOf(false) }
+
+
+        val gradientBrush = Brush.verticalGradient(colors = listOf(Color(0xFFCADBDB), Color(0xFF90D8D8)))
 
         LaunchedEffect(Unit) {
             startAnimation = true
@@ -86,65 +94,42 @@ class LoginScreen : Screen {
         }
 
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().background(gradientBrush)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else {
-                Image(
-                    painter = painterResource(Res.drawable.img_flicker_1),
-                    contentDescription = "Background Image 1",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset(y=120.dp)
-                )
-                Image(
-                    painter = painterResource(Res.drawable.img_flicker_2),
-                    contentDescription = "Background Image 2",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset(x=50.dp,y=120.dp)
-                )
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp, vertical = 60.dp), // 화면 전체 패딩
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.alpha(animationAlpha).padding(start = 40.dp, top=120.dp, end = 40.dp, bottom =0.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.img_logo_text),
-                            contentDescription = "Logo Text",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = "AI가 추천하는 K-콘텐츠 로드맵",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Image(
-                        painter = painterResource(Res.drawable.img_kakao_login),
-                        contentDescription = "Kakao Login",
-                        modifier =Modifier
-                            .alpha(animationAlpha)
-                            .width(300.dp)
-                            .height(45.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                showBottomSheet = true
-                            }
-                    )
-                }
             }
+            Column(
+                modifier = Modifier.align(Alignment.Center).alpha(animationAlpha),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.ic_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier.width(75.dp).height(92.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Image(
+                    painter = painterResource(Res.drawable.img_logo_text),
+                    contentDescription = "Logo Text",
+                    modifier = Modifier.width(133.dp)
+                )
+            }
+            Image(
+                painter = painterResource(Res.drawable.img_kakao_login),
+                contentDescription = "Kakao Login",
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .alpha(animationAlpha)
+                    .padding(bottom=30.dp,start=50.dp, end=50.dp)
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { showBottomSheet = true }
+            )
         }
     }
 }

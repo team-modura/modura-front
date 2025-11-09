@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,13 +32,20 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
+import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
 import com.modura.app.domain.repository.LocalRepository
+import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ListContentItem
 import com.modura.app.ui.components.ListLocationItem
+import com.modura.app.ui.components.PlaceGrid
+import com.modura.app.ui.components.SearchContentGrid
 import com.modura.app.ui.components.SearchField
+import com.modura.app.ui.components.SearchPlaceGrid
+import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
 import com.modura.app.ui.theme.Gray800
@@ -44,18 +53,17 @@ import com.modura.app.ui.theme.White
 import com.russhwolf.settings.Settings
 
 private enum class SearchCategory { CONTENT, PLACE }
-typealias PlaceItemData = Map<String, Any>
 
 data class SearchResultScreen(val searchTerm: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
-        val tabNavigator  = LocalNavigator.currentOrThrow
+        val tabNavigator = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var searchValue by remember { mutableStateOf(searchTerm) }
 
         var contentList by remember { mutableStateOf<List<MediaResponseDto>>(emptyList()) }
-        var placeList by remember { mutableStateOf<List<PlaceItemData>>(emptyList()) }
+        var placeList by remember { mutableStateOf<List<PlaceInfo>>(emptyList()) }
 
         var selectedCategory by remember { mutableStateOf(SearchCategory.CONTENT) }
 
@@ -73,13 +81,15 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
         }
         val dummyPlaceData = remember {
             List(15) { index ->
-                mapOf(
-                    "id" to index,
-                    "title" to "검색된 장소 $index",
-                    "location" to "서울시 강남구 테헤란로",
-                    "region" to "강남",
-                    "bookmark" to (index % 3 == 0), // 3개 중 1개 꼴로 북마크 활성화
-                    "image" to "" // 이미지는 일단 비워둠
+                PlaceInfo(
+                    id = index,
+                    name = "검색된 장소 $index",
+                    address = "주소 $index",
+                    distance = 1000,
+                    rating = 4.5,
+                    reviewCount = 100,
+                    bookmark = true,
+                    photoUrl = ""
                 )
             }
         }
@@ -92,9 +102,8 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                         ignoreCase = true
                     )
                 }
-                placeList =
-                    dummyPlaceData.filter {
-                        (it["title"] as String).contains(
+                placeList = dummyPlaceData.filter {
+                        it.name.contains(
                             searchValue.trim(),
                             ignoreCase = true
                         )
@@ -116,9 +125,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
             modifier = Modifier.background(Gray100)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Spacer(Modifier.height(20.dp))
                 SearchField(
@@ -128,73 +135,63 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                         if (searchTerm.isNotBlank()) {
                             localRepository.addSearchTerm(searchTerm)
                             searchValue = searchTerm
-                        } else{
+                        } else {
                             tabNavigator.pop()
                         }
                     })
-                Spacer(Modifier.height(10.dp))
-                Row(    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    Button(
-                        onClick = { selectedCategory = SearchCategory.CONTENT },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategory == SearchCategory.CONTENT) White else Color.Transparent,
-                            contentColor = if (selectedCategory == SearchCategory.CONTENT) Gray800 else Gray500
-                        ),
-                        elevation = if (selectedCategory == SearchCategory.CONTENT) ButtonDefaults.buttonElevation(
-                            defaultElevation = 2.dp
-                        ) else null
-                    ) { Text("컨텐츠") }
-                    Spacer(Modifier.width(100.dp))
-                    Button(
-                        onClick = { selectedCategory = SearchCategory.PLACE },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategory == SearchCategory.PLACE) White else Color.Transparent,
-                            contentColor = if (selectedCategory == SearchCategory.PLACE) Gray800 else Gray500
-                        ),
-                        elevation = if (selectedCategory == SearchCategory.PLACE) ButtonDefaults.buttonElevation(
-                            defaultElevation = 2.dp
-                        ) else null
-                    ) { Text("장소") }
-                }
-                when (selectedCategory) {
-                    SearchCategory.CONTENT -> {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(vertical = 10.dp)
-                        ) {
-                            items(contentList) { item ->
-                                ListContentItem(
-                                    bookmark = item.bookmark,
-                                    id = item.id,
-                                    image = item.image,
-                                    title = item.title,
-                                    rank = item.rank,
-                                    onClick = { clickedId ->
-                                        navigator.push(ContentDetailScreen(clickedId))
-                                    }
-                                )
-                            }
-                        }
+
+                Column {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    ) {
+                        TabItem(
+                            text = "컨텐츠",
+                            isSelected = selectedCategory == SearchCategory.CONTENT,
+                            onClick = { selectedCategory = SearchCategory.CONTENT }
+                        )
+                        TabItem(
+                            text = "장소",
+                            isSelected = selectedCategory == SearchCategory.PLACE,
+                            onClick = { selectedCategory = SearchCategory.PLACE }
+                        )
                     }
-                    SearchCategory.PLACE -> {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(vertical = 10.dp)
-                        ) {
-                            items(placeList) { placeItem ->
-                                ListLocationItem(
-                                    id = placeItem["id"] as Int,
-                                    bookmark = placeItem["bookmark"] as Boolean,
-                                    image = placeItem["image"] as String,
-                                    title = placeItem["title"] as String,
-                                    location = placeItem["location"] as String,
-                                    region = placeItem["region"] as String,
-                                    rank = "",
-                                    onClick = { clickedId ->
-                                        // 예: navigator.push(LocationDetailScreen(clickedId))
-                                    }
-                                )
-                            }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(0.5.dp)
+                            .background(Gray500)
+                    )
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 20.dp)
+                ) {
+                    if (selectedCategory == SearchCategory.PLACE) {
+                        items(placeList.size) { index ->
+                            val item = placeList[index] as PlaceInfo
+                            SearchPlaceGrid(
+                                image = item.photoUrl ?: "",
+                                onClick = {
+                                    println("${item.name} 클릭됨")
+                                    navigator.push(LocationDetailScreen(item.id))
+                                }
+                            )
+                        }
+                    } else {
+                        items(contentList.size) { index ->
+                            val item = contentList[index] as MediaResponseDto
+                            SearchContentGrid(
+                                image = item.image,
+                                bookmark = true,
+                                onClick = {
+                                    println("${item.title} 클릭됨")
+                                    navigator.push(ContentDetailScreen(title = item.title))
+                                }
+                            )
                         }
                     }
                 }

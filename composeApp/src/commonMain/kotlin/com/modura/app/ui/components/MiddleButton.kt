@@ -25,7 +25,7 @@ fun MiddleButton(
 ) {
     val gradientBrush = if (enabled) {
         Brush.verticalGradient(
-            colors = listOf(Color(0xFF98CF98), Color(0xFF52AB6E))
+            colors = listOf(Color(0xFF90D8D8), Color(0xFFCADBDB))
         )
     } else {
         Brush.verticalGradient(
