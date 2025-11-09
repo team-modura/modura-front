@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -59,14 +60,15 @@ object HomeScreen : Screen {
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ){
                     Image(
                         painter = painterResource(Res.drawable.img_logo_text),
                         contentDescription = "로고",
-                        modifier = Modifier.height(15.dp)
+                        modifier = Modifier.height(15.dp),
+                        colorFilter = ColorFilter.tint(Color.Black)
                     )
-                    Spacer(Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(20.dp))
                 Image(
