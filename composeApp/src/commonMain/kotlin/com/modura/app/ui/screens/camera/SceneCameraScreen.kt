@@ -4,12 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
+import com.modura.app.data.dev.DummyProvider.stillcut
 import com.modura.app.ui.components.SceneScoreDetail
+import com.modura.app.ui.components.StillcutItem
 import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
@@ -48,6 +53,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modura.composeapp.generated.resources.Res
+import modura.composeapp.generated.resources.ic_back
 import modura.composeapp.generated.resources.img_example
 import modura.composeapp.generated.resources.img_scene_example
 import org.jetbrains.compose.resources.imageResource
@@ -189,18 +195,33 @@ data class SceneCameraScreen(val sceneImageRes: String) : Screen {
                     if (hasPermission) launchCamera() else println("카메라 권한이 없습니다.")
                 }
             }
-            Box(modifier = Modifier.fillMaxSize()) {
-                Image(
-                    painter = painterResource(Res.drawable.img_scene_example),
-                    contentDescription = "원본 명장면",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                Button(
-                    onClick = onLaunchCamera,
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("카메라 열기")
+                    IconButton(onClick = { rootNavigator?.pop() }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_back),
+                            contentDescription = "뒤로가기"
+                        )
+                    }
+                }
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(stillcut) { scene ->
+                        StillcutItem(
+                            scene = scene,
+                            onClick = {
+                                onLaunchCamera()
+                                println("${scene.title} 선택됨, 이미지 URL: ${scene.imageResId}")
+                            }
+                        )
+                    }
                 }
             }
         }

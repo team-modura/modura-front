@@ -95,4 +95,12 @@ object DummyProvider {
         Category(35, "Comedy","코미디","😂"),
         Category(14, "Fantasy","판타지","🧙")
     )
+
+    val stillcut = listOf(
+        SceneInfo("광안리 해변의 일출", "https://picsum.photos/seed/1/800/600"),
+        SceneInfo("감천 문화마을의 야경", "https://picsum.photos/seed/2/800/600"),
+        SceneInfo("해운대 동백섬 산책로", "https://picsum.photos/seed/3/800/600"),
+        SceneInfo("보수동 책방골목의 오후", "https://picsum.photos/seed/4/800/600"),
+        SceneInfo("을숙도 생태공원", "https://picsum.photos/seed/5/800/600")
+    )
 }
