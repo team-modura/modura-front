@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.12.3"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -71,6 +71,8 @@ maps-compose = { group = "com.google.maps.android", name = "maps-compose", versi
 maps-compose-utils = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "maps-compose" }
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version = "21.3.0" }
 
+coil-core = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
+coil-network-darwin = { module = "io.coil-kt.coil3:coil-network-darwin", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil"}
 coil-network = {module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil"}
 
