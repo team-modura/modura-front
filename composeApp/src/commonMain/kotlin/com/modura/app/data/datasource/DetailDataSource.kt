@@ -1,8 +1,9 @@
 package com.modura.app.data.datasource
 
-import com.modura.app.data.dto.BaseResponse
+import com.modura.app.data.dto.response.detail.DetailResponseDto
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 
-interface       YoutubeDataSource {
+interface       DetailDataSource {
     suspend fun searchYoutubeVideos(query: String): YoutubeSearchResponseDto
+    suspend fun detailContent(contentId: Int): DetailResponseDto
 }

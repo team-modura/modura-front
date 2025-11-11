@@ -137,7 +137,7 @@ class LoginScreen : Screen {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        kakaoAuth.login()
+                        //kakaoAuth.login()
                         showBottomSheet = true }
             )
         }

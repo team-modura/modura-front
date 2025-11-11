@@ -1,14 +1,12 @@
 package com.modura.app.di
 
-import androidx.lifecycle.get
 import com.modura.app.data.datasource.ListDataSource
 import com.modura.app.data.datasource.LoginDataSource
-import com.modura.app.data.datasource.YoutubeDataSource
+import com.modura.app.data.datasource.DetailDataSource
 import com.modura.app.data.datasourceImpl.ListDataSourceImpl
 import com.modura.app.data.datasourceImpl.LoginDataSourceImpl
-import com.modura.app.data.datasourceImpl.YoutubeDataSourceImpl
+import com.modura.app.data.datasourceImpl.DetailDataSourceImpl
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
-import com.modura.app.data.service.YoutubeService
 import com.modura.app.util.platform.getYoutubeApiKey
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -49,5 +47,5 @@ val dataSourceModule = module {
 
     single<LoginDataSource> { LoginDataSourceImpl(get()) }
     single<ListDataSource> { ListDataSourceImpl(get()) }
-    single<YoutubeDataSource> { YoutubeDataSourceImpl(get()) }
+    single<DetailDataSource> { DetailDataSourceImpl(get()) }
 }

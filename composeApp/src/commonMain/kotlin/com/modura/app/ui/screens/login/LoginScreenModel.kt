@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class LoginUiState(
-    val loginInProgress: Boolean = false,
-    val loginSuccess: Boolean = false,
+    val inProgress: Boolean = false,
+    val success: Boolean = false,
     val errorMessage: String? = null
 )
 
@@ -27,24 +27,24 @@ class LoginScreenModel(
     val uiState = _uiState.asStateFlow()
 
     fun login(authCode: String) {
-        if (_uiState.value.loginInProgress) return
-        _uiState.update { it.copy(loginInProgress = true, errorMessage = null) }
+        if (_uiState.value.inProgress) return
+        _uiState.update { it.copy(inProgress = true, errorMessage = null) }
         screenModelScope.launch {
             println(authCode)
             repository.login(LoginRequestModel(code = authCode)).onSuccess {
                 println("MODURA 서버 로그인 성공: ${it.accessToken}")
                 _uiState.update {
                     it.copy(
-                        loginInProgress = false,
-                        loginSuccess = true
+                        inProgress = false,
+                        success = true
                     )
                 }
             }.onFailure {error ->
                 println("MODURA 서버 로그인 실패: ${error.message}")
                 _uiState.update {
                     it.copy(
-                        loginInProgress = false,
-                        loginSuccess = false,
+                        inProgress = false,
+                        success = false,
                         errorMessage = error.message
                     )
                 }
