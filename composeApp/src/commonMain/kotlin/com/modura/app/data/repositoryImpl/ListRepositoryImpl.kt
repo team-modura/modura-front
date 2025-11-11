@@ -10,5 +10,5 @@ class ListRepositoryImpl (
     private val listDataSource: ListDataSource
     ): ListRepository{
         override suspend fun getMediaList(): Result<MediaListResponseModel> =
-        runCatching { listDataSource.getMediaList().result.toMediaListResponseModel()}
+        runCatching { listDataSource.getMediaList().data.toMediaListResponseModel()}
 }

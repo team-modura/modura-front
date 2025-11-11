@@ -1,8 +1,10 @@
 package com.modura.app.data.dto
 
-data class BaseResponse<T>(
-    val isSuccess: Boolean,
-    val code: String,
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class BaseResponse<T:Any?>(
+    val success: Boolean,
     val message: String,
-    val result: T,
+    val data: T,
 )
