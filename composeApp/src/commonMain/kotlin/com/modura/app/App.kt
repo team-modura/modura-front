@@ -16,20 +16,23 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.modura.app.data.createDataStore
+import com.modura.app.di.*
 import com.modura.app.ui.components.BottomNavigationBar
 import com.modura.app.ui.navigation.BottomNavItem
 import com.modura.app.ui.screens.login.LoginScreen
 import com.modura.app.ui.theme.ModuraTheme
+import org.koin.compose.KoinApplication
 
 val LocalRootNavigator = compositionLocalOf<Navigator?> { null }
 
 @Composable
 fun App() {
-    ModuraTheme {
-        Navigator(screen = LoginScreen()) { navigator ->
-            CompositionLocalProvider(LocalRootNavigator provides navigator) {
-                CurrentScreen()
+
+        ModuraTheme {
+            Navigator(screen = LoginScreen()) { navigator ->
+                CompositionLocalProvider(LocalRootNavigator provides navigator) {
+                    CurrentScreen()
+                }
             }
         }
-    }
 }
