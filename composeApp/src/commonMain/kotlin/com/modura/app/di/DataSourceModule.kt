@@ -7,6 +7,7 @@ import com.modura.app.data.datasourceImpl.ListDataSourceImpl
 import com.modura.app.data.datasourceImpl.LoginDataSourceImpl
 import com.modura.app.data.datasourceImpl.DetailDataSourceImpl
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
+import com.modura.app.data.service.YoutubeService
 import com.modura.app.util.platform.getYoutubeApiKey
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -47,5 +48,5 @@ val dataSourceModule = module {
 
     single<LoginDataSource> { LoginDataSourceImpl(get()) }
     single<ListDataSource> { ListDataSourceImpl(get()) }
-    single<DetailDataSource> { DetailDataSourceImpl(get()) }
+    single<DetailDataSource> { DetailDataSourceImpl(get(), get()) }
 }

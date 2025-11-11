@@ -9,5 +9,5 @@ class LoginRepositoryImpl(
     private val loginDataSource: LoginDataSource
 ) : LoginRepository {
     override suspend fun login(request: LoginRequestModel): Result<LoginResponseModel> =
-        runCatching { loginDataSource.login(request.toLoginRequestDto()).data.toLoginResponseModel() }
+        runCatching { loginDataSource.login(request.toLoginRequestDto()).result.toLoginResponseModel() }
 }
