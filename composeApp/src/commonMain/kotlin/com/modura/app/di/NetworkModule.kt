@@ -10,6 +10,7 @@ import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.engine.cio.CIO
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 

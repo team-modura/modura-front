@@ -30,8 +30,7 @@ class LoginScreenModel(
         if (_uiState.value.inProgress) return
         _uiState.update { it.copy(inProgress = true, errorMessage = null) }
         screenModelScope.launch {
-            println(authCode)
-            repository.login(LoginRequestModel(code = authCode)).onSuccess {
+            repository.login(LoginRequestModel(authCode)).onSuccess {
                 println("MODURA 서버 로그인 성공: ${it.accessToken}")
                 _uiState.update {
                     it.copy(

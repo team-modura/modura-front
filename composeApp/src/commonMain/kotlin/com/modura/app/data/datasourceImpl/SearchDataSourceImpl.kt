@@ -14,5 +14,8 @@ class SearchDataSourceImpl(
     private val httpClient: HttpClient
 ) : SearchDataSource {
     override suspend fun searchContents(query: String): List<List<SearchResponseDto>>
-        = httpClient.get("/contents/search?query=$query").body()
+        = httpClient.get("search/contents?query=$query").body()
+
+    override suspend fun searchPlaces(query: String): List<List<SearchResponseDto>>
+        = httpClient.get("search/places?query=$query").body()
 }

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginRequestModel (
-    val code: String
+    val accessToken: String
 ) {
-    fun  toLoginRequestDto() = LoginRequestDto(code)
+    fun  toLoginRequestDto() = LoginRequestDto(accessToken)
 }

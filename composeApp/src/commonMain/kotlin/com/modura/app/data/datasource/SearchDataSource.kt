@@ -6,4 +6,6 @@ import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 
 interface SearchDataSource {
     suspend fun searchContents(query: String): List<List<SearchResponseDto>>
+    suspend fun searchPlaces(query: String): List<List<SearchResponseDto>>
+
 }
