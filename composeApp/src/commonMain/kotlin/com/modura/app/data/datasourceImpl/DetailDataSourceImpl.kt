@@ -3,9 +3,9 @@ package com.modura.app.data.datasourceImpl
 import com.modura.app.data.datasource.DetailDataSource
 import com.modura.app.data.dto.BaseResponse
 import com.modura.app.data.dto.request.detail.ContentReviewRequestDto
-import com.modura.app.data.dto.response.detail.ContentDetailResponseDto
-import com.modura.app.data.dto.response.detail.ContentReviewResponseDto
-import com.modura.app.data.dto.response.detail.ContentReviewsResponseDto
+import com.modura.app.data.dto.request.detail.PlaceReviewRequestDto
+import com.modura.app.data.dto.request.detail.StillcutRequestDto
+import com.modura.app.data.dto.response.detail.*
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 import com.modura.app.data.service.YoutubeService
 import io.ktor.client.HttpClient
@@ -26,9 +26,13 @@ class DetailDataSourceImpl(
     override suspend fun contentLikeCancel(contentId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/like").body()
     override suspend fun placeLikeCancel(placeId: Int): BaseResponse<Unit> = httpClient.delete("/places/$placeId/like").body()
     override suspend fun contentReviews(contentId: Int): BaseResponse<ContentReviewsResponseDto> = httpClient.get("/contents/$contentId/reviews").body()
+    override suspend fun placeReviews(placeId: Int): BaseResponse<PlaceReviewsResponseDto> = httpClient.get("/places/$placeId/reviews").body()
     override suspend fun contentReview(contentId: Int, reviewId: Int): BaseResponse<ContentReviewResponseDto> = httpClient.get("/contents/$contentId/reviews/$reviewId").body()
     override suspend fun contentReviewRegister(contentId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.post("/contents/$contentId/reviews").body()
+    override suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/reviews").body()
     override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.patch("/contents/$contentId/reviews/$reviewId").body()
     override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/reviews/$reviewId").body()
+    override suspend fun stillcut(placeId: Int): BaseResponse<StillcutResponseDto> = httpClient.get("/places/$placeId/stillcuts").body()
+    override suspend fun stillcutSave(placeId: Int, stullcutId: Int, request: StillcutRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/stillcuts/$stullcutId").body()
 
 }
