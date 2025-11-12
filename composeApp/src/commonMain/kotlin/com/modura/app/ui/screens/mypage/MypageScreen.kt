@@ -81,7 +81,7 @@ object MyPageScreen : Screen {
                                 navigator.push(LocationDetailScreen(selectedReview!!.id))
                                 println("장소 상세보기: ${selectedReview!!.title}")
                             } else {
-                                navigator.push(ContentDetailScreen(selectedReview!!.title))
+                                navigator.push(ContentDetailScreen(selectedReview!!.id))
                             }
                         }
                         "수정" -> { /* TODO: 수정 로직 */ println("수정: ${selectedReview!!.title}") }
@@ -199,7 +199,7 @@ object MyPageScreen : Screen {
                                 title = item.title,
                                 onClick = {
                                     println("${item.title} 클릭됨")
-                                    navigator.push(ContentDetailScreen(title = item.title))
+                                    navigator.push(ContentDetailScreen(id = item.id))
                                 }
                             )
                         }

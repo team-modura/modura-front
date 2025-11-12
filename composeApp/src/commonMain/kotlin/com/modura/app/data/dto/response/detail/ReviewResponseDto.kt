@@ -1,6 +1,6 @@
 package com.modura.app.data.dto.response.detail
 
-import com.modura.app.domain.model.request.detail.ReviewResponseModel
+import com.modura.app.domain.model.response.detail.ReviewResponseModel
 
 data class ReviewResponseDto(
     val id: Int,

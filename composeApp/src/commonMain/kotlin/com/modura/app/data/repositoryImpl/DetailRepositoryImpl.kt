@@ -1,7 +1,7 @@
 package com.modura.app.data.repositoryImpl
 
 import com.modura.app.data.datasource.DetailDataSource
-import com.modura.app.domain.model.request.detail.DetailResponseModel
+import com.modura.app.domain.model.response.detail.DetailResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
 

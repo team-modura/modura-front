@@ -1,4 +1,4 @@
-package com.modura.app.domain.model.request.detail
+package com.modura.app.domain.model.response.detail
 
 data class DetailResponseModel(
     val id : Int,
@@ -13,7 +13,7 @@ data class DetailResponseModel(
     val plot :String,
     val thumbnail: String,
     val platform: List<String>,
-    val reviewAvg: Float,
+    val reviewAvg: Double,
     val fiveStarCount: Int,
     val fourStarCount: Int,
     val threeStarCount: Int,

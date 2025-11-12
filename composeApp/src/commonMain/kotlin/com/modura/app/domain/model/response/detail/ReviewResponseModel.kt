@@ -1,4 +1,4 @@
-package com.modura.app.domain.model.request.detail
+package com.modura.app.domain.model.response.detail
 
 data class ReviewResponseModel(
     val id: Int,

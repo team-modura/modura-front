@@ -3,15 +3,21 @@ package com.modura.app.ui.screens.search
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.modura.app.data.dto.response.search.SearchResponseDto
 import com.modura.app.domain.repository.DetailRepository
 import com.modura.app.domain.repository.SearchRepository
 import com.modura.app.ui.screens.detail.YoutubeUiState
+import com.modura.app.ui.screens.login.LoginUiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
 data class SearchUiState(
     val inProgress: Boolean = false,
-    val success: Boolean = false,
+    val contents: List<SearchResponseDto> = emptyList(),
+    val places: List<SearchResponseDto> = emptyList(),
     val errorMessage: String? = null
 )
 
@@ -20,17 +26,18 @@ class SearchScreenModel(
     private val repository: SearchRepository
 ) : ScreenModel {
 
-    val uiState = mutableStateOf(SearchUiState())
+    private val _uiState = MutableStateFlow(SearchUiState())
+    val uiState = _uiState.asStateFlow()
 
     fun searchContents(query: String) {
         screenModelScope.launch {
-            uiState.value = uiState.value.copy(inProgress = true, errorMessage = null)
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.searchContents(query).onSuccess {
-                uiState.value = uiState.value.copy(inProgress = false, success = true)
+                if (it != null) { _uiState.update { it.copy(inProgress = false, contents = it.contents) }
+                } else { _uiState.update { it.copy(inProgress = false, errorMessage = "검색 결과가 없습니다.") } }
             }.onFailure {
                 it.printStackTrace()
             }
         }
     }
-
 }

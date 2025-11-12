@@ -1,6 +1,6 @@
 package com.modura.app.domain.repository
 
-import com.modura.app.domain.model.request.detail.DetailResponseModel
+import com.modura.app.domain.model.response.detail.DetailResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 
 interface DetailRepository {

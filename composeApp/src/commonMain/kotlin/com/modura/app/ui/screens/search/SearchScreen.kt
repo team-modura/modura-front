@@ -39,7 +39,6 @@ object SearchScreen : Screen {
 
     @Composable
     override fun Content() {
-        val screenModel = getScreenModel<SearchScreenModel>()
         val navigator = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var searchValue by remember { mutableStateOf("") }
@@ -62,11 +61,10 @@ object SearchScreen : Screen {
                     onValueChange = { searchValue = it },
                     onSearch = { searchTerm ->
                         if (searchTerm.isNotBlank()) {
-                            screenModel.searchContents(searchValue)
                             localRepository.addSearchTerm(searchTerm)
                             recentSearches = localRepository.getRecentSearches()
-                            searchValue = ""
                             navigator.push(SearchResultScreen(searchTerm))
+                            searchValue = ""
                         }
                     })
                 Spacer(Modifier.height(40.dp))

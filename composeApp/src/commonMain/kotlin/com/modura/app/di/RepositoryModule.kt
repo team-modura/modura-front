@@ -8,4 +8,5 @@ val repositoryModule = module {
     single<ListRepository> { ListRepositoryImpl(get()) }
     single<LoginRepository> { LoginRepositoryImpl(get(), get())}
     single<DetailRepository> { DetailRepositoryImpl(get()) }
+    single<SearchRepository> { SearchRepositoryImpl(get()) }
 }

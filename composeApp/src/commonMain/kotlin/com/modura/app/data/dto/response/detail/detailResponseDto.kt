@@ -1,7 +1,6 @@
 package com.modura.app.data.dto.response.detail
 
-import com.modura.app.domain.model.request.detail.DetailResponseModel
-import com.modura.app.domain.model.request.detail.ReviewResponseModel
+import com.modura.app.domain.model.response.detail.DetailResponseModel
 
 data class DetailResponseDto(
     val id : Int,
@@ -16,7 +15,7 @@ data class DetailResponseDto(
     val plot :String,
     val thumbnail: String,
     val platform: List<String>,
-    val reviewAvg: Float,
+    val reviewAvg: Double,
     val fiveStarCount: Int,
     val fourStarCount: Int,
     val threeStarCount: Int,

@@ -1,6 +1,6 @@
 package com.modura.app.data.dto.response.detail
 
-import com.modura.app.domain.model.request.detail.PlaceResponseModel
+import com.modura.app.domain.model.response.detail.PlaceResponseModel
 
 data class PlaceResponseDto(
     val id: Int,

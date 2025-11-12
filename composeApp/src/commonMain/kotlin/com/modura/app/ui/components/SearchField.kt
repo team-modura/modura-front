@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.modura.app.ui.screens.search.SearchScreenModel
 import com.modura.app.ui.theme.Gray500
 import com.modura.app.ui.theme.Gray800
 import com.modura.app.ui.theme.White
@@ -31,7 +32,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
-    onSearch:(String) -> Unit, // 검색 실행을 위한 콜백 추가
+    onSearch:(String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "검색어를 입력해주세요."
 ){
@@ -79,16 +80,4 @@ fun SearchField(
             )
         }
     }
-}
-
-@Composable
-@Preview
-private fun Preview(){
-    SearchField(value = "검색어", onValueChange = {}, onSearch = {})
-}
-
-@Composable
-@Preview
-private fun PreviewEmpty(){
-    SearchField(value = "", onValueChange = {}, onSearch = {})
 }

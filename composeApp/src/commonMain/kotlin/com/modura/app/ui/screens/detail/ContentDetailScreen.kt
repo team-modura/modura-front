@@ -34,8 +34,8 @@ import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 
-data class ContentDetailScreen(val title: String) : Screen {
-    override val key: String = "ContentDetailScreen_$title"
+data class ContentDetailScreen(val id: Int) : Screen {
+    override val key: String = "ContentDetailScreen_$id"
 
     @Composable
     override fun Content() {

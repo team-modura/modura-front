@@ -72,7 +72,6 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
-                implementation(libs.voyager.koin)
                 implementation(libs.slf4j.simple)
                 implementation(compose.components.resources)
                 implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
