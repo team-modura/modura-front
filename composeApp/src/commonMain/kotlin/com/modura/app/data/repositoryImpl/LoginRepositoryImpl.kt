@@ -11,6 +11,7 @@ class LoginRepositoryImpl(
     private val loginDataSource: LoginDataSource,
     private val tokenRepository: TokenRepository
 ) : LoginRepository {
+
     override suspend fun login(request: LoginRequestModel): Result<LoginResponseModel> {
         return runCatching {
             val response = loginDataSource.login(request.toLoginRequestDto())
@@ -25,4 +26,5 @@ class LoginRepositoryImpl(
 
     override suspend fun user(request: UserRequestModel): Result<Unit> =
         runCatching { loginDataSource.user(request.toUserRequestDto()) }
+
 }

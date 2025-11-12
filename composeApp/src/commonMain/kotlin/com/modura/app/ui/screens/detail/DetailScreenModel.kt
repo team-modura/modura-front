@@ -49,6 +49,24 @@ class DetailScreenModel(
         }
     }
 
+    fun contentLike(contentId: Int){
+        screenModelScope.launch {
+            repository.contentLike(contentId).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
 
+    fun placeLike(placeId: Int) {
+        screenModelScope.launch {
+            repository.placeLike(placeId).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
 }
 

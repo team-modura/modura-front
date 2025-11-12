@@ -1,8 +1,10 @@
 package com.modura.app.data.dto.response.detail
 
-import com.modura.app.domain.model.response.detail.DetailResponseModel
+import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
+import kotlinx.serialization.Serializable
 
-data class DetailResponseDto(
+@Serializable
+data class ContentDetailResponseDto(
     val id : Int,
     val tmdbId:Int,
     val type: Int,
@@ -24,5 +26,5 @@ data class DetailResponseDto(
     val reviews: List<ReviewResponseDto>,
     val places: List<PlaceResponseDto>
 ){
-    fun toDetailResponseModel()= DetailResponseModel(id, tmdbId, type, titleKr, titleEng, isLiked, runtime, year, contentCategories, plot, thumbnail, platform, reviewAvg, fiveStarCount, fourStarCount, threeStarCount, twoStarCount, oneStarCount, reviews.map{it.toReviewResponseModel()}, places.map{it.toPlaceResponseModel()})
+    fun toContentDetailResponseModel()= ContentDetailResponseModel(id, tmdbId, type, titleKr, titleEng, isLiked, runtime, year, contentCategories, plot, thumbnail, platform, reviewAvg, fiveStarCount, fourStarCount, threeStarCount, twoStarCount, oneStarCount, reviews.map{it.toReviewResponseModel()}, places.map{it.toPlaceResponseModel()})
 }

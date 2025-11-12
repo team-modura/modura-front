@@ -1,7 +1,9 @@
 package com.modura.app.data.dto.response.detail
 
 import com.modura.app.domain.model.response.detail.ReviewResponseModel
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ReviewResponseDto(
     val id: Int,
     val username: String,

@@ -1,6 +1,9 @@
 package com.modura.app.domain.model.response.detail
 
-data class DetailResponseModel(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ContentDetailResponseModel(
     val id : Int,
     val tmdbId:Int,
     val type: Int,
