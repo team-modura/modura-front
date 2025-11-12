@@ -27,6 +27,7 @@ maps-compose = "4.3.3"
 play-services-location = "21.3.0"
 accompanist-permissions = "0.34.0"
 accompanist = "0.32.0"
+multiplatform-settings = "1.3.0"
 
 [libraries]
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferencesCore" }
@@ -48,6 +49,10 @@ voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.
 voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" } # ViewModel과 유사
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" } # 화면 전환 효과
 voyager-tabNavigator = { group = "cafe.adriel.voyager", name = "voyager-tab-navigator", version.ref = "voyager" }
+
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
+multiplatform-settings-datastore = { module = "com.russhwolf:multiplatform-settings-datastore", version.ref = "multiplatform-settings" }
+multiplatform-settings-nsuserdefaults = { module = "com.russhwolf:multiplatform-settings-nsuserdefaults", version.ref = "multiplatform-settings" }
 
 okio = { module = "com.squareup.okio:okio", version = "3.9.0" }
 

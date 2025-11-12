@@ -42,6 +42,8 @@ kotlin {
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.coil.network)
                 implementation(libs.ktor.client.android)
+                implementation(libs.androidx.datastore.preferences.core)
+                implementation(libs.multiplatform.settings.datastore)
             }
         }
 
@@ -79,6 +81,7 @@ kotlin {
                 implementation("dev.icerock.moko:media-compose:0.11.1")
                 implementation(libs.coil.compose)
                 implementation(libs.coil.core)
+                implementation(libs.multiplatform.settings)
 
             }
         }
@@ -89,7 +92,9 @@ kotlin {
         }
 
         val iosMain by creating {
-            dependencies {}
+            dependencies {
+                implementation(libs.multiplatform.settings.nsuserdefaults)
+            }
         }
 
         val iosArm64Main by getting {

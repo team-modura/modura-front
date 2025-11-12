@@ -26,12 +26,16 @@ class LoginScreenModel(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _isNewUser = MutableStateFlow(false)
+    val isNewUser = _isNewUser.asStateFlow()
+
     fun login(authCode: String) {
         if (_uiState.value.inProgress) return
         _uiState.update { it.copy(inProgress = true, errorMessage = null) }
         screenModelScope.launch {
             repository.login(LoginRequestModel(authCode)).onSuccess {
                 println("MODURA 서버 로그인 성공: ${it.accessToken}")
+                _isNewUser.value = it.isNewUser == true
                 _uiState.update {
                     it.copy(
                         inProgress = false,

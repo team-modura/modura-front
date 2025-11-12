@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import com.modura.app.ui.screens.detail.ReviewScreen
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.screens.main.MainScreen
 import com.modura.app.util.network.rememberKakaoAuth
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -65,9 +67,18 @@ class LoginScreen : Screen {
         val screenModel = getScreenModel<LoginScreenModel>()
 
         val coroutineScope = rememberCoroutineScope()
-        var isLoading by remember { mutableStateOf(false) }   //loading effect 조건
-        var startAnimation by remember { mutableStateOf(false) }   //추후 애니메이션 추가 예정
+        val uiState by screenModel.uiState.collectAsState()
+        var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
+
+
+        if (uiState.success) {
+            if(screenModel.isNewUser.value){
+                showBottomSheet = true
+            }else{
+                rootNavigator?.push(MainScreen)
+            }
+        }
 
         val kakaoAuth = rememberKakaoAuth { code, error ->
             if (code != null) {
@@ -96,7 +107,7 @@ class LoginScreen : Screen {
                 },
                 onLoginClicked = {
                     showBottomSheet = false
-                    kakaoAuth.login()
+                    rootNavigator?.push(SignupScreen())
                 }
             )
         }
@@ -104,9 +115,6 @@ class LoginScreen : Screen {
         Box(
             modifier = Modifier.fillMaxSize().background(gradientBrush)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
             Column(
                 modifier = Modifier.align(Alignment.Center).alpha(animationAlpha),
                 verticalArrangement = Arrangement.Center,
@@ -137,8 +145,8 @@ class LoginScreen : Screen {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        //kakaoAuth.login()
-                        showBottomSheet = true }
+                        kakaoAuth.login()
+                }
             )
         }
     }
