@@ -3,10 +3,12 @@ package com.modura.app.di
 import com.modura.app.data.datasource.ListDataSource
 import com.modura.app.data.datasource.LoginDataSource
 import com.modura.app.data.datasource.DetailDataSource
+import com.modura.app.data.datasource.MypageDataSource
 import com.modura.app.data.datasource.SearchDataSource
 import com.modura.app.data.datasourceImpl.ListDataSourceImpl
 import com.modura.app.data.datasourceImpl.LoginDataSourceImpl
 import com.modura.app.data.datasourceImpl.DetailDataSourceImpl
+import com.modura.app.data.datasourceImpl.MypageDataSourceImpl
 import com.modura.app.data.datasourceImpl.SearchDataSourceImpl
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 import com.modura.app.data.service.YoutubeService
@@ -30,4 +32,5 @@ val dataSourceModule = module {
     single<DetailDataSource> { DetailDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT)), get() )}
     single<SearchDataSource> { SearchDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
     single<YoutubeService> { YoutubeServiceImpl(get(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT))) }
+    single<MypageDataSource> { MypageDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
 }
