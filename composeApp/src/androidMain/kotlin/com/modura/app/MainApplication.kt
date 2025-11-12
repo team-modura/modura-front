@@ -22,7 +22,8 @@ class MainApplication : Application() {
                 networkModule,
                 dataSourceModule,
                 repositoryModule,
-                screenModelModule
+                screenModelModule,
+                storageModule
             )
         }
         KakaoSdk.init(this, getString(R.string.kakao_native_app_key))

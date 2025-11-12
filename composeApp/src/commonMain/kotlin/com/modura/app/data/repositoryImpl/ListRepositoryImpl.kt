@@ -9,6 +9,14 @@ import com.modura.app.domain.repository.ListRepository
 class ListRepositoryImpl (
     private val listDataSource: ListDataSource
     ): ListRepository{
-        override suspend fun getMediaList(): Result<MediaListResponseModel> =
-        runCatching { listDataSource.getMediaList().result.toMediaListResponseModel()}
+        override suspend fun getMediaList(): Result<MediaListResponseModel> {
+            return runCatching {
+                val response = listDataSource.getMediaList()
+                if (response.isSuccess && response.result != null) {
+                    response.result.toMediaListResponseModel()
+                } else {
+                    throw Exception(response.message ?: "미디어 목록을 불러오는 데 실패했습니다.")
+                }
+            }
+        }
 }

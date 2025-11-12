@@ -82,6 +82,7 @@ kotlin {
                 implementation(libs.coil.compose)
                 implementation(libs.coil.core)
                 implementation(libs.multiplatform.settings)
+                implementation(libs.ktor.client.auth)
 
             }
         }

@@ -9,6 +9,7 @@ val appModule = module {
         networkModule,
         repositoryModule,
         dataSourceModule,
-        screenModelModule
+        screenModelModule,
+        storageModule
     )
 }

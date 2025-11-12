@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.Category
 import com.modura.app.data.dev.City
 import com.modura.app.data.dev.DummyProvider.categories
@@ -49,7 +53,9 @@ import com.modura.app.ui.components.MiddleButton
 import com.modura.app.ui.components.TextField
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.screens.main.MainScreen
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_file
 import modura.composeapp.generated.resources.img_flicker_1
@@ -64,11 +70,15 @@ class SignupScreen() : Screen {
 
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.current
+        val screenModel = getScreenModel<LoginScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+        val rootNavigator = LocalRootNavigator.current
+
         var selectedState by remember { mutableStateOf<States?>(null) }
         var selectedCity by remember { mutableStateOf<City?>(null) }
         var showAddressSheet by remember { mutableStateOf(false) }
         var selectedCategories by remember { mutableStateOf<Set<Category>>(emptySet()) }
+
         val isButtonEnabled = selectedState != null && selectedCity != null && selectedCategories.size >= 3
 
         if (showAddressSheet) {
@@ -80,6 +90,9 @@ class SignupScreen() : Screen {
                     showAddressSheet = false
                 }
             )
+        }
+        if (uiState.success) {
+                rootNavigator?.push(MainScreen)
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -140,11 +153,11 @@ class SignupScreen() : Screen {
                 MiddleButton(
                     text = "시작하기",
                     onClick = {
-                        if (isButtonEnabled) {
-                            navigator?.push(MainScreen)
-                        }
+                        val address = "${selectedState?.name} ${selectedCity?.name}"
+                        val categoryIds = selectedCategories.map { it.id }
+                        screenModel.user(address = address, categoryList = categoryIds)
                     },
-                    enabled = isButtonEnabled
+                    enabled = isButtonEnabled && !uiState.inProgress
                 )
                 Spacer(modifier = Modifier.height(20.dp))
             }
