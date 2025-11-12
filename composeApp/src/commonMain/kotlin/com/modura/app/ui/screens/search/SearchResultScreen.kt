@@ -15,20 +15,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
@@ -55,71 +61,27 @@ import com.russhwolf.settings.Settings
 private enum class SearchCategory { CONTENT, PLACE }
 
 data class SearchResultScreen(val searchTerm: String) : Screen {
+
     @Composable
     override fun Content() {
+        val screenModel = getScreenModel<SearchScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+
         val navigator = LocalRootNavigator.current!!
         val tabNavigator = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
+
         var searchValue by remember { mutableStateOf(searchTerm) }
-
-        var contentList by remember { mutableStateOf<List<MediaResponseDto>>(emptyList()) }
-        var placeList by remember { mutableStateOf<List<PlaceInfo>>(emptyList()) }
-
         var selectedCategory by remember { mutableStateOf(SearchCategory.CONTENT) }
-
-        val dummyContentData = remember {
-            List(20) { index ->
-                MediaResponseDto(
-                    bookmark = true,
-                    id = index,
-                    title = "검색된 컨텐츠 $index",
-                    rank = "1",
-                    ott = listOf("netflix", "watcha"),
-                    image = ""
-                )
-            }
-        }
-        val dummyPlaceData = remember {
-            List(15) { index ->
-                PlaceInfo(
-                    id = index,
-                    name = "검색된 장소 $index",
-                    address = "주소 $index",
-                    distance = 1000,
-                    rating = 4.5,
-                    reviewCount = 100,
-                    bookmark = true,
-                    photoUrl = ""
-                )
-            }
-        }
 
         LaunchedEffect(searchValue) {
             if (searchValue.isNotBlank()) {
-                contentList = dummyContentData.filter {
-                    it.title.contains(
-                        searchValue.trim(),
-                        ignoreCase = true
-                    )
-                }
-                placeList = dummyPlaceData.filter {
-                        it.name.contains(
-                            searchValue.trim(),
-                            ignoreCase = true
-                        )
-                    }
+                screenModel.searchContents(searchValue)
+                screenModel.searchPlaces(searchValue)
             } else {
-                contentList = emptyList()
-                placeList = emptyList()
-            }
-        }
-
-        LaunchedEffect(searchValue) {
-            if (searchValue.isEmpty()) {
                 tabNavigator.pop()
             }
         }
-
 
         Box(
             modifier = Modifier.background(Gray100)
@@ -163,35 +125,63 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                             .background(Gray500)
                     )
                 }
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 20.dp)
-                ) {
-                    if (selectedCategory == SearchCategory.PLACE) {
-                        items(placeList.size) { index ->
-                            val item = placeList[index] as PlaceInfo
-                            SearchPlaceGrid(
-                                image = item.photoUrl ?: "",
-                                onClick = {
-                                    println("${item.name} 클릭됨")
-                                    navigator.push(LocationDetailScreen(item.id))
+                if (uiState.inProgress) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (uiState.errorMessage != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("오류가 발생했습니다: ${uiState.errorMessage}")
+                    }
+                } else {
+                    if (selectedCategory == SearchCategory.CONTENT) {
+                        if (uiState.contents.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("컨텐츠 검색 결과가 없습니다.")
+                            }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(vertical = 20.dp)
+                            ) {
+                                items(uiState.contents, key = { it.id }) { item ->
+                                    SearchContentGrid(
+                                        image = item.thumbnail ?: "",
+                                        bookmark = item.isLiked,
+                                        onClick = { navigator.push(ContentDetailScreen(item.id)) }
+                                    )
                                 }
-                            )
+                            }
                         }
-                    } else {
-                        items(contentList.size) { index ->
-                            val item = contentList[index] as MediaResponseDto
-                            SearchContentGrid(
-                                image = item.image,
-                                bookmark = true,
-                                onClick = {
-                                    println("${item.title} 클릭됨")
-                                    navigator.push(ContentDetailScreen(title = item.title))
+                    } else { // PLACE
+                        if (uiState.places.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("장소 검색 결과가 없습니다.")
+                            }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(vertical = 20.dp)
+                            ) {
+                                items(uiState.places, key = { it.id }) { item ->
+                                    SearchPlaceGrid(
+                                        image = item.thumbnail ?: "",
+                                        onClick = { navigator.push(LocationDetailScreen(item.id)) }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }

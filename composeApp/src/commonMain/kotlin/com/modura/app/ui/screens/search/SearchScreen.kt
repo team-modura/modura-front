@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
@@ -26,6 +27,7 @@ import com.modura.app.domain.repository.LocalRepository
 import com.modura.app.ui.components.PopularSearchTerm
 import com.modura.app.ui.components.RecentSearch
 import com.modura.app.ui.components.SearchField
+import com.modura.app.ui.screens.login.LoginScreenModel
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray600
 import com.modura.app.ui.theme.Gray700
@@ -61,8 +63,8 @@ object SearchScreen : Screen {
                         if (searchTerm.isNotBlank()) {
                             localRepository.addSearchTerm(searchTerm)
                             recentSearches = localRepository.getRecentSearches()
-                            searchValue = ""
                             navigator.push(SearchResultScreen(searchTerm))
+                            searchValue = ""
                         }
                     })
                 Spacer(Modifier.height(40.dp))

@@ -41,7 +41,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
 
         val rootNavigator = LocalRootNavigator.current
         val screenModel: DetailScreenModel = getScreenModel()
-        val uiState by screenModel.uiState
+        val uiState by screenModel.youtubeUiState
 
         LaunchedEffect(Unit) {
             screenModel.getYoutubeVideos("기묘한 이야기 공식 예고편")

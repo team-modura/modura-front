@@ -99,6 +99,7 @@ object HomeScreen : Screen {
                         val item = mediaList[index]
 
                         ContentItemSmall(
+                            id = item.id,
                             bookmark = item.bookmark,
                             ott = item.ott,
                             image = item.image,
@@ -106,7 +107,7 @@ object HomeScreen : Screen {
                             rank = item.rank,
                             onClick = {
                                 println("${item.title} 클릭됨")
-                                navigator?.push(ContentDetailScreen(title = item.title))
+                                navigator?.push(ContentDetailScreen(item.id))
                             }
                         )
                     }
@@ -152,6 +153,7 @@ object HomeScreen : Screen {
                         val item = mediaList[index]
 
                         ContentItemSmall(
+                            id = item.id,
                             bookmark = item.bookmark,
                             ott = item.ott,
                             image = item.image,
@@ -159,6 +161,7 @@ object HomeScreen : Screen {
                             rank = item.rank,
                             onClick = {
                                 println("${item.title} 클릭됨")
+                                navigator?.push(ContentDetailScreen(item.id))
                             }
                         )
                     }

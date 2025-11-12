@@ -32,8 +32,8 @@ kotlin {
             dependencies {
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.ktor.client.android)
                 implementation(libs.kakao.map)
+                implementation("com.kakao.sdk:v2-user:2.19.0")
                 implementation(libs.maps.compose)
                 implementation(libs.maps.compose.utils)
                 implementation(libs.google.play.services.location)
@@ -41,6 +41,9 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.coil.network)
+                implementation(libs.ktor.client.android)
+                implementation(libs.androidx.datastore.preferences.core)
+                implementation(libs.multiplatform.settings.datastore)
             }
         }
 
@@ -63,12 +66,12 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.cio)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
-                implementation(libs.voyager.koin)
                 implementation(libs.slf4j.simple)
                 implementation(compose.components.resources)
                 implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
@@ -77,9 +80,11 @@ kotlin {
                 implementation("dev.icerock.moko:media-compose:0.11.1")
                 implementation(libs.coil.compose)
                 implementation(libs.coil.core)
+                implementation(libs.multiplatform.settings)
+                implementation(libs.ktor.client.auth)
+
             }
         }
-
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -87,10 +92,8 @@ kotlin {
         }
 
         val iosMain by creating {
-            dependsOn(commonMain)
             dependencies {
-                implementation("io.ktor:ktor-client-darwin:3.3.1")
-                implementation(libs.coil.network.darwin)
+                implementation(libs.multiplatform.settings.nsuserdefaults)
             }
         }
 
@@ -114,11 +117,13 @@ android {
         properties.load(FileInputStream(localPropertiesFile))
     }
 
+    val debugBaseUrl = properties.getProperty("BASE_URL") ?: "LOCAL_PROPERTIES_에서_못찾음"
+    println(">>> build.gradle.kts: BASE_URL from local.properties = '$debugBaseUrl'")
+
     // 3. composeResources 경로 설정 추가
     sourceSets["main"].apply {
         resources.srcDirs("src/commonMain/composeResources")
     }
-
     defaultConfig {
         applicationId = "com.modura.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -133,6 +138,8 @@ android {
             "kakao_native_app_key",
             "\"${properties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""}\""
         )
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] =
+            properties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
     }
 
     packaging {
@@ -142,11 +149,29 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField("String", "YOUTUBE_API_KEY", "\"${properties.getProperty("YOUTUBE_API_KEY") ?: ""}\"")
+            buildConfigField(
+                "String",
+                "YOUTUBE_API_KEY",
+                "\"${properties.getProperty("YOUTUBE_API_KEY") ?: ""}\""
+            )
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"${properties.getProperty("BASE_URL") ?: ""}\""
+            )
         }
-        release{
+        release {
             isMinifyEnabled = false
-            buildConfigField("String", "YOUTUBE_API_KEY", "\"${properties.getProperty("YOUTUBE_API_KEY") ?: ""}\"")
+            buildConfigField(
+                "String",
+                "YOUTUBE_API_KEY",
+                "\"${properties.getProperty("YOUTUBE_API_KEY") ?: ""}\""
+            )
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"${properties.getProperty("BASE_URL") ?: ""}\""
+            )
         }
     }
     compileOptions {
@@ -158,4 +183,22 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
+/*cocoapods {
+    version = "1.15.2"
+    summary = "Compose application for multiplatform"
+    homepage = "Link to the Shared Module homepage"
+    license = "Shared Module License"
+    framework {
+        baseName = "ComposeApp"
+        isStatic = true
+    }
+    // iOS용 Kakao SDK pod 추가
+    pod("KakaoSDKUser") {
+        version = "~> 2.19.0" // 안드로이드와 버전 맞추기
+    }
 
+    // pod install 스크립트 추가
+    // Xcode 프로젝트를 열기 전에 터미널에서 ./gradlew podInstall 을 실행해야 합니다.
+    // pod install을 실행해야 cocoapods에서 내려받은 라이브러리를 xcode 프로젝트에서 사용할 수 있습니다.
+    // `iosApp` 폴더의 `Podfile`에 `pod 'KakaoSDKUser', '~> 2.19.0'`이 추가됩니다.
+}*/

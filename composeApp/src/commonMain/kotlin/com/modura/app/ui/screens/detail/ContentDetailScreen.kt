@@ -34,13 +34,13 @@ import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 
-data class ContentDetailScreen(val title: String) : Screen {
-    override val key: String = "ContentDetailScreen_$title"
+data class ContentDetailScreen(val id: Int) : Screen {
+    override val key: String = "ContentDetailScreen_$id"
 
     @Composable
     override fun Content() {
         val screenModel: DetailScreenModel = getScreenModel()
-        val uiState by screenModel.uiState
+        val youtubeUiState by screenModel.youtubeUiState
         val rootNavigator = LocalRootNavigator.current
 
         LaunchedEffect(Unit) {
@@ -230,7 +230,7 @@ data class ContentDetailScreen(val title: String) : Screen {
                                 contentPadding = PaddingValues(horizontal = 20.dp)
                             ) {
                                 when {
-                                    uiState.isYoutubeLoading -> {
+                                    youtubeUiState.isYoutubeLoading -> {
                                         item {
                                             Box(
                                                 modifier = Modifier.width(284.dp)
@@ -241,9 +241,9 @@ data class ContentDetailScreen(val title: String) : Screen {
                                             }
                                         }
                                     }
-                                    uiState.videos.isNotEmpty() -> {
+                                    youtubeUiState.videos.isNotEmpty() -> {
                                         items(
-                                            items = uiState.videos,
+                                            items = youtubeUiState.videos,
                                             key = { video -> video.videoId }
                                         ) { video ->
                                             val uriHandler = LocalUriHandler.current
@@ -267,7 +267,7 @@ data class ContentDetailScreen(val title: String) : Screen {
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
-                                                    text = uiState.youtubeErrorMessage
+                                                    text = youtubeUiState.youtubeErrorMessage
                                                         ?: "관련 영상이 없습니다.",
                                                     color = Gray700,
                                                     fontSize = 14.sp

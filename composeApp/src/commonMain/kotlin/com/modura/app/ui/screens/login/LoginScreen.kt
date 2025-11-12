@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,21 +38,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.modura.app.LocalRootNavigator
+import com.modura.app.data.datasourceImpl.LoginDataSourceImpl
+import com.modura.app.data.repositoryImpl.LoginRepositoryImpl
 import com.modura.app.ui.components.LoginBottomSheet
 import com.modura.app.ui.screens.detail.ReviewScreen
 import com.modura.app.ui.screens.home.HomeScreen
 import com.modura.app.ui.screens.main.MainScreen
+import com.modura.app.util.network.rememberKakaoAuth
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import modura.composeapp.generated.resources.Res
-import modura.composeapp.generated.resources.ic_logo
-import modura.composeapp.generated.resources.img_file
-import modura.composeapp.generated.resources.img_flicker_1
-import modura.composeapp.generated.resources.img_flicker_2
-import modura.composeapp.generated.resources.img_kakao_login
-import modura.composeapp.generated.resources.img_logo_text
+import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -63,11 +64,29 @@ class LoginScreen : Screen {
         val navigator = LocalNavigator.current
         val rootNavigator = LocalRootNavigator.current
 
+        val screenModel = getScreenModel<LoginScreenModel>()
+
         val coroutineScope = rememberCoroutineScope()
-        var isLoading by remember { mutableStateOf(false) }   //loading effect 조건
-        var startAnimation by remember { mutableStateOf(false) }   //추후 애니메이션 추가 예정
+        val uiState by screenModel.uiState.collectAsState()
+        var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
 
+
+        if (uiState.success) {
+            if(screenModel.isNewUser.value){
+                showBottomSheet = true
+            }else{
+                rootNavigator?.push(MainScreen)
+            }
+        }
+
+        val kakaoAuth = rememberKakaoAuth { code, error ->
+            if (code != null) {
+                screenModel.login(code)
+            } else {
+                println("카카오 로그인 실패: $error")
+            }
+        }
 
         val gradientBrush = Brush.verticalGradient(colors = listOf(Color(0xFFCADBDB), Color(0xFF90D8D8)))
 
@@ -96,9 +115,6 @@ class LoginScreen : Screen {
         Box(
             modifier = Modifier.fillMaxSize().background(gradientBrush)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
             Column(
                 modifier = Modifier.align(Alignment.Center).alpha(animationAlpha),
                 verticalArrangement = Arrangement.Center,
@@ -128,7 +144,9 @@ class LoginScreen : Screen {
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { showBottomSheet = true }
+                    ) {
+                        kakaoAuth.login()
+                }
             )
         }
     }
