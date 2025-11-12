@@ -14,11 +14,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -30,6 +33,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.ui.components.*
 import com.modura.app.ui.theme.*
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
@@ -43,6 +47,9 @@ data class ContentDetailScreen(val id: Int) : Screen {
         val detailUiState by screenModel.detailUiState
         val youtubeUiState by screenModel.youtubeUiState
         val rootNavigator = LocalRootNavigator.current
+
+        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+        var isLoading by remember { mutableStateOf(true) }
 
         LaunchedEffect(key1 = id) {
             screenModel.detailContent(id)
@@ -70,7 +77,17 @@ data class ContentDetailScreen(val id: Int) : Screen {
             return
         }
         detailUiState.data?.let { contentData ->
-
+            rememberImageBitmapFromUrl(
+                url = contentData.thumbnail,
+                onSuccess = { loadedBitmap ->
+                    imageBitmap = loadedBitmap
+                    isLoading = false
+                },
+                onFailure = { errorMessage ->
+                    println("이미지 로드 실패: $errorMessage")
+                    isLoading = false
+                }
+            )
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val initialImageHeight = this.maxHeight
                 val minImageHeight = 240.dp
@@ -320,13 +337,28 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                 }
                             }
                     ) {
-                        Image(
-                            painter = painterResource(Res.drawable.img_example),
-                            contentDescription = "배경 이미지",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-
+                        when {
+                            isLoading -> {
+                                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+                            }
+                            imageBitmap != null -> {
+                                Image(
+                                    bitmap = imageBitmap!!,
+                                    contentDescription = "배경 이미지",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            else -> {
+                                Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_x),
+                                        contentDescription = "로드 실패",
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+                            }
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
