@@ -11,8 +11,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 
 class DetailDataSourceImpl(
-    private val service: YoutubeService,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val service: YoutubeService
 ) : DetailDataSource {
     override suspend fun searchYoutubeVideos(query: String): YoutubeSearchResponseDto = service.searchVideos(query)
     override suspend fun detailContent(contentId: Int): BaseResponse<ContentDetailResponseDto> = httpClient.get("/contents/$contentId/detail").body()

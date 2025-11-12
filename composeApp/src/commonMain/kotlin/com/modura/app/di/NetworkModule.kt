@@ -16,10 +16,16 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import kotlinx.serialization.json.Json
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+object NetworkQualifiers {
+    const val MODURA_HTTP_CLIENT = "ModuraHttpClient"
+    const val YOUTUBE_HTTP_CLIENT = "YoutubeHttpClient"
+}
+
 val networkModule = module {
-    single {
+    single(named(NetworkQualifiers.MODURA_HTTP_CLIENT)) {
         val tokenRepository: TokenRepository = get()
         HttpClient {
             defaultRequest {
@@ -56,6 +62,16 @@ val networkModule = module {
                     }
                 }
             }
+        }
+    }
+    single(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT)) {
+        HttpClient {
+            defaultRequest {
+                url("https://www.googleapis.com/youtube/v3/")
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+            install(ContentNegotiation) { json(Json { prettyPrint = true;isLenient = true;ignoreUnknownKeys = true }) }
+            install(Logging) { level = LogLevel.ALL }
         }
     }
 }
