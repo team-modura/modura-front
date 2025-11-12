@@ -75,5 +75,26 @@ class DetailScreenModel(
             }
         }
     }
+
+    fun contentLikeCancel(contentId: Int) {
+        screenModelScope.launch {
+            repository.contentLikeCancel(contentId).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun placeLikeCancel(placeId: Int) {
+        screenModelScope.launch {
+            repository.placeLikeCancel(placeId).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
 }
 

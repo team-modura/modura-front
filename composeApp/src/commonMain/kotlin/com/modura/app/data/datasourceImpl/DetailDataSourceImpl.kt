@@ -7,6 +7,7 @@ import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 import com.modura.app.data.service.YoutubeService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 
@@ -18,4 +19,7 @@ class DetailDataSourceImpl(
     override suspend fun detailContent(contentId: Int): BaseResponse<ContentDetailResponseDto> = httpClient.get("/contents/$contentId/detail").body()
     override suspend fun contentLike(contentId: Int): BaseResponse<Unit> = httpClient.post("/contents/$contentId/like").body()
     override suspend fun placeLike(placeId: Int): BaseResponse<Unit> = httpClient.post("/places/$placeId/like").body()
+    override suspend fun contentLikeCancel(contentId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/like").body()
+    override suspend fun placeLikeCancel(placeId: Int): BaseResponse<Unit> = httpClient.delete("/places/$placeId/like").body()
+
 }

@@ -14,11 +14,8 @@ class DetailRepositoryImpl (
     override suspend fun detailContent(contentId: Int): Result<ContentDetailResponseModel> =
         runCatching {
             val response = dataSource.detailContent(contentId)
-            if (response.isSuccess && response.result != null) {
-                response.result.toContentDetailResponseModel()
-            } else {
-                throw Exception(response.message ?: "상세 정보를 불러오는데 실패했습니다.")
-            }
+            if (response.isSuccess && response.result != null) { response.result.toContentDetailResponseModel()
+            } else { throw Exception(response.message ?: "상세 정보를 불러오는데 실패했습니다.") }
         }
 
     override suspend fun contentLike(contentId: Int): Result<Unit> =
@@ -26,5 +23,11 @@ class DetailRepositoryImpl (
 
     override suspend fun placeLike(placeId: Int): Result<Unit> =
         runCatching { dataSource.detailContent(placeId) }
+
+    override suspend fun contentLikeCancel(contentId: Int): Result<Unit> =
+        runCatching { dataSource.detailContent(contentId)  }
+
+    override suspend fun placeLikeCancel(placeId: Int): Result<Unit> =
+        runCatching { dataSource.detailContent(placeId)  }
 
 }

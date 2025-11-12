@@ -8,4 +8,7 @@ interface DetailRepository {
     suspend fun detailContent(contentId: Int): Result<ContentDetailResponseModel>
     suspend fun contentLike(contentId: Int): Result<Unit>
     suspend fun placeLike(placeId: Int): Result<Unit>
+    suspend fun contentLikeCancel(contentId: Int): Result<Unit>
+    suspend fun placeLikeCancel(placeId: Int): Result<Unit>
+
 }

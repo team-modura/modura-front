@@ -10,4 +10,7 @@ interface DetailDataSource {
     suspend fun detailContent(contentId: Int): BaseResponse<ContentDetailResponseDto>
     suspend fun contentLike(contentId: Int): BaseResponse<Unit>
     suspend fun placeLike(placeId: Int): BaseResponse<Unit>
+    suspend fun contentLikeCancel(contentId: Int): BaseResponse<Unit>
+    suspend fun placeLikeCancel(placeId: Int): BaseResponse<Unit>
+
 }
