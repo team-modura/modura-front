@@ -18,6 +18,15 @@ class SearchRepositoryImpl (
             } else {
                 throw Exception(response.message)
             }
-
     }
+
+    override suspend fun searchPlaces(query: String): Result<SearchListResponseModel> =
+        runCatching {
+            val response = dataSource.searchPlaces(query)
+            if (response.isSuccess && response.result != null) {
+                response.result.toSearchListResponseModel()
+            } else {
+                throw Exception(response.message)
+            }
+        }
 }

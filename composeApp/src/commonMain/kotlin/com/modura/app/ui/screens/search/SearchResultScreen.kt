@@ -77,6 +77,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
         LaunchedEffect(searchValue) {
             if (searchValue.isNotBlank()) {
                 screenModel.searchContents(searchValue)
+                screenModel.searchPlaces(searchValue)
             } else {
                 tabNavigator.pop()
             }

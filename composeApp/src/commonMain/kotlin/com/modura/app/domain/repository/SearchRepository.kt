@@ -8,4 +8,5 @@ import com.modura.app.domain.model.response.search.SearchResponseModel
 interface SearchRepository {
 
     suspend fun searchContents(query: String): Result<SearchListResponseModel>
+    suspend fun searchPlaces(query: String): Result<SearchListResponseModel>
 }

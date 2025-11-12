@@ -40,4 +40,16 @@ class SearchScreenModel(
             }
         }
     }
+
+    fun searchPlaces(query: String){
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.searchPlaces(query).onSuccess {
+                if (it != null) { _uiState.update { it.copy(inProgress = false, places = it.contents) }
+                } else { _uiState.update { it.copy(inProgress = false, errorMessage = "검색 결과가 없습니다.") } }
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
 }
