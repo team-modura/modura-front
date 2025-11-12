@@ -2,13 +2,17 @@ package com.modura.app.data.datasourceImpl
 
 import com.modura.app.data.datasource.DetailDataSource
 import com.modura.app.data.dto.BaseResponse
+import com.modura.app.data.dto.request.detail.ContentReviewRequestDto
 import com.modura.app.data.dto.response.detail.ContentDetailResponseDto
+import com.modura.app.data.dto.response.detail.ContentReviewResponseDto
+import com.modura.app.data.dto.response.detail.ContentReviewsResponseDto
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 import com.modura.app.data.service.YoutubeService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 
 class DetailDataSourceImpl(
@@ -21,5 +25,10 @@ class DetailDataSourceImpl(
     override suspend fun placeLike(placeId: Int): BaseResponse<Unit> = httpClient.post("/places/$placeId/like").body()
     override suspend fun contentLikeCancel(contentId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/like").body()
     override suspend fun placeLikeCancel(placeId: Int): BaseResponse<Unit> = httpClient.delete("/places/$placeId/like").body()
+    override suspend fun contentReviews(contentId: Int): BaseResponse<ContentReviewsResponseDto> = httpClient.get("/contents/$contentId/reviews").body()
+    override suspend fun contentReview(contentId: Int, reviewId: Int): BaseResponse<ContentReviewResponseDto> = httpClient.get("/contents/$contentId/reviews/$reviewId").body()
+    override suspend fun contentReviewRegister(contentId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.post("/contents/$contentId/reviews").body()
+    override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.patch("/contents/$contentId/reviews/$reviewId").body()
+    override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/reviews/$reviewId").body()
 
 }

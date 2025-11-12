@@ -22,7 +22,7 @@ data class ContentDetailResponseModel(
     val threeStarCount: Int,
     val twoStarCount: Int,
     val oneStarCount: Int,
-    val reviews: List<ReviewResponseModel?>,
+    val reviews: List<ContentReviewResponseModel?>,
     val places: List<PlaceResponseModel?>
 )
 

@@ -1,7 +1,10 @@
 package com.modura.app.data.repositoryImpl
 
 import com.modura.app.data.datasource.DetailDataSource
+import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
+import com.modura.app.domain.model.response.detail.ContentReviewResponseModel
+import com.modura.app.domain.model.response.detail.ContentReviewsResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
 
@@ -29,5 +32,21 @@ class DetailRepositoryImpl (
 
     override suspend fun placeLikeCancel(placeId: Int): Result<Unit> =
         runCatching { dataSource.detailContent(placeId)  }
+
+    override suspend fun contentReviews(contentId: Int): Result<ContentReviewsResponseModel> =
+        runCatching { dataSource.contentReviews(contentId).result!!.toContentReviewsResponseModel() }
+
+    override suspend fun contentReview(contentId: Int, reviewId: Int): Result<ContentReviewResponseModel> =
+        runCatching { dataSource.contentReview(contentId, reviewId).result!!.toContentReviewResponseModel() }
+
+    override suspend fun contentReviewRegister(contentId: Int, request: ContentReviewRequestModel): Result<Unit> =
+        runCatching { dataSource.contentReviewRegister(contentId, request.toContentReviewRequestDto()) }
+
+    override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestModel): Result<Unit> =
+        runCatching { dataSource.contentReviewEdit(contentId, reviewId, request.toContentReviewRequestDto()) }
+
+    override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): Result<Unit> =
+        runCatching { dataSource.contentReviewDelete(contentId, reviewId)}
+
 
 }
