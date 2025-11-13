@@ -129,10 +129,6 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (uiState.errorMessage != null) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("오류가 발생했습니다: ${uiState.errorMessage}")
-                    }
                 } else {
                     if (selectedCategory == SearchCategory.CONTENT) {
                         if (uiState.contents.isEmpty()) {
