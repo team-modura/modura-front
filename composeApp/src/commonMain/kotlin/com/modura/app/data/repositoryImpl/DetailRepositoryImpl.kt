@@ -22,16 +22,16 @@ class DetailRepositoryImpl (
         }
 
     override suspend fun contentLike(contentId: Int): Result<Unit> =
-        runCatching { dataSource.detailContent(contentId) }
+        runCatching { dataSource.contentLike(contentId) }
 
     override suspend fun placeLike(placeId: Int): Result<Unit> =
-        runCatching { dataSource.detailContent(placeId) }
+        runCatching { dataSource.placeLike(placeId) }
 
     override suspend fun contentLikeCancel(contentId: Int): Result<Unit> =
-        runCatching { dataSource.detailContent(contentId)  }
+        runCatching { dataSource.contentLikeCancel(contentId)  }
 
     override suspend fun placeLikeCancel(placeId: Int): Result<Unit> =
-        runCatching { dataSource.detailContent(placeId)  }
+        runCatching { dataSource.placeLikeCancel(placeId)  }
 
     override suspend fun contentReviews(contentId: Int): Result<ContentReviewsResponseModel> =
         runCatching { dataSource.contentReviews(contentId).result!!.toContentReviewsResponseModel() }

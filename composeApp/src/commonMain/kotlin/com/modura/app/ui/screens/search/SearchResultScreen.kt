@@ -51,6 +51,7 @@ import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.SearchPlaceGrid
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.LocationDetailScreen
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
@@ -65,6 +66,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
     @Composable
     override fun Content() {
         val screenModel = getScreenModel<SearchScreenModel>()
+        val detailScreenModel = getScreenModel<DetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
 
         val navigator = LocalRootNavigator.current!!
@@ -148,9 +150,17 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                             ) {
                                 items(uiState.contents, key = { it.id }) { item ->
                                     SearchContentGrid(
+                                        id = item.id,
                                         image = item.thumbnail ?: "",
-                                        bookmark = item.isLiked,
-                                        onClick = { navigator.push(ContentDetailScreen(item.id)) }
+                                        isLiked = item.isLiked,
+                                        onClick = { navigator.push(LocationDetailScreen(item.id)) },
+                                        onLikeClick = {contentId, isLiked ->
+                                            if(isLiked){
+                                                detailScreenModel.contentLikeCancel(contentId)
+                                            }else{
+                                                detailScreenModel.contentLike(contentId)
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -173,9 +183,17 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                             ) {
                                 items(uiState.places, key = { it.id }) { item ->
                                     SearchPlaceGrid(
+                                        id = item.id,
                                         image = item.thumbnail ?: "",
-                                        bookmark = item.isLiked,
-                                        onClick = { navigator.push(LocationDetailScreen(item.id)) }
+                                        isLiked = item.isLiked,
+                                        onClick = { navigator.push(LocationDetailScreen(item.id)) },
+                                        onLikeClick = {placeId, isLiked ->
+                                            if(isLiked){
+                                                detailScreenModel.placeLikeCancel(placeId)
+                                            }else{
+                                                detailScreenModel.placeLike(placeId)
+                                            }
+                                        }
                                     )
                                 }
                             }
