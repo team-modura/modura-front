@@ -14,8 +14,7 @@ import com.modura.app.domain.repository.MypageRepository
 import com.modura.app.domain.repository.TokenRepository
 
 class MypageRepositoryImpl(
-    private val dataSource: MypageDataSource,
-    private val tokenRepository: TokenRepository
+    private val dataSource: MypageDataSource
 ) : MypageRepository {
 
     override suspend fun contentsLikes(type: String): Result<ContentsLikedResponseModel> =

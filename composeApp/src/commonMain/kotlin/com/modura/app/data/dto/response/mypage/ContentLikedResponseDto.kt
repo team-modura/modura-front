@@ -8,7 +8,7 @@ data class ContentLikedResponseDto(
     val id: Int,
     val title: String,
     val isLiked: Boolean,
-    val thumnail: String?
+    val thumbnail: String?
 ){
-    fun toContentLikedResponseModel() = ContentLikedResponseModel(id, title, isLiked, thumnail)
+    fun toContentLikedResponseModel() = ContentLikedResponseModel(id, title, isLiked, thumbnail)
 }

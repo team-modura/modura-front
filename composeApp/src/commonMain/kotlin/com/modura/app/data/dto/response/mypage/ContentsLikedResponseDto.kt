@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ContentsLikedResponseDto(
-    val contentList: List<ContentLikedResponseDto>
+    val contentList: List<ContentLikedResponseDto> = emptyList()
 ){
     fun toContentsLikedResponseModel() = ContentsLikedResponseModel(contentList.map { it.toContentLikedResponseModel() })
 }

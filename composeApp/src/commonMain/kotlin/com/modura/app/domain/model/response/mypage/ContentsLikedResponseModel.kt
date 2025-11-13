@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ContentsLikedResponseModel(
-    val contentList: List<ContentLikedResponseModel>
+    val contentList: List<ContentLikedResponseModel> = emptyList()
 )

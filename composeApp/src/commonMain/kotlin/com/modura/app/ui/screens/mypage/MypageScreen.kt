@@ -22,10 +22,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.MypageReview
@@ -62,12 +66,26 @@ object MyPageScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
-        val mediaList = DummyProvider.dummyMedia
-        val placeList = DummyProvider.dummyPlaces
+        val screenModel = getScreenModel<MypageScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
+        val likedSeries by screenModel.likedSeries.collectAsState()
+        val likedMovies by screenModel.likedMovies.collectAsState()
+        val likedPlaces by screenModel.likedPlaces.collectAsState()
 
         var showBottomSheet by remember { mutableStateOf(false) }
         var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
         val bottomSheetItems = listOf("상세보기", "수정", "삭제")
+
+
+        var selectedTab by remember { mutableStateOf("찜") }
+
+        LaunchedEffect(selectedTab) {
+            if (selectedTab == "찜") {
+                screenModel.getLikedContents("series")
+                screenModel.getLikedContents("movies")
+                screenModel.getLikedPlaces()
+            }
+        }
 
         if (showBottomSheet && selectedReview != null) {
             ListBottomSheet(
@@ -115,8 +133,6 @@ object MyPageScreen : Screen {
             }
             Spacer(Modifier.height(20.dp))
             Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
-
-            var selectedTab by remember { mutableStateOf("찜") }
 
             Column {
                 Row(
@@ -168,13 +184,48 @@ object MyPageScreen : Screen {
                 }
                 Spacer(Modifier.height(10.dp))
 
-                val filteredList = when (selectedType) {
-                    "시리즈" -> mediaList.filter { "netflix" in it.ott }
-                    "영화" -> mediaList.filter { "netflix" !in it.ott }
-                    "장소" -> placeList
-                    else -> emptyList()
+                if(uiState.inProgress){
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        when (selectedType) {
+                            "시리즈" -> {
+                                items(likedSeries, key = { it.id }) { item ->
+                                    ContentGrid(
+                                        image = item.thumbnail?:"",
+                                        title = item.title,
+                                        onClick = { navigator.push(ContentDetailScreen(id = item.id)) }
+                                    )
+                                }
+                            }
+                            "영화" -> {
+                                items(likedMovies, key = { it.id }) { item ->
+                                    ContentGrid(
+                                        image = item.thumbnail?:"",
+                                        title = item.title,
+                                        onClick = { navigator.push(ContentDetailScreen(id = item.id)) }
+                                    )
+                                }
+                            }
+                            "장소" -> {
+                                items(likedPlaces, key = { it.id }) { item ->
+                                    ContentGrid(
+                                        image = item.thumbnail?:"",
+                                        title = item.title,
+                                        onClick = { navigator.push(LocationDetailScreen(item.id)) }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-                LazyVerticalGrid(
+                /*LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -204,7 +255,7 @@ object MyPageScreen : Screen {
                             )
                         }
                     }
-                }
+                }*/
             }else if(selectedTab == "스틸컷") {
                 val stillCutList = DummyProvider.dummyStillCuts
 

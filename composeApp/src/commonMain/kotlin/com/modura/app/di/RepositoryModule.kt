@@ -9,4 +9,5 @@ val repositoryModule = module {
     single<LoginRepository> { LoginRepositoryImpl(get(), get())}
     single<DetailRepository> { DetailRepositoryImpl(get()) }
     single<SearchRepository> { SearchRepositoryImpl(get()) }
+    single<MypageRepository>{ MypageRepositoryImpl(get()) }
 }

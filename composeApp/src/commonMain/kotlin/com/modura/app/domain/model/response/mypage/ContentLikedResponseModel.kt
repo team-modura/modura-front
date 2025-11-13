@@ -7,5 +7,5 @@ data class ContentLikedResponseModel(
     val id: Int,
     val title: String,
     val isLiked: Boolean,
-    val thumnail: String?
+    val thumbnail: String?
 )

@@ -21,7 +21,7 @@ class MypageDataSourceImpl(
     private val httpClient: HttpClient
 ) : MypageDataSource {
     override suspend fun contentsLikes(type: String): BaseResponse<ContentsLikedResponseDto>
-        = httpClient.get("/users/likes/contents?ty pe=$type").body()
+        = httpClient.get("/users/likes/contents?type=$type").body()
 
     override suspend fun placesLikes(): BaseResponse<ContentsLikedResponseDto>
         = httpClient.get("/users/likes/places").body()
