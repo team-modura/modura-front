@@ -35,10 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import coil3.compose.AsyncImage
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.MypageReview
@@ -71,6 +74,7 @@ object MyPageScreen : Screen {
         val likedSeries by screenModel.likedSeries.collectAsState()
         val likedMovies by screenModel.likedMovies.collectAsState()
         val likedPlaces by screenModel.likedPlaces.collectAsState()
+        val stillcuts by screenModel.stillcuts.collectAsState()
 
         var showBottomSheet by remember { mutableStateOf(false) }
         var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
@@ -84,6 +88,8 @@ object MyPageScreen : Screen {
                 screenModel.getLikedContents("series")
                 screenModel.getLikedContents("movies")
                 screenModel.getLikedPlaces()
+            } else if (selectedTab == "스틸컷") {
+                screenModel.getStillcuts()
             }
         }
 
@@ -121,7 +127,8 @@ object MyPageScreen : Screen {
                 Image(
                     painter = painterResource(Res.drawable.img_logo_text),
                     contentDescription = "로고",
-                    modifier = Modifier.height(15.dp)
+                    modifier = Modifier.height(15.dp),
+                    colorFilter = ColorFilter.tint(Color.Black)
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
@@ -257,23 +264,27 @@ object MyPageScreen : Screen {
                     }
                 }*/
             }else if(selectedTab == "스틸컷") {
-                val stillCutList = DummyProvider.dummyStillCuts
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                ) {
-                    items(stillCutList.size) { index ->
-                        val stillCutImage = stillCutList[index]
-                        Image(
-                            painter = painterResource(stillCutImage),
-                            contentDescription = "스틸컷 이미지 $index",
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .clickable {
-                                    println("스틸컷 $index 클릭됨")
-                                },
-                            contentScale = ContentScale.Crop
-                        )
+                if(uiState.inProgress){
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier.fillMaxSize().padding(top = 10.dp)
+                    ) {
+                        items(stillcuts, key = { it.id }) { stillcut ->
+                            AsyncImage(
+                                model = stillcut.imageUrl,
+                                contentDescription = "스틸컷 이미지 ${stillcut.id}",
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .clickable {
+                                        println("스틸컷 ${stillcut.id} 클릭됨")
+                                    },
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
             }

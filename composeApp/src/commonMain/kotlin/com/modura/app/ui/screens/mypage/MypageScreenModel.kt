@@ -9,6 +9,8 @@ import com.modura.app.domain.model.request.login.LoginRequestModel
 import com.modura.app.domain.model.request.login.UserRequestModel
 import com.modura.app.domain.model.response.mypage.ContentLikedResponseModel
 import com.modura.app.domain.model.response.mypage.ContentsLikedResponseModel
+import com.modura.app.domain.model.response.mypage.StillcutResponseModel
+import com.modura.app.domain.model.response.mypage.StillcutsResponseModel
 import com.modura.app.domain.repository.LoginRepository
 import com.modura.app.domain.repository.MypageRepository
 import kotlinx.coroutines.coroutineScope
@@ -41,6 +43,9 @@ class MypageScreenModel(
     private val _likedPlaces = MutableStateFlow<List<ContentLikedResponseModel>>(emptyList())
     val likedPlaces: StateFlow<List<ContentLikedResponseModel>> = _likedPlaces.asStateFlow()
 
+    private val _stillcuts = MutableStateFlow<List<StillcutResponseModel>>(emptyList())
+    val stillcuts: StateFlow<List<StillcutResponseModel>> = _stillcuts.asStateFlow()
+
     fun getLikedContents(type: String) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
@@ -64,6 +69,19 @@ class MypageScreenModel(
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.placesLikes().onSuccess {
                 _likedPlaces.value = it.contentList
+                _uiState.update { it.copy(inProgress = false, success = true) }
+            }.onFailure {
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun getStillcuts(){
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.stillcuts().onSuccess {
+                _stillcuts.value = it.stillcutList
                 _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {
                 _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
