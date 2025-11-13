@@ -6,7 +6,7 @@ import com.modura.app.domain.model.response.detail.StillcutResponseModel
 
 interface MypageDataSource {
     suspend fun contentsLikes(type: String): BaseResponse<ContentsLikedResponseDto>
-    suspend fun placesLikes(): BaseResponse<ContentsLikedResponseDto>
+    suspend fun placesLikes(): BaseResponse<PlacesLikedResponseDto>
     suspend fun stillcuts(): BaseResponse<StillcutsResponseDto>
     suspend fun stillcutDetail(stillcutId: Int): BaseResponse<StillcutDetailResponseDto>
 }

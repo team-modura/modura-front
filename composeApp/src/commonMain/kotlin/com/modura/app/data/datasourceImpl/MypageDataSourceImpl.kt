@@ -7,6 +7,7 @@ import com.modura.app.data.dto.request.login.LoginRequestDto
 import com.modura.app.data.dto.request.login.UserRequestDto
 import com.modura.app.data.dto.response.login.LoginResponseDto
 import com.modura.app.data.dto.response.mypage.ContentsLikedResponseDto
+import com.modura.app.data.dto.response.mypage.PlacesLikedResponseDto
 import com.modura.app.data.dto.response.mypage.StillcutDetailResponseDto
 import com.modura.app.data.dto.response.mypage.StillcutsResponseDto
 import com.modura.app.domain.repository.LoginRepository
@@ -23,7 +24,7 @@ class MypageDataSourceImpl(
     override suspend fun contentsLikes(type: String): BaseResponse<ContentsLikedResponseDto>
         = httpClient.get("/users/likes/contents?type=$type").body()
 
-    override suspend fun placesLikes(): BaseResponse<ContentsLikedResponseDto>
+    override suspend fun placesLikes(): BaseResponse<PlacesLikedResponseDto>
         = httpClient.get("/users/likes/places").body()
 
     override suspend fun stillcuts(): BaseResponse<StillcutsResponseDto>

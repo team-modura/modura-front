@@ -21,15 +21,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -41,20 +47,49 @@ fun ContentGrid(
     title: String = "제목",
     onClick: () -> Unit = {}
 ){
-    /*val painter = if (image.isNotBlank()) { rememberAsyncImagePainter(image)
-    } else { painterResource(Res.drawable.img_example) }*/
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    rememberImageBitmapFromUrl(
+        url = image,
+        onSuccess = { loadedBitmap ->
+            imageBitmap = loadedBitmap
+            isLoading = false
+        },
+        onFailure = { errorMessage ->
+            println("이미지 로드 실패: $errorMessage")
+            isLoading = false
+        }
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
             .clickable(onClick = onClick),
     ){
-        Image(
-            painter = painterResource(Res.drawable.img_example), //추후 api 내부에 있는 이미지로 수정
-            contentDescription = "이미지",
-            modifier = Modifier.fillMaxSize()
-                .aspectRatio(3f/4f)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+            }
+            imageBitmap != null -> {
+                Image(
+                    bitmap = imageBitmap!!,
+                    contentDescription = "이미지",
+                    modifier = Modifier.fillMaxSize()
+                        .aspectRatio(3f/4f)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            else -> {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_x),
+                        contentDescription = "로드 실패",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(4.dp))
         Text(title,style = MaterialTheme.typography.labelLarge, modifier = Modifier.height(40.dp))
     }

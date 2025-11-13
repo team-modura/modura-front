@@ -93,6 +93,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
             ) {
                 Spacer(Modifier.height(20.dp))
                 SearchField(
+                    modifier = Modifier.padding(horizontal = 20.dp),
                     value = searchValue,
                     onValueChange = { searchValue = it },
                     onSearch = { searchTerm ->
@@ -153,7 +154,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                                         id = item.id,
                                         image = item.thumbnail ?: "",
                                         isLiked = item.isLiked,
-                                        onClick = { navigator.push(LocationDetailScreen(item.id)) },
+                                        onClick = { navigator.push(ContentDetailScreen(item.id)) },
                                         onLikeClick = {contentId, isLiked ->
                                             if(isLiked){
                                                 detailScreenModel.contentLikeCancel(contentId)

@@ -224,7 +224,7 @@ object MyPageScreen : Screen {
                                 items(likedPlaces, key = { it.id }) { item ->
                                     ContentGrid(
                                         image = item.thumbnail?:"",
-                                        title = item.title,
+                                        title = item.name,
                                         onClick = { navigator.push(LocationDetailScreen(item.id)) }
                                     )
                                 }
