@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchListResponseDto(
-    val contentList : List<SearchResponseDto>
+    val contentList : List<SearchResponseDto> = emptyList()
 ){
     fun toSearchListResponseModel()= SearchListResponseModel(contentList.map { it.toSearchResponseModel() })
 }

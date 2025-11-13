@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchListResponseModel(
-    val contentList : List<SearchResponseModel>
+    val contentList : List<SearchResponseModel> = emptyList()
 )

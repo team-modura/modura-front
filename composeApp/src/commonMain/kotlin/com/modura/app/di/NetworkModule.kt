@@ -61,9 +61,9 @@ val networkModule = module {
                         tokenRepository.clearTokens()
                         null
                     }
-                    sendWithoutRequest { request ->
+                    /*sendWithoutRequest { request ->
                         request.url.encodedPath.endsWith("auth/login")
-                    }
+                    }*/
                 }
             }
         }

@@ -159,7 +159,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                                 }
                             }
                         }
-                    } else { // PLACE
+                    } else {
                         if (uiState.places.isEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -178,6 +178,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                                 items(uiState.places, key = { it.id }) { item ->
                                     SearchPlaceGrid(
                                         image = item.thumbnail ?: "",
+                                        bookmark = item.isLiked,
                                         onClick = { navigator.push(LocationDetailScreen(item.id)) }
                                     )
                                 }
