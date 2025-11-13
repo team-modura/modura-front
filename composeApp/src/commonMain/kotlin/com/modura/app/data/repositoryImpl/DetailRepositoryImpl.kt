@@ -60,4 +60,6 @@ class DetailRepositoryImpl (
     override suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestModel): Result<Unit> =
         runCatching { dataSource.stillcutSave(placeId, stillcutId, request.toStillcutRequestDto()) }
 
+    override suspend fun uploadImage(folder: String, fileName: List<String>, contentType: List<String>): Result<List<UploadImageResponseModel>> =
+        runCatching { dataSource.uploadImage(folder, fileName, contentType).result!!.map { dto -> dto.toUploadImageResponseModel() }}
 }

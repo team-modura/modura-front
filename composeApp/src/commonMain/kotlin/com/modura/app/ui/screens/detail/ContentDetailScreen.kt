@@ -43,6 +43,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
 
     @Composable
     override fun Content() {
+
         val screenModel: DetailScreenModel = getScreenModel()
         val detailUiState by screenModel.detailUiState
         val youtubeUiState by screenModel.youtubeUiState
@@ -88,13 +89,16 @@ data class ContentDetailScreen(val id: Int) : Screen {
                     isLoading = false
                 }
             )
+
+            var internalIsLiked by remember { mutableStateOf(contentData.isLiked) }
+            LaunchedEffect(contentData.isLiked) {
+                internalIsLiked = contentData.isLiked
+            }
+            val bookmark=if(internalIsLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
+
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val initialImageHeight = this.maxHeight
                 val minImageHeight = 240.dp
-                val bookmarkPainter =
-                    if (contentData.isLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(
-                        Res.drawable.img_bookmark_big_unselected
-                    )
                 val lazyListState = rememberLazyListState()
                 val density = LocalDensity.current
 
@@ -133,7 +137,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     .background(Gray100)
                             ) {
                                 Column {
-                                    Spacer(Modifier.height(8.dp))
+                                    Spacer(Modifier.height(20.dp))
                                     Text(
                                         "줄거리",
                                         style = MaterialTheme.typography.titleLarge,
@@ -162,19 +166,29 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         }
                                     }
                                     Column(Modifier.padding(vertical = 12.dp)) {
-                                        Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                                        Row(modifier = Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.Bottom) {
                                             Text("리뷰", style = MaterialTheme.typography.titleLarge)
                                             Spacer(Modifier.weight(1f))
                                             Text("전체보기", style = MaterialTheme.typography.bodySmall)
                                         }
                                         Spacer(Modifier.height(4.dp))
-                                        Box(
-                                            modifier = Modifier.background(White)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .padding(horizontal = 20.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Review(4.5f, listOf(10, 4, 6, 2, 3))
+                                        Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                                            Box(
+                                                modifier = Modifier.background(White)
+                                                    .clip(RoundedCornerShape(8.dp)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Review(
+                                                    contentData.reviewAvg,
+                                                    listOf(
+                                                        contentData.fiveStarCount,
+                                                        contentData.fourStarCount,
+                                                        contentData.threeStarCount,
+                                                        contentData.twoStarCount,
+                                                        contentData.oneStarCount
+                                                    )
+                                                )
+                                            }
                                         }
                                         Spacer(Modifier.height(20.dp))
                                         Column(
@@ -193,7 +207,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                                 rating = userRating,
                                                 onRatingChange = { newRating ->
                                                     userRating = newRating
-                                                    rootNavigator?.push(ReviewScreen(1, "콘텐츠"))
+                                                    rootNavigator?.push(ReviewScreen(1, "콘텐츠",contentData.titleKr,newRating))
                                                 }
                                             )
                                             Spacer(Modifier.height(12.dp))
@@ -390,13 +404,18 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                 )
                                 Spacer(Modifier.weight(1f))
                                 Image(
-                                    painter = bookmarkPainter,
+                                    painter = bookmark,
                                     contentDescription = "북마크",
                                     modifier = Modifier
                                         .height(90.dp)
                                         .width(50.dp)
                                         .clickable {
-                                            println("북마크 클릭됨")
+                                            internalIsLiked = !internalIsLiked
+                                            if (contentData.isLiked) {
+                                                screenModel.contentLikeCancel(contentData.id)
+                                            } else {
+                                                screenModel.contentLike(contentData.id)
+                                            }
                                         }
                                 )
                             }

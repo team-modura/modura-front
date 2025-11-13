@@ -22,4 +22,5 @@ interface DetailRepository {
     suspend fun contentReviewDelete(contentId: Int, reviewId: Int): Result<Unit>
     suspend fun stillcut(placeId: Int): Result<StillcutResponseModel>
     suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestModel): Result<Unit>
+    suspend fun uploadImage(folder: String, fileName:List<String>, contentType:List<String>): Result<List<UploadImageResponseModel>>
 }

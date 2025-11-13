@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 fun ReviewStarInput(
     rating: Int,
     onRatingChange: (Int) -> Unit,
-    starSize: Dp = 48.dp // 기본 크기를 32dp로 설정
+    starSize: Dp = 48.dp
 ) {
     Row {
         for (i in 1..5) {

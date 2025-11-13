@@ -4,9 +4,12 @@ import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.modura.app.data.dto.response.detail.ContentDetailResponseDto
+import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
+import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
+import io.ktor.client.request.request
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
@@ -25,19 +28,20 @@ data class DetailContentUiState(
 
 class DetailScreenModel(
     private val repository: DetailRepository
-) : ScreenModel{
-    
+) : ScreenModel {
+
     val youtubeUiState = mutableStateOf(YoutubeUiState())
     var detailUiState = mutableStateOf(DetailContentUiState())
 
-    fun detailContent(contentId: Int){
+    fun detailContent(contentId: Int) {
         screenModelScope.launch {
             detailUiState.value = DetailContentUiState(inProgress = true)
             repository.detailContent(contentId).onSuccess {
                 detailUiState.value = DetailContentUiState(inProgress = false, data = it)
                 getYoutubeVideos("${it.titleKr} 공식 예고편")
             }.onFailure {
-                detailUiState.value = DetailContentUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
+                detailUiState.value =
+                    DetailContentUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
                 it.printStackTrace()
             }
         }
@@ -45,18 +49,23 @@ class DetailScreenModel(
 
     fun getYoutubeVideos(query: String) {
         screenModelScope.launch {
-            youtubeUiState.value = youtubeUiState.value.copy(isYoutubeLoading = true, youtubeErrorMessage = null)
+            youtubeUiState.value =
+                youtubeUiState.value.copy(isYoutubeLoading = true, youtubeErrorMessage = null)
             repository.getYoutubeVideos(query)
                 .onSuccess {
-                    youtubeUiState.value = youtubeUiState.value.copy(videos = it, isYoutubeLoading = false)
+                    youtubeUiState.value =
+                        youtubeUiState.value.copy(videos = it, isYoutubeLoading = false)
                 }.onFailure {
                     it.printStackTrace()
-                    youtubeUiState.value = youtubeUiState.value.copy(isYoutubeLoading = false, youtubeErrorMessage = "영상을 불러오는 중 오류가 발생했습니다.")
+                    youtubeUiState.value = youtubeUiState.value.copy(
+                        isYoutubeLoading = false,
+                        youtubeErrorMessage = "영상을 불러오는 중 오류가 발생했습니다."
+                    )
                 }
         }
     }
 
-    fun contentLike(contentId: Int){
+    fun contentLike(contentId: Int) {
         screenModelScope.launch {
             repository.contentLike(contentId).onSuccess {
                 println(it)
@@ -96,5 +105,36 @@ class DetailScreenModel(
         }
     }
 
+    fun contentReviewRegister(contentId: Int, request: ContentReviewRequestModel) {
+        screenModelScope.launch {
+            repository.contentReviewRegister(contentId, request).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun placeReviewRegister(placeId: Int, rating: Int, comment: String, photoUris: List<String>) {
+        screenModelScope.launch {
+                val finalImageUrls: List<String>
+                if (photoUris.isNotEmpty()) {
+                    val fileNames = photoUris.map { it.substringAfterLast('/') }
+                    val mimeTypes = photoUris.map { getMimeType(it) }
+                    val uploadResponses = repository.uploadImage(
+                        folder = "reviews",
+                        fileName = fileNames,
+                        contentType = mimeTypes
+                    ).getOrThrow()
+                    finalImageUrls = uploadResponses.map { it.presignedUrl.substringBefore("?") }
+                } else { finalImageUrls = emptyList() }
+                val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageUrls)
+                repository.placeReviewRegister(placeId, reviewRequest).onSuccess {
+                    println("리뷰 등록 성공")
+                }.onFailure {
+                    it.printStackTrace()
+                }
+        }
+    }
 }
 

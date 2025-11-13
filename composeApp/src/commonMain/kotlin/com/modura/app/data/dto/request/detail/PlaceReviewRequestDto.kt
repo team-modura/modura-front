@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class PlaceReviewRequestDto(
     val rating: Int,
     val comment: String,
-    val imageUrl: List<String>
+    val imageUrl: List<String?>
 )

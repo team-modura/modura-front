@@ -56,7 +56,7 @@ fun ReviewCount(
                     .fillMaxWidth(fraction)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(99.dp))
-                    .background(Yellow500)
+                    .background(Main500)
             )
         }
         Text(count.toString(),style = MaterialTheme.typography.labelSmall, color = Gray800)

@@ -19,7 +19,7 @@ import com.modura.app.ui.theme.*
 @Composable
 fun Review(
     //id: Int,
-    average: Float,
+    average: Double,
     count: List<Int>
 ){
     val maxCount = count.max()
@@ -30,11 +30,11 @@ fun Review(
             Row{
                 for (i in 1..5) {
                     val fraction = when {
-                        average >= i -> 1f
-                        average > i - 1 -> average - (i - 1)
-                        else -> 0f
+                        average >= i.toDouble() -> 1.0
+                        average > (i - 1).toDouble() -> average - (i - 1).toDouble()
+                        else -> 0.0
                     }
-                    ReviewStar(fraction = fraction)
+                    ReviewStar(fraction = fraction.toFloat())
                 }
             }
         }

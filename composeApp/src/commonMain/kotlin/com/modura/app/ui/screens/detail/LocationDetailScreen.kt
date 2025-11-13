@@ -43,14 +43,6 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
         val screenModel: DetailScreenModel = getScreenModel()
         val uiState by screenModel.youtubeUiState
 
-        LaunchedEffect(Unit) {
-            screenModel.getYoutubeVideos("기묘한 이야기 공식 예고편")
-        }
-        val ott: List<String> = listOf("netflix", "watcha")
-        val categories = listOf("공포", "SF", "스릴러", "미국", "다크 판타지", "미스터리", "시대극")
-        val story =
-            "인디애나주의 작은 마을에서 행방불명된 소년. 이와 함께 미스터리한 힘을 가진 소녀가 나타나고, 마을에는 기묘한 현상들이 일어나기 시작한다. 아들을 찾으려는 엄마와 마을 사람들은 이제 정부의 일급비밀 실험의 실체와 무시무시한 기묘한 현상들에 맞서야 한다"
-
         LazyColumn(
             modifier = Modifier.fillMaxSize().background(Gray100)
         ) {
@@ -170,7 +162,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                             rating = userRating,
                             onRatingChange = { newRating ->
                                 userRating = newRating
-                                rootNavigator?.push(ReviewScreen(1,"장소"))
+                                rootNavigator?.push(ReviewScreen(1,"장소",place.name,newRating))
                             }
                         )
                         Spacer(Modifier.height(12.dp))

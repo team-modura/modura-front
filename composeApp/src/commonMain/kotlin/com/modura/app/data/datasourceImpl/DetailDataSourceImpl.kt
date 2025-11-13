@@ -12,8 +12,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 
 class DetailDataSourceImpl(
     private val httpClient: HttpClient,
@@ -28,11 +33,16 @@ class DetailDataSourceImpl(
     override suspend fun contentReviews(contentId: Int): BaseResponse<ContentReviewsResponseDto> = httpClient.get("/contents/$contentId/reviews").body()
     override suspend fun placeReviews(placeId: Int): BaseResponse<PlaceReviewsResponseDto> = httpClient.get("/places/$placeId/reviews").body()
     override suspend fun contentReview(contentId: Int, reviewId: Int): BaseResponse<ContentReviewResponseDto> = httpClient.get("/contents/$contentId/reviews/$reviewId").body()
-    override suspend fun contentReviewRegister(contentId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.post("/contents/$contentId/reviews").body()
-    override suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/reviews").body()
-    override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.patch("/contents/$contentId/reviews/$reviewId").body()
+    override suspend fun contentReviewRegister(contentId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.post("/contents/$contentId/reviews"){setBody(request)}.body()
+    override suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/reviews"){setBody(request)}.body()
+    override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.patch("/contents/$contentId/reviews/$reviewId"){setBody(request)}.body()
     override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/reviews/$reviewId").body()
     override suspend fun stillcut(placeId: Int): BaseResponse<StillcutResponseDto> = httpClient.get("/places/$placeId/stillcuts").body()
-    override suspend fun stillcutSave(placeId: Int, stullcutId: Int, request: StillcutRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/stillcuts/$stullcutId").body()
-
+    override suspend fun stillcutSave(placeId: Int, stullcutId: Int, request: StillcutRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/stillcuts/$stullcutId"){setBody(request)}.body()
+    override suspend fun uploadImage(folder: String, fileName: List<String>, contentType: List<String>): BaseResponse<List<UploadImageResponseDto>> =
+        httpClient.post("/s3/presigned-upload") {
+            parameter("folder", folder)
+            parameter("fileName", fileName)
+            parameter("contentType", contentType)
+            header(HttpHeaders.ContentType, ContentType.Application.Json) }.body()
 }
