@@ -26,5 +26,5 @@ data class ContentDetailResponseDto(
     val reviews: List<ContentReviewResponseDto?>,
     val places: List<PlaceResponseDto?>
 ){
-    fun toContentDetailResponseModel()= ContentDetailResponseModel(id, tmdbId, type, titleKr, titleEng, isLiked, runtime, year, contentCategories, plot, thumbnail, platforms, reviewAvg, fiveStarCount, fourStarCount, threeStarCount, twoStarCount, oneStarCount, reviews.map{it?.toReviewResponseModel()}, places.map{it?.toPlaceResponseModel()})
+    fun toContentDetailResponseModel()= ContentDetailResponseModel(id, tmdbId, type, titleKr, titleEng, isLiked, runtime, year, contentCategories, plot, thumbnail, platforms, reviewAvg, fiveStarCount, fourStarCount, threeStarCount, twoStarCount, oneStarCount, reviews.map{it?.toContentReviewResponseModel()}, places.map{it?.toPlaceResponseModel()})
 }

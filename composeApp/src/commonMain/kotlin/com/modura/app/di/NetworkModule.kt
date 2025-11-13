@@ -15,6 +15,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.http.encodedPath
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -59,6 +60,9 @@ val networkModule = module {
                         println(">>> 401 Unauthorized 감지. 토큰 재발급 로직은 현재 주석 처리됨.")
                         tokenRepository.clearTokens()
                         null
+                    }
+                    sendWithoutRequest { request ->
+                        request.url.encodedPath.endsWith("auth/login")
                     }
                 }
             }
