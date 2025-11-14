@@ -14,6 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.graphics.ImageBitmap
 import android.graphics.Matrix
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
@@ -27,7 +31,7 @@ import kotlin.text.format
 actual fun rememberCameraManager(onResult: (ImageBitmap?) -> Unit): () -> Unit {
 
     val context = LocalContext.current
-    var tempUri: Uri? = null
+    var tempUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
@@ -43,16 +47,14 @@ actual fun rememberCameraManager(onResult: (ImageBitmap?) -> Unit): () -> Unit {
         }
     )
 
-    return remember {
-        {
-            val tempFile = createTempImageFile(context)
-            tempUri = FileProvider.getUriForFile(
-                Objects.requireNonNull(context),
-                "${context.packageName}.provider",
-                tempFile
-            )
-            launcher.launch(tempUri)
-        }
+    return {
+        val newTempUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            createTempImageFile(context)
+        )
+        tempUri = newTempUri
+        launcher.launch(newTempUri)
     }
 }
 

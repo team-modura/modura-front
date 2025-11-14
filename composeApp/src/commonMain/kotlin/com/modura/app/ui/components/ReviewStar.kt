@@ -37,7 +37,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun ReviewStar(
     fraction: Float,
     modifier: Modifier = Modifier.size(12.dp),
-    color: Color = Gray700
+    color: Color = Main500
 ) {
     Box(modifier = modifier) {
         Image(

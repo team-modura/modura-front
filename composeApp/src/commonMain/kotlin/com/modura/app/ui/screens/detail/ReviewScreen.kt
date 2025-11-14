@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,8 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
+import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
+import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
+import com.modura.app.domain.model.response.detail.ContentReviewResponseModel
+import com.modura.app.domain.model.response.detail.ContentReviewsResponseModel
 import com.modura.app.ui.components.*
 import com.modura.app.ui.theme.*
 import com.modura.app.util.platform.rememberImagePicker
@@ -27,17 +33,29 @@ import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 
-data class ReviewScreen(val id: Int, val reviewType: String) : Screen {
+data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,val initialRating: Int = 0 ) : Screen {
     override val key: String = "ReviewScreen_${reviewType}_$id"
 
     @Composable
     override fun Content() {
         val rootNavigator = LocalRootNavigator.current
         val navigator = LocalRootNavigator.currentOrThrow
-        val title = "작품명"
-        var userRating by remember { mutableStateOf(0) }
+        val screenModel: DetailScreenModel = getScreenModel()
+        val reviewUiState by screenModel.reviewUiState
+        var userRating by remember(initialRating) { mutableStateOf(initialRating) }
         val selectedPhotos = remember { mutableStateListOf<String>() }
+        var reviewText by remember { mutableStateOf("") }
 
+
+        if (reviewUiState.inProgress) {
+            CircularProgressIndicator()
+        }
+
+        LaunchedEffect(reviewUiState.success) {
+            if (reviewUiState.success) {
+                println()
+            }
+        }
 
         val imagePicker = rememberImagePicker { uris ->
             if (selectedPhotos.size + uris.size <= 5) {
@@ -63,8 +81,20 @@ data class ReviewScreen(val id: Int, val reviewType: String) : Screen {
                 )
                 Spacer(Modifier.weight(1f))
                 Text("완료", style= MaterialTheme.typography.bodyLarge, modifier = Modifier.clickable {
-                    //완료 처리 후 이전 화면으로 돌아감
-                    rootNavigator?.pop()
+                    if(reviewType=="장소"){
+                        screenModel.placeReviewRegister(
+                            placeId = id,
+                            rating = userRating,
+                            comment = reviewText,
+                            photoUris = selectedPhotos
+                        )
+                    }else if(reviewType=="콘텐츠") {
+                        val request = ContentReviewRequestModel(
+                            rating = userRating,
+                            comment = reviewText
+                        )
+                        screenModel.contentReviewRegister(id,request)
+                    }
                 })
             }
             Text(title, style = MaterialTheme.typography.bodyLarge)
@@ -74,7 +104,6 @@ data class ReviewScreen(val id: Int, val reviewType: String) : Screen {
                     userRating = newRating
                 }
             )
-            var reviewText by remember { mutableStateOf("") }
 
             TextField(
                 value = reviewText,
@@ -126,5 +155,23 @@ data class ReviewScreen(val id: Int, val reviewType: String) : Screen {
                 }
             }
         }
+    }
+}
+
+fun getMimeType(fileUri: String): String {
+    val extension = fileUri.substringAfterLast('.', "")
+    return when (extension.lowercase()) {
+        "jpg", "jpeg" -> "image/jpeg"
+        "png" -> "image/png"
+        else -> "image/jpeg"
+    }
+}
+
+
+ fun extensionFromMimeType(mimeType: String): String {
+    return when (mimeType) {
+        "image/jpeg" -> "jpg"
+        "image/png" -> "png"
+        else -> "jpg"
     }
 }

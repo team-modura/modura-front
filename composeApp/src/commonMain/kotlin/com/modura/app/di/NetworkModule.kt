@@ -15,15 +15,23 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.http.encodedPath
 import kotlinx.serialization.json.Json
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+object NetworkQualifiers {
+    const val MODURA_HTTP_CLIENT = "ModuraHttpClient"
+    const val YOUTUBE_HTTP_CLIENT = "YoutubeHttpClient"
+    const val NO_AUTH_HTTP_CLIENT = "NoAuthHttpClient"
+}
+
 val networkModule = module {
-    single {
+    single(named(NetworkQualifiers.MODURA_HTTP_CLIENT)) {
         val tokenRepository: TokenRepository = get()
-        HttpClient {
+        HttpClient(CIO) {
             defaultRequest {
-                println(BASE_URL)
                 url(BASE_URL)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
@@ -53,6 +61,38 @@ val networkModule = module {
                         println(">>> 401 Unauthorized 감지. 토큰 재발급 로직은 현재 주석 처리됨.")
                         tokenRepository.clearTokens()
                         null
+                    }
+                    /*sendWithoutRequest { request ->
+                        val urlPath = request.url.encodedPath
+                        val shouldSendWithoutToken = urlPath.startsWith("/s3/")
+
+                        println("--- Auth Plugin Check ---")
+                        println("Request URL Path: $urlPath")
+                        println("Condition (startsWith /s3/): $shouldSendWithoutToken")
+
+                        shouldSendWithoutToken
+                    }*/
+                }
+            }
+        }
+    }
+    single(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT)) {
+        HttpClient {
+            defaultRequest {
+                url("https://www.googleapis.com/youtube/v3/")
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+            install(ContentNegotiation) { json(Json { prettyPrint = true;isLenient = true;ignoreUnknownKeys = true }) }
+            install(Logging) { level = LogLevel.ALL }
+        }
+    }
+    single(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT)) {
+        HttpClient(CIO) {
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("S3 Uploader Log: $message")
                     }
                 }
             }

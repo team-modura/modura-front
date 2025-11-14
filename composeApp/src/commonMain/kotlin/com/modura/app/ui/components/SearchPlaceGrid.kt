@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,11 +44,18 @@ import kotlin.math.sqrt
 
 @Composable
 fun SearchPlaceGrid(
+    id: Int,
     image: String = "",
-    bookmark: Boolean = false,
+    isLiked: Boolean = false,
+    onLikeClick: (Int, Boolean) -> Unit,
     onClick: () -> Unit = {}
 ){
-    val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
+    var internalIsLiked by remember { mutableStateOf(isLiked) }
+    LaunchedEffect(isLiked) {
+        internalIsLiked = isLiked
+    }
+
+    val bookmark=if(internalIsLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -102,6 +110,8 @@ fun SearchPlaceGrid(
                     .width(20.dp)
                     .height(36.dp)
                     .clickable {
+                        internalIsLiked = !internalIsLiked
+                        onLikeClick(id, !internalIsLiked)
                     }
             )
         }

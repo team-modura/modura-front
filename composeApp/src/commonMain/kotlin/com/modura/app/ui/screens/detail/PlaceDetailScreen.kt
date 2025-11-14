@@ -9,54 +9,100 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.*
 import com.modura.app.ui.screens.camera.StillcutScreen
 import com.modura.app.ui.theme.*
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 
-data class LocationDetailScreen(val id: Int?=1) : Screen {
+data class PlaceDetailScreen(val id: Int) : Screen {
     override val key: String = "ContentDetailScreen_$id"
 
     @Composable
     override fun Content() {
 
-        val place = remember(id) { DummyProvider.dummyPlaces.find { it.id == id } }
-
         val rootNavigator = LocalRootNavigator.current
         val screenModel: DetailScreenModel = getScreenModel()
-        val uiState by screenModel.youtubeUiState
+        val detailUiState by screenModel.detailPlaceUiState
+        val placeReviews by screenModel.placeReviews.collectAsState()
+        var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+        var isLoading by remember { mutableStateOf(true) }
 
-        LaunchedEffect(Unit) {
-            screenModel.getYoutubeVideos("기묘한 이야기 공식 예고편")
+        LaunchedEffect(key1 = id) {
+            screenModel.detailPlace(id)
+            screenModel.placeReviews(id)
         }
-        val ott: List<String> = listOf("netflix", "watcha")
-        val categories = listOf("공포", "SF", "스릴러", "미국", "다크 판타지", "미스터리", "시대극")
-        val story =
-            "인디애나주의 작은 마을에서 행방불명된 소년. 이와 함께 미스터리한 힘을 가진 소녀가 나타나고, 마을에는 기묘한 현상들이 일어나기 시작한다. 아들을 찾으려는 엄마와 마을 사람들은 이제 정부의 일급비밀 실험의 실체와 무시무시한 기묘한 현상들에 맞서야 한다"
+        if (detailUiState.inProgress) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Gray100),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        if (detailUiState.errorMessage != null) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Gray100),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = detailUiState.errorMessage ?: "오류가 발생했습니다.",
+                    color = Gray700,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            return
+        }
+        detailUiState.data?.let { placeData ->
+            rememberImageBitmapFromUrl(
+                url = placeData.placeImageUrl,
+                onSuccess = { loadedBitmap ->
+                    imageBitmap = loadedBitmap
+                    isLoading = false
+                },
+                onFailure = { errorMessage ->
+                    println("이미지 로드 실패: $errorMessage")
+                    isLoading = false
+                }
+            )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().background(Gray100)
-        ) {
-            if (place != null) { //추후 삭제
+            var internalIsLiked by remember { mutableStateOf(placeData.isLiked) }
+            LaunchedEffect(placeData.isLiked) {
+                internalIsLiked = placeData.isLiked
+            }
+            val bookmark =
+                if (internalIsLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(
+                    Res.drawable.img_bookmark_big_unselected
+                )
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().background(Gray100)
+            ) {
                 item {
-                    Column(modifier = Modifier.fillMaxWidth().padding(top = 60.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 60.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
+                    ) {
                         Row {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_back),
@@ -71,12 +117,12 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                                 painter = painterResource(Res.drawable.ic_camera),
                                 contentDescription = "카메라",
                                 modifier = Modifier.size(24.dp).clickable {
-                                    rootNavigator?.push(StillcutScreen())
+                                    rootNavigator?.push(StillcutScreen(id))
                                 }
                             )
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text(place.name, style = MaterialTheme.typography.headlineLarge)
+                        Text(placeData.name, style = MaterialTheme.typography.headlineLarge)
                         Spacer(Modifier.height(4.dp))
                         Row {
                             Row(
@@ -86,42 +132,44 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                                 Row {
                                     for (i in 1..5) {
                                         val fraction = when {
-                                            place.rating >= i -> 1f
-                                            place.rating > i - 1 -> place.rating - (i - 1)
-                                            else -> 0f
+                                            placeData.reviewAvg  >= i.toDouble() -> 1.0
+                                            placeData.reviewAvg  > (i - 1).toDouble() ->  placeData.reviewAvg  - (i - 1).toDouble()
+                                            else -> 0.0
                                         }
-                                        ReviewStar(fraction.toFloat())
+                                        ReviewStar(fraction = fraction.toFloat())
                                     }
                                 }
                             }
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = "(${place.reviewCount.toString()})",
+                                text = "(${placeData.reviewCount.toString()})",
                                 style = MaterialTheme.typography.light8
                             )
                         }
                         Spacer(Modifier.height(4.dp))
-                        Text(place.address, style = MaterialTheme.typography.labelSmall)
+                        Text("경기도", style = MaterialTheme.typography.labelSmall)
                         Spacer(Modifier.height(16.dp))
-                        Image(
-                            painter = painterResource(Res.drawable.img_example),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(16f / 9f)
-                                .shadow(
-                                    elevation = 2.dp,
-                                    shape = RoundedCornerShape(8.dp),
-                                    clip = false
-                                )
-                                .clip(RoundedCornerShape(8.dp))
-                                .border(
-                                    width = 0.5.dp,
-                                    color = Color.White.copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(8.dp)
-                                ),
-                            contentScale = ContentScale.Crop
-                        )
+                        imageBitmap?.let { bitmap ->
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(16f / 9f)
+                                    .shadow(
+                                        elevation = 2.dp,
+                                        shape = RoundedCornerShape(8.dp),
+                                        clip = false
+                                    )
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(
+                                        width = 0.5.dp,
+                                        color = Color.White.copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
                 item {
@@ -130,7 +178,7 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                         Text(
                             modifier = Modifier
                                 .padding(horizontal = 20.dp),
-                            text = "${place.name}에서 촬영한 콘텐츠",
+                            text = "${placeData.name}에서 촬영한 콘텐츠",
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Spacer(Modifier.height(4.dp))
@@ -170,7 +218,14 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                             rating = userRating,
                             onRatingChange = { newRating ->
                                 userRating = newRating
-                                rootNavigator?.push(ReviewScreen(1,"장소"))
+                                rootNavigator?.push(
+                                    ReviewScreen(
+                                        1,
+                                        "장소",
+                                        placeData.name,
+                                        newRating
+                                    )
+                                )
                             }
                         )
                         Spacer(Modifier.height(12.dp))
@@ -181,21 +236,18 @@ data class LocationDetailScreen(val id: Int?=1) : Screen {
                 }
                 item {
                     Column(
-                        modifier = Modifier.background(White),
+                        modifier = Modifier.background(White).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        ReviewLocationList(
-                            "김승혁",
-                            4.5f,
-                            "2023.07.15",
-                            "아이들에 대한 묘사가 너무 절묘하다. 유난히 똑똑한 아이들임을 보여주면서도 순진함 속에 그들은 그들만의 규칙이 있다. 어리다고 미성숙하게만 그리는 게 아니라 하나의 인격체로서 다룸. 일레븐한테 가발 씌우는 의미 불명의 행태를 빼면 굉장히 재밌게 봤다. 시즌 2가 나와주길 기대."
-                        )
-                        ReviewLocationList(
-                            "김승혁",
-                            3.5f,
-                            "2004.06.11",
-                            "스토리, 음악, 캐릭터까지 '슈퍼 에이트'보다 더 7080스럽고 사랑스럽지만 동시에 중독성 강한 SF호러. 아동, 하이틴, 미스터리를 모두 아름답게 조화시키며 깜찍함과 공포를 둘 다 느낄 수 있는 러브레터 이상의 수작."
-                        )
+                        placeReviews.take(2).forEach { review ->
+                            ReviewLocationList(
+                                name = review.username,
+                                score = review.rating,
+                                date = review.createdAt,
+                                text = review.comment,
+                                image = review.imageUrl
+                            )
+                        }
                     }
                 }
             }

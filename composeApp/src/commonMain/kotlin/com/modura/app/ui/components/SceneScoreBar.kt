@@ -21,10 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Gray100
+import com.modura.app.ui.theme.Main500
 
 @Composable
 fun SceneScoreBar(progress: Float, modifier: Modifier = Modifier) {
-    val yellowColor = Color(0xFFFFEB3B) // 노란색
+    val yellowColor = Main500 // 노란색
     Box(
         modifier = modifier
             .height(12.dp)

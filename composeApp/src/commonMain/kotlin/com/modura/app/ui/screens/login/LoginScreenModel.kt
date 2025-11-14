@@ -64,20 +64,9 @@ class LoginScreenModel(
             val request = UserRequestModel(address = address, categoryList = categoryList)
             repository.user(request).onSuccess {
                 println("사용자 정보 등록 성공")
-                _uiState.update {
-                    it.copy(
-                        inProgress = false,
-                        success = true
-                    )
-                }
+                _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {error->
-                _uiState.update {
-                    it.copy(
-                        inProgress = false,
-                        success = false,
-                        errorMessage = error.message ?: "알 수 없는 오류가 발생했습니다."
-                    )
-                }
+                _uiState.update { it.copy(inProgress = false, success = false, errorMessage = error.message ?: "알 수 없는 오류가 발생했습니다.") }
             }
         }
     }
