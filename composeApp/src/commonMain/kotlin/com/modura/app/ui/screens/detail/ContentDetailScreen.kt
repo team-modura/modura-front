@@ -48,12 +48,13 @@ data class ContentDetailScreen(val id: Int) : Screen {
         val detailUiState by screenModel.detailUiState
         val youtubeUiState by screenModel.youtubeUiState
         val rootNavigator = LocalRootNavigator.current
-
+        val contentReviews by screenModel.contentReviews.collectAsState()
         var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
         var isLoading by remember { mutableStateOf(true) }
 
         LaunchedEffect(key1 = id) {
             screenModel.detailContent(id)
+            screenModel.contentReviews(id)
         }
         if (detailUiState.inProgress) {
             Box(
@@ -213,23 +214,19 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                             Spacer(Modifier.height(12.dp))
                                         }
                                         Spacer(Modifier.height(4.dp))
-                                        Column(
-                                            modifier = Modifier.background(White),
-                                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            ReviewList(
-                                                "김승혁",
-                                                4.5f,
-                                                "2023.07.15",
-                                                "아이들에 대한 묘사가 너무 절묘하다. 유난히 똑똑한 아이들임을 보여주면서도 순진함 속에 그들은 그들만의 규칙이 있다. 어리다고 미성숙하게만 그리는 게 아니라 하나의 인격체로서 다룸. 일레븐한테 가발 씌우는 의미 불명의 행태를 빼면 굉장히 재밌게 봤다. 시즌 2가 나와주길 기대."
-                                            )
-                                            ReviewList(
-                                                "김승혁",
-                                                3.5f,
-                                                "2004.06.11",
-                                                "스토리, 음악, 캐릭터까지 '슈퍼 에이트'보다 더 7080스럽고 사랑스럽지만 동시에 중독성 강한 SF호러. 아동, 하이틴, 미스터리를 모두 아름답게 조화시키며 깜찍함과 공포를 둘 다 느낄 수 있는 러브레터 이상의 수작."
-                                            )
-                                        }
+                                            Column(
+                                                modifier = Modifier.background(White).fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                contentReviews.take(2).forEach { review ->
+                                                    ReviewList(
+                                                        name = review.username,
+                                                        score = review.rating,
+                                                        date = review.createdAt,
+                                                        text = review.comment
+                                                    )
+                                                }
+                                            }
                                     }
                                 }
 

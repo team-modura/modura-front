@@ -9,6 +9,7 @@ import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
 import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
+import com.modura.app.domain.model.response.detail.ContentReviewResponseModel
 import com.modura.app.domain.model.response.detail.PlaceDetailResponseModel
 import com.modura.app.domain.model.response.detail.UploadImageResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
@@ -27,6 +28,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.io.IOException
 import kotlinx.io.files.FileNotFoundException
@@ -69,6 +72,9 @@ class DetailScreenModel(
     var detailPlaceUiState = mutableStateOf(DetailPlaceUiState())
     var reviewUiState = mutableStateOf(ReviewUiState())
 
+    private var _contentReviews = MutableStateFlow<List<ContentReviewResponseModel>>(emptyList())
+    val contentReviews = _contentReviews.asStateFlow()
+
     private val s3HttpClient: HttpClient by inject(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
     fun detailContent(contentId: Int) {
         screenModelScope.launch {
@@ -90,7 +96,8 @@ class DetailScreenModel(
             repository.detailPlace(placeId).onSuccess {
                 detailPlaceUiState.value = DetailPlaceUiState(inProgress = false, data = it)
             }.onFailure {
-                detailPlaceUiState.value = DetailPlaceUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
+                detailPlaceUiState.value =
+                    DetailPlaceUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
                 it.printStackTrace()
             }
         }
@@ -154,6 +161,26 @@ class DetailScreenModel(
         }
     }
 
+    fun contentReviews(contentId: Int){
+        screenModelScope.launch {
+            repository.contentReviews(contentId).onSuccess {
+                _contentReviews.value = it.reviews
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun placeReviews(placeId: Int){
+        screenModelScope.launch {
+            repository.placeReviews(placeId).onSuccess {
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
     fun contentReviewRegister(contentId: Int, request: ContentReviewRequestModel) {
         screenModelScope.launch {
             repository.contentReviewRegister(contentId, request).onSuccess {
@@ -168,75 +195,58 @@ class DetailScreenModel(
         println("${placeId} ${rating} ${comment}")
         screenModelScope.launch {
             reviewUiState.value = ReviewUiState(inProgress = true)
-            try {
-                val finalImageUrls: List<String>
+            val finalImageUrls: List<String>
 
-                if (photoUris.isNotEmpty()) {
-                    println(photoUris)
-                    val mimeTypes = photoUris.map { getMimeType(it) }
-                    val fileNames = photoUris.mapIndexed { index, uri ->
-                        val originalName = uri.substringAfterLast('/')
+            if (photoUris.isNotEmpty()) {
+                println(photoUris)
+                val mimeTypes = photoUris.map { getMimeType(it) }
+                val fileNames = photoUris.mapIndexed { index, uri ->
+                    val originalName = uri.substringAfterLast('/')
+                    val mimeType = mimeTypes[index]
+                    "$originalName.${extensionFromMimeType(mimeType)}"
+                }
+                val uploadRequest = UploadImageRequestModel("reviews", fileNames, mimeTypes)
+                var presignedUrlResponses: List<UploadImageResponseModel>? = null
+                repository.uploadImage(uploadRequest)
+                    .onSuccess { responses ->
+                        reviewUiState.value = ReviewUiState(success = true)
+                        presignedUrlResponses = responses
+                    }
+                    .onFailure { error ->
+                        error.printStackTrace()
+                        reviewUiState.value = ReviewUiState(errorMessage = "이미지 업로드에 실패했습니다.")
+                        throw error
+                    }
+                val uploadJobs = presignedUrlResponses!!.mapIndexed { index, response ->
+                    async(Dispatchers.IO) {
+                        val originalUri = photoUris[index]
                         val mimeType = mimeTypes[index]
-                        "$originalName.${extensionFromMimeType(mimeType)}"
-                    }
-                    val uploadRequest = UploadImageRequestModel("reviews", fileNames, mimeTypes)
-                    var presignedUrlResponses: List<UploadImageResponseModel>? = null
-
-                    repository.uploadImage(uploadRequest)
-                        .onSuccess { responses ->
-                            println("✅ Presigned URL 요청 성공: $responses")
-                            reviewUiState.value = ReviewUiState(success = true)
-                            presignedUrlResponses = responses
+                        val fileBytes: ByteArray = readFileAsBytes(originalUri)
+                        val httpResponse = s3HttpClient.put(response.presignedUrl) {
+                            setBody(fileBytes);header(
+                            HttpHeaders.ContentType,
+                            mimeType
+                        )
                         }
-                        .onFailure { error ->
-                            println("❌ Presigned URL 요청 실패: ${error.message}")
-                            error.printStackTrace()
-                            reviewUiState.value = ReviewUiState(errorMessage = "이미지 업로드에 실패했습니다.")
-                            throw error
-                        }
-
-                    // 2. 실제 파일 업로드 (PUT)
-                    val uploadJobs = presignedUrlResponses!!.mapIndexed { index, response ->
-                        async(Dispatchers.IO) {
-                            val originalUri = photoUris[index]
-                            val mimeType = mimeTypes[index]
-                            val fileBytes: ByteArray = readFileAsBytes(originalUri)
-
-                            // ✨ 3. 루프 밖에서 주입받은 s3HttpClient 재사용
-                            val httpResponse = s3HttpClient.put(response.presignedUrl) {
-                                setBody(fileBytes)
-                                header(HttpHeaders.ContentType, mimeType)
-                            }
-
-                            if (!httpResponse.status.isSuccess()) {
-                                throw IOException("S3 Upload Failed for ${response.key}: ${httpResponse.status}")
-                            }
+                        if (!httpResponse.status.isSuccess()) {
+                            throw IOException("S3 Upload Failed for ${response.key}: ${httpResponse.status}")
                         }
                     }
-                    uploadJobs.awaitAll()
-
-                    // 4. 최종 이미지 URL 목록 생성
-                    // ✨ 4. 'uploadResponses'가 아닌 'presignedUrlResponses' 변수 사용
-                    finalImageUrls = presignedUrlResponses!!.map {
-                        it.presignedUrl.substringBefore("?")
-                    }
-
-                } else {
-                    finalImageUrls = emptyList()
                 }
+                uploadJobs.awaitAll()
 
-                // 5. 모든 이미지 URL을 포함하여 최종 리뷰 등록
-                val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageUrls)
-                repository.placeReviewRegister(placeId, reviewRequest).onSuccess {
-                    println("✅ 리뷰 등록 성공")
-                    // TODO: 리뷰 등록 성공 UI 상태 업데이트 또는 화면 전환 로직
-                }.onFailure {
-                    it.printStackTrace()
-                    // TODO: 리뷰 등록 실패 UI 상태 업데이트
+                finalImageUrls = presignedUrlResponses!!.map {
+                    it.presignedUrl.substringBefore("?")
                 }
+            } else {
+                finalImageUrls = emptyList()
+            }
 
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageUrls)
+            repository.placeReviewRegister(placeId, reviewRequest).onSuccess {
+                println("✅ 리뷰 등록 성공")
+            }.onFailure {
+                it.printStackTrace()
             }
         }
     }

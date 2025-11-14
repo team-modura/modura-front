@@ -20,7 +20,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ReviewList(
     name: String,
-    score: Float,
+    score: Int,
     date: String,
     text: String
 ){
@@ -33,7 +33,7 @@ fun ReviewList(
                         score > i - 1 -> score - (i - 1)
                         else -> 0f
                     }
-                    ReviewStar(fraction)
+                    ReviewStar(fraction.toFloat())
                 }
             }
             Text(name, style = MaterialTheme.typography.labelSmall, color = Gray800)
