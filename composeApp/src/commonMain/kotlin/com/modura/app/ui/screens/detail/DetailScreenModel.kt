@@ -1,22 +1,30 @@
 package com.modura.app.ui.screens.detail
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.modura.app.data.dto.response.detail.ContentDetailResponseDto
 import com.modura.app.di.NetworkQualifiers
 import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
+import com.modura.app.domain.model.request.detail.StillcutRequestModel
 import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
 import com.modura.app.domain.model.response.detail.ContentReviewResponseModel
 import com.modura.app.domain.model.response.detail.PlaceDetailResponseModel
 import com.modura.app.domain.model.response.detail.PlaceReviewResponseModel
+import com.modura.app.domain.model.response.detail.StillcutResponseModel
 import com.modura.app.domain.model.response.detail.UploadImageResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
 import com.modura.app.ui.components.ReviewList
+import com.modura.app.util.platform.ImageComparator
+import com.modura.app.util.platform.readBytesFromFilePath
 import com.modura.app.util.platform.readFileAsBytes
+import com.modura.app.util.platform.saveBitmapToFile
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.header
@@ -32,11 +40,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.io.files.FileNotFoundException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
+import kotlin.text.mapIndexed
 
 data class YoutubeUiState(
     val videos: List<YoutubeModel> = emptyList(),
@@ -78,6 +88,26 @@ class DetailScreenModel(
 
     private var _placeReviews = MutableStateFlow<List<PlaceReviewResponseModel>>(emptyList())
     val placeReviews = _placeReviews.asStateFlow()
+
+    private var _stillcut = MutableStateFlow<List<StillcutResponseModel>>(emptyList())
+    val stillcut = _stillcut.asStateFlow()
+
+    var capturedImage by mutableStateOf<ImageBitmap?>(null)
+        private set
+    var originalBitmap by mutableStateOf<ImageBitmap?>(null)
+        private set
+    var isLoading by mutableStateOf(false)
+        private set
+    var totalScore by mutableStateOf<Double?>(null)
+        private set
+    var structureScore by mutableStateOf<Double?>(null)
+        private set
+    var clarityScore by mutableStateOf<Double?>(null)
+        private set
+    var toneScore by mutableStateOf<Double?>(null)
+        private set
+    var paletteScore by mutableStateOf<Double?>(null)
+        private set
 
     private val s3HttpClient: HttpClient by inject(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
     fun detailContent(contentId: Int) {
@@ -188,13 +218,65 @@ class DetailScreenModel(
     fun getStillcut(placeId: Int){
         screenModelScope.launch {
             repository.stillcut(placeId).onSuccess {
-                println(it)
+                _stillcut.value = it.stillcutList
             }.onFailure {
                 it.printStackTrace()
             }
         }
     }
 
+    fun postStillcut(context: Any,placeId: Int,stillcutId: Int){
+        screenModelScope.launch {
+            val imagePath = saveBitmapToFile(context, capturedImage!!)
+            val mimeType = "image/jpeg"
+            val fileName = imagePath.substringAfterLast('/')
+            val uploadRequest = UploadImageRequestModel("stillcuts",listOf(fileName), listOf(mimeType))
+            var presignedUrlResponse: UploadImageResponseModel? = null
+
+            repository.uploadImage(uploadRequest)
+                .onSuccess { responses ->
+                        presignedUrlResponse = responses.first()
+                }
+                .onFailure { error ->
+                    error.printStackTrace()
+                    return@launch
+                }
+
+            val response = presignedUrlResponse!!
+            try {
+                withContext(Dispatchers.IO) {
+                    val fileBytes: ByteArray = readBytesFromFilePath(imagePath)
+                    val httpResponse = s3HttpClient.put(presignedUrlResponse!!.presignedUrl) {
+                        setBody(fileBytes)
+                        header(HttpHeaders.ContentType, mimeType)
+                    }
+                    if (!httpResponse.status.isSuccess()) {
+                        throw IOException("S3 Upload Failed for ${presignedUrlResponse!!.key}: ${httpResponse.status}")
+                    }
+                    println("✅ S3에 스틸컷 이미지 업로드 성공: ${presignedUrlResponse!!.key}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("❌ S3 업로드 중 예외 발생: ${e.message}")
+                return@launch
+            }
+
+            val request = StillcutRequestModel(
+                imageUrl = response.key,
+                similarity = totalScore!!.toInt(),
+                angle = structureScore!!.toInt(),
+                clarity = clarityScore!!.toInt(),
+                color = toneScore!!.toInt(),
+                palette = paletteScore!!.toInt()
+            )
+            repository.stillcutSave(placeId, stillcutId, request).onSuccess {
+                println("✅ 서버에 스틸컷 정보 저장 성공: $it")
+            }.onFailure {
+                it.printStackTrace()
+                // TODO: 사용자에게 오류 메시지 보여주기
+            }
+        }
+    }
     fun contentReviewRegister(contentId: Int, request: ContentReviewRequestModel) {
         screenModelScope.launch {
             repository.contentReviewRegister(contentId, request).onSuccess {
@@ -262,5 +344,58 @@ class DetailScreenModel(
             }
         }
     }
+
+    fun onImageCaptured(bitmap: ImageBitmap?) {
+        capturedImage = bitmap
+        if (bitmap != null) {
+            analyzeImages()
+        }
+        println("onImageCaptured")
+    }
+
+    fun selectOriginalBitmap(bitmap: ImageBitmap?) {
+        originalBitmap = bitmap
+    }
+
+    fun clearStillcutState() {
+        capturedImage = null
+        originalBitmap = null
+        isLoading = false
+        totalScore = null
+        structureScore = null
+        clarityScore = null
+        toneScore = null
+        paletteScore = null
+    }
+
+    private fun analyzeImages() {
+        if (capturedImage != null && originalBitmap != null) {
+            isLoading = true
+            screenModelScope.launch(Dispatchers.Default) {
+                println("백그라운드 스레드에서 이미지 분석 시작")
+                val captured = capturedImage!!
+                val original = originalBitmap!!
+
+                val toneSim = ImageComparator.calculateSimilarity(original, captured)
+                val paletteSim = ImageComparator.calculatePaletteSimilarity(
+                    ImageComparator.extractPalette(original, 5),
+                    ImageComparator.extractPalette(captured, 5)
+                )
+                val structSim = ImageComparator.calculateStructuralSimilarity(original, captured)
+                val clarity = ImageComparator.calculateClarity(captured)
+
+                withContext(Dispatchers.Main) {
+                    println("메인 스레드로 복귀하여 UI 상태 업데이트")
+                    totalScore = (structSim * 0.3) + (clarity * 0.2) + (toneSim * 0.25) + (paletteSim * 0.25)
+                    structureScore = structSim
+                    clarityScore = clarity
+                    toneScore = toneSim
+                    paletteScore = paletteSim
+                    isLoading = false
+                }
+            }
+        }
+    }
+
 }
 

@@ -2,8 +2,18 @@ package com.modura.app.util.platform
 
 import android.content.Context
 import android.net.Uri
+import java.io.File
+import java.io.IOException
 
 lateinit var appContext: Context
+
+actual fun readBytesFromFilePath(uri: String): ByteArray {
+    try {
+        return File(uri).readBytes()
+    } catch (e: Exception) {
+        throw IOException("Failed to read file from path: $uri. Reason: ${e.message}", e)
+    }
+}
 
 actual fun readFileAsBytes(uri: String): ByteArray {
     if (!::appContext.isInitialized) {

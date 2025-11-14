@@ -21,7 +21,7 @@ import coil3.compose.AsyncImage
 import com.modura.app.data.dev.SceneInfo
 
 @Composable
-fun StillcutItem(scene: SceneInfo, onClick: () -> Unit) {
+fun StillcutItem(id: Int, stillcut: String, title: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,17 +30,16 @@ fun StillcutItem(scene: SceneInfo, onClick: () -> Unit) {
             .clip(RoundedCornerShape(12.dp)) // 모서리를 둥글게
             .clickable(onClick = onClick)
     ) {
-        // 배경 이미지 (Coil의 AsyncImage 사용)
         AsyncImage(
-            model = scene.imageResId, // String 타입의 URL을 바로 사용
-            contentDescription = scene.title,
+            model = stillcut,
+            contentDescription = title,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop // 이미지가 Box를 꽉 채우도록
         )
 
         // 이미지 위에 표시될 제목
         Text(
-            text = scene.title,
+            text = title,
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
