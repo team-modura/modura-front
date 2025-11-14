@@ -24,7 +24,7 @@ interface DetailDataSource {
     suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestDto): BaseResponse<Unit>
     suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit>
     suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit>
-    suspend fun stillcut(placeId: Int): BaseResponse<StillcutResponseDto>
+    suspend fun stillcut(placeId: Int): BaseResponse<StillcutsResponseDto>
     suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestDto): BaseResponse<Unit>
     suspend fun uploadImage(request: UploadImageRequestDto): BaseResponse<List<UploadImageResponseDto>>
 }

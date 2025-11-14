@@ -22,7 +22,7 @@ interface DetailRepository {
     suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestModel): Result<Unit>
     suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestModel): Result<Unit>
     suspend fun contentReviewDelete(contentId: Int, reviewId: Int): Result<Unit>
-    suspend fun stillcut(placeId: Int): Result<StillcutResponseModel>
+    suspend fun stillcut(placeId: Int): Result<StillcutsResponseModel>
     suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestModel): Result<Unit>
     suspend fun uploadImage(request: UploadImageRequestModel): Result<List<UploadImageResponseModel>>
 }

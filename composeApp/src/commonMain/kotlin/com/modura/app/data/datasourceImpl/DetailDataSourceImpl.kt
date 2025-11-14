@@ -39,7 +39,7 @@ class DetailDataSourceImpl(
     override suspend fun placeReviewRegister(placeId: Int, request: PlaceReviewRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/reviews"){setBody(request)}.body()
     override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestDto): BaseResponse<Unit> = httpClient.patch("/contents/$contentId/reviews/$reviewId"){setBody(request)}.body()
     override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/reviews/$reviewId").body()
-    override suspend fun stillcut(placeId: Int): BaseResponse<StillcutResponseDto> = httpClient.get("/places/$placeId/stillcuts").body()
+    override suspend fun stillcut(placeId: Int): BaseResponse<StillcutsResponseDto> = httpClient.get("/places/$placeId/stillcuts").body()
     override suspend fun stillcutSave(placeId: Int, stullcutId: Int, request: StillcutRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/stillcuts/$stullcutId"){setBody(request)}.body()
     override suspend fun uploadImage(request: UploadImageRequestDto): BaseResponse<List<UploadImageResponseDto>> =  httpClient.post("/s3/presigned-upload"){setBody(request)}.body()
 }

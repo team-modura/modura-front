@@ -11,6 +11,7 @@ import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
 import com.modura.app.domain.model.response.detail.ContentReviewResponseModel
 import com.modura.app.domain.model.response.detail.PlaceDetailResponseModel
+import com.modura.app.domain.model.response.detail.PlaceReviewResponseModel
 import com.modura.app.domain.model.response.detail.UploadImageResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
@@ -74,6 +75,9 @@ class DetailScreenModel(
 
     private var _contentReviews = MutableStateFlow<List<ContentReviewResponseModel>>(emptyList())
     val contentReviews = _contentReviews.asStateFlow()
+
+    private var _placeReviews = MutableStateFlow<List<PlaceReviewResponseModel>>(emptyList())
+    val placeReviews = _placeReviews.asStateFlow()
 
     private val s3HttpClient: HttpClient by inject(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
     fun detailContent(contentId: Int) {
@@ -174,6 +178,16 @@ class DetailScreenModel(
     fun placeReviews(placeId: Int){
         screenModelScope.launch {
             repository.placeReviews(placeId).onSuccess {
+                _placeReviews.value = it.placeReviewList
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun getStillcut(placeId: Int){
+        screenModelScope.launch {
+            repository.stillcut(placeId).onSuccess {
                 println(it)
             }.onFailure {
                 it.printStackTrace()
@@ -195,7 +209,7 @@ class DetailScreenModel(
         println("${placeId} ${rating} ${comment}")
         screenModelScope.launch {
             reviewUiState.value = ReviewUiState(inProgress = true)
-            val finalImageUrls: List<String>
+            val finalImageKeys: List<String>
 
             if (photoUris.isNotEmpty()) {
                 println(photoUris)
@@ -235,14 +249,12 @@ class DetailScreenModel(
                 }
                 uploadJobs.awaitAll()
 
-                finalImageUrls = presignedUrlResponses!!.map {
-                    it.presignedUrl.substringBefore("?")
-                }
+                finalImageKeys = presignedUrlResponses!!.map { it.key }
             } else {
-                finalImageUrls = emptyList()
+                finalImageKeys = emptyList()
             }
 
-            val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageUrls)
+            val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageKeys)
             repository.placeReviewRegister(placeId, reviewRequest).onSuccess {
                 println("✅ 리뷰 등록 성공")
             }.onFailure {

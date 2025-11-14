@@ -231,27 +231,28 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                 }
 
                                 Spacer(Modifier.height(20.dp))
-                                Text(
-                                    "촬영지",
-                                    modifier = Modifier.padding(horizontal = 20.dp),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                LazyRow(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 20.dp)
-                                ) {
-                                    items(5) { index ->
-                                        LocationItemSmall(
-                                            /*
-                                                bookmark = item.bookmark,
-                                                image = item.image,
-                                                title = item.title,
-                                                rank = item.rank,*/
-                                            onClick = {
-                                                println("ㅇㅇ 클릭됨")
-                                            }
-                                        )
+                                if (!contentData.places.isNullOrEmpty()) {
+                                    Text(
+                                        "촬영지",
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    LazyRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 20.dp)
+                                    ) {
+                                        items(contentData.places.filterNotNull()) { place ->
+                                            LocationItemSmall(
+                                                bookmark = place.isLiked,
+                                                image = place.thumbnail,
+                                                title = place.name,
+                                                onClick = {
+                                                    println("${place.name}(id: ${place.id}) 클릭됨")
+                                                    rootNavigator?.push(PlaceDetailScreen(place.id))
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                                 Spacer(Modifier.height(20.dp))

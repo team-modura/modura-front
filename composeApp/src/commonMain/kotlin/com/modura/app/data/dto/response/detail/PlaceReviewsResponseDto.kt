@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PlaceReviewsResponseDto(
-    val reviews: List<PlaceReviewResponseDto>
+    val placeReviewList: List<PlaceReviewResponseDto>
 
 ){
-    fun toPlaceReviewsResponseModel() = PlaceReviewsResponseModel(reviews.map { it.toPlaceReviewResponseModel() })
+    fun toPlaceReviewsResponseModel() = PlaceReviewsResponseModel(placeReviewList.map { it.toPlaceReviewResponseModel() })
 }

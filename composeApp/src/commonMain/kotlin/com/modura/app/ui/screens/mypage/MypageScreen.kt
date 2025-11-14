@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -45,18 +42,13 @@ import coil3.compose.AsyncImage
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.MypageReview
-import com.modura.app.data.dev.PlaceInfo
-import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.ui.components.ContentGrid
-import com.modura.app.ui.components.ContentItemSmall
 import com.modura.app.ui.components.ListBottomSheet
-import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.MypageReviewContent
 import com.modura.app.ui.components.MypageReviewLocation
-import com.modura.app.ui.components.PlaceGrid
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
-import com.modura.app.ui.screens.detail.LocationDetailScreen
+import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
@@ -102,7 +94,7 @@ object MyPageScreen : Screen {
                     when (selectedOption) {
                         "상세보기" -> {
                             if (selectedReview!!.type == "장소") {
-                                navigator.push(LocationDetailScreen(selectedReview!!.id))
+                                navigator.push(PlaceDetailScreen(selectedReview!!.id))
                                 println("장소 상세보기: ${selectedReview!!.title}")
                             } else {
                                 navigator.push(ContentDetailScreen(selectedReview!!.id))
@@ -225,7 +217,7 @@ object MyPageScreen : Screen {
                                     ContentGrid(
                                         image = item.thumbnail?:"",
                                         title = item.name,
-                                        onClick = { navigator.push(LocationDetailScreen(item.id)) }
+                                        onClick = { navigator.push(PlaceDetailScreen(item.id)) }
                                     )
                                 }
                             }

@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.*
 import com.modura.app.ui.screens.camera.StillcutScreen
 import com.modura.app.ui.theme.*
@@ -36,7 +35,7 @@ import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 
-data class LocationDetailScreen(val id: Int) : Screen {
+data class PlaceDetailScreen(val id: Int) : Screen {
     override val key: String = "ContentDetailScreen_$id"
 
     @Composable
@@ -45,12 +44,13 @@ data class LocationDetailScreen(val id: Int) : Screen {
         val rootNavigator = LocalRootNavigator.current
         val screenModel: DetailScreenModel = getScreenModel()
         val detailUiState by screenModel.detailPlaceUiState
-
+        val placeReviews by screenModel.placeReviews.collectAsState()
         var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
         var isLoading by remember { mutableStateOf(true) }
 
         LaunchedEffect(key1 = id) {
             screenModel.detailPlace(id)
+            screenModel.placeReviews(id)
         }
         if (detailUiState.inProgress) {
             Box(
@@ -117,7 +117,7 @@ data class LocationDetailScreen(val id: Int) : Screen {
                                 painter = painterResource(Res.drawable.ic_camera),
                                 contentDescription = "카메라",
                                 modifier = Modifier.size(24.dp).clickable {
-                                    rootNavigator?.push(StillcutScreen())
+                                    rootNavigator?.push(StillcutScreen(id))
                                 }
                             )
                         }
@@ -236,21 +236,18 @@ data class LocationDetailScreen(val id: Int) : Screen {
                 }
                 item {
                     Column(
-                        modifier = Modifier.background(White),
+                        modifier = Modifier.background(White).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        ReviewLocationList(
-                            "김승혁",
-                            4.5f,
-                            "2023.07.15",
-                            "아이들에 대한 묘사가 너무 절묘하다. 유난히 똑똑한 아이들임을 보여주면서도 순진함 속에 그들은 그들만의 규칙이 있다. 어리다고 미성숙하게만 그리는 게 아니라 하나의 인격체로서 다룸. 일레븐한테 가발 씌우는 의미 불명의 행태를 빼면 굉장히 재밌게 봤다. 시즌 2가 나와주길 기대."
-                        )
-                        ReviewLocationList(
-                            "김승혁",
-                            3.5f,
-                            "2004.06.11",
-                            "스토리, 음악, 캐릭터까지 '슈퍼 에이트'보다 더 7080스럽고 사랑스럽지만 동시에 중독성 강한 SF호러. 아동, 하이틴, 미스터리를 모두 아름답게 조화시키며 깜찍함과 공포를 둘 다 느낄 수 있는 러브레터 이상의 수작."
-                        )
+                        placeReviews.take(2).forEach { review ->
+                            ReviewLocationList(
+                                name = review.username,
+                                score = review.rating,
+                                date = review.createdAt,
+                                text = review.comment,
+                                image = review.imageUrl
+                            )
+                        }
                     }
                 }
             }

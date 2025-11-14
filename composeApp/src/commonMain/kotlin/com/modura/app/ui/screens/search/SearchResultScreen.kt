@@ -11,14 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,33 +25,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.isEmpty
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.PlaceInfo
-import com.modura.app.data.dto.response.list.MediaResponseDto
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
 import com.modura.app.domain.repository.LocalRepository
-import com.modura.app.ui.components.ContentGrid
-import com.modura.app.ui.components.ListContentItem
-import com.modura.app.ui.components.ListLocationItem
-import com.modura.app.ui.components.PlaceGrid
 import com.modura.app.ui.components.SearchContentGrid
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.SearchPlaceGrid
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
 import com.modura.app.ui.screens.detail.DetailScreenModel
-import com.modura.app.ui.screens.detail.LocationDetailScreen
+import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
-import com.modura.app.ui.theme.Gray800
-import com.modura.app.ui.theme.White
 import com.russhwolf.settings.Settings
 
 private enum class SearchCategory { CONTENT, PLACE }
@@ -187,7 +172,7 @@ data class SearchResultScreen(val searchTerm: String) : Screen {
                                         id = item.id,
                                         image = item.thumbnail ?: "",
                                         isLiked = item.isLiked,
-                                        onClick = { navigator.push(LocationDetailScreen(item.id)) },
+                                        onClick = { navigator.push(PlaceDetailScreen(item.id)) },
                                         onLikeClick = {placeId, isLiked ->
                                             if(isLiked){
                                                 detailScreenModel.placeLikeCancel(placeId)

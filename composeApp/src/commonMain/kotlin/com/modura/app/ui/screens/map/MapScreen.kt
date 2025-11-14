@@ -1,9 +1,6 @@
 package com.modura.app.ui.screens.map
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -23,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,18 +29,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
-import com.modura.app.data.dev.LatLng
 import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
 import com.modura.app.domain.repository.LocalRepository
-import com.modura.app.ui.components.LoginBottomSheet
 import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
-import com.modura.app.ui.screens.detail.ContentDetailScreen
-import com.modura.app.ui.screens.detail.LocationDetailScreen
-import com.modura.app.ui.screens.main.MainScreen
-import com.modura.app.ui.screens.search.SearchResultScreen
 import com.russhwolf.settings.Settings
 
 object MapScreen : Screen {

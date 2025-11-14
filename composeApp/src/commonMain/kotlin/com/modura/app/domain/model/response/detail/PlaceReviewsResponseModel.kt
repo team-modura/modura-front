@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PlaceReviewsResponseModel(
-    val reviews: List<PlaceReviewResponseModel>
+    val placeReviewList: List<PlaceReviewResponseModel>
 )

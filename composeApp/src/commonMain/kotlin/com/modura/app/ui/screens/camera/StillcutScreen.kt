@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -40,13 +37,11 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import coil3.ImageLoader
 import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider.stillcut
 import com.modura.app.ui.components.SceneScoreDetail
 import com.modura.app.ui.components.StillcutItem
-import com.modura.app.ui.screens.detail.LocationDetailScreen
+import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
@@ -59,11 +54,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.ic_back
-import modura.composeapp.generated.resources.img_scene_example
-import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 
-class StillcutScreen() : Screen {
+class StillcutScreen(placeId:Int) : Screen {
 
     @Composable
     override fun Content() {
@@ -185,7 +178,7 @@ class StillcutScreen() : Screen {
                         Text("다시 찍기", fontSize = 16.sp)
                     }
                     TextButton(onClick =  {
-                        rootNavigator?.push(LocationDetailScreen(id = 1))
+                        rootNavigator?.push(PlaceDetailScreen(id = 1))
                     }) {
                         Text("저장하기", fontSize = 16.sp)
                     }
