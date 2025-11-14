@@ -22,15 +22,10 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dataSourceModule = module {
-    single<YoutubeService> {
-        val httpClient: HttpClient = get(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT))
-        YoutubeServiceImpl(httpClient)
-    }
-
+    single<YoutubeService> { YoutubeServiceImpl( get(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT))) }
     single<LoginDataSource> { LoginDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
     single<ListDataSource> { ListDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
     single<DetailDataSource> { DetailDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT)), get() )}
     single<SearchDataSource> { SearchDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
-    single<YoutubeService> { YoutubeServiceImpl(get(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT))) }
     single<MypageDataSource> { MypageDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
 }

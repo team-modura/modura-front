@@ -3,12 +3,14 @@ package com.modura.app.domain.repository
 import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
 import com.modura.app.domain.model.request.detail.StillcutRequestModel
+import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.*
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 
 interface DetailRepository {
     suspend fun getYoutubeVideos(query: String): Result<List<YoutubeModel>>
     suspend fun detailContent(contentId: Int): Result<ContentDetailResponseModel>
+    suspend fun detailPlace(placeId: Int): Result<PlaceDetailResponseModel>
     suspend fun contentLike(contentId: Int): Result<Unit>
     suspend fun placeLike(placeId: Int): Result<Unit>
     suspend fun contentLikeCancel(contentId: Int): Result<Unit>
@@ -22,5 +24,5 @@ interface DetailRepository {
     suspend fun contentReviewDelete(contentId: Int, reviewId: Int): Result<Unit>
     suspend fun stillcut(placeId: Int): Result<StillcutResponseModel>
     suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestModel): Result<Unit>
-    suspend fun uploadImage(folder: String, fileName:List<String>, contentType:List<String>): Result<List<UploadImageResponseModel>>
+    suspend fun uploadImage(request: UploadImageRequestModel): Result<List<UploadImageResponseModel>>
 }

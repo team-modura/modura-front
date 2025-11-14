@@ -4,6 +4,7 @@ import com.modura.app.data.datasource.DetailDataSource
 import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
 import com.modura.app.domain.model.request.detail.StillcutRequestModel
+import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.*
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
@@ -15,11 +16,10 @@ class DetailRepositoryImpl (
         runCatching { dataSource.searchYoutubeVideos(query).items.map { it.toYoutubeModel() } }
 
     override suspend fun detailContent(contentId: Int): Result<ContentDetailResponseModel> =
-        runCatching {
-            val response = dataSource.detailContent(contentId)
-            if (response.isSuccess && response.result != null) { response.result.toContentDetailResponseModel()
-            } else { throw Exception(response.message ?: "상세 정보를 불러오는데 실패했습니다.") }
-        }
+        runCatching { dataSource.detailContent(contentId).result!!.toContentDetailResponseModel() }
+
+    override suspend fun detailPlace(placeId: Int): Result<PlaceDetailResponseModel> =
+        runCatching { dataSource.detailPlace(placeId).result!!.toPlaceDetailResponseModel() }
 
     override suspend fun contentLike(contentId: Int): Result<Unit> =
         runCatching { dataSource.contentLike(contentId) }
@@ -60,6 +60,18 @@ class DetailRepositoryImpl (
     override suspend fun stillcutSave(placeId: Int, stillcutId: Int, request: StillcutRequestModel): Result<Unit> =
         runCatching { dataSource.stillcutSave(placeId, stillcutId, request.toStillcutRequestDto()) }
 
-    override suspend fun uploadImage(folder: String, fileName: List<String>, contentType: List<String>): Result<List<UploadImageResponseModel>> =
-        runCatching { dataSource.uploadImage(folder, fileName, contentType).result!!.map { dto -> dto.toUploadImageResponseModel() }}
+    override suspend fun uploadImage(request: UploadImageRequestModel): Result<List<UploadImageResponseModel>>     {
+            val response = dataSource.uploadImage(request.toUploadImageRequestDto())
+
+            // 2. '!!' 대신, 서버 응답이 성공이고 result가 null이 아닐 때만 데이터를 변환합니다.
+            if (response.isSuccess && response.result != null) {
+                val models = response.result.map { dto -> dto.toUploadImageResponseModel() }
+                return Result.success(models)
+            } else {
+                // 3. 서버가 실패 응답을 보냈거나 result가 null이면, 실패 Result를 직접 만들어 반환합니다.
+                val errorMessage =
+                    "Presigned URL 요청 실패: ${response.message} (Code: ${response.code})"
+                return Result.failure(Exception(errorMessage))
+            }
+        }
 }

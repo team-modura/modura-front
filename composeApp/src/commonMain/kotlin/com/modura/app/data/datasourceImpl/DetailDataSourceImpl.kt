@@ -5,6 +5,7 @@ import com.modura.app.data.dto.BaseResponse
 import com.modura.app.data.dto.request.detail.ContentReviewRequestDto
 import com.modura.app.data.dto.request.detail.PlaceReviewRequestDto
 import com.modura.app.data.dto.request.detail.StillcutRequestDto
+import com.modura.app.data.dto.request.detail.UploadImageRequestDto
 import com.modura.app.data.dto.response.detail.*
 import com.modura.app.data.dto.response.youtube.YoutubeSearchResponseDto
 import com.modura.app.data.service.YoutubeService
@@ -26,6 +27,7 @@ class DetailDataSourceImpl(
 ) : DetailDataSource {
     override suspend fun searchYoutubeVideos(query: String): YoutubeSearchResponseDto = service.searchVideos(query)
     override suspend fun detailContent(contentId: Int): BaseResponse<ContentDetailResponseDto> = httpClient.get("/contents/$contentId/detail").body()
+    override suspend fun detailPlace(placeId: Int): BaseResponse<PlaceDetailResponseDto> =httpClient.get("/places/$placeId/detail").body()
     override suspend fun contentLike(contentId: Int): BaseResponse<Unit> = httpClient.post("/contents/$contentId/like").body()
     override suspend fun placeLike(placeId: Int): BaseResponse<Unit> = httpClient.post("/places/$placeId/like").body()
     override suspend fun contentLikeCancel(contentId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/like").body()
@@ -39,10 +41,5 @@ class DetailDataSourceImpl(
     override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): BaseResponse<Unit> = httpClient.delete("/contents/$contentId/reviews/$reviewId").body()
     override suspend fun stillcut(placeId: Int): BaseResponse<StillcutResponseDto> = httpClient.get("/places/$placeId/stillcuts").body()
     override suspend fun stillcutSave(placeId: Int, stullcutId: Int, request: StillcutRequestDto): BaseResponse<Unit> = httpClient.post("/places/$placeId/stillcuts/$stullcutId"){setBody(request)}.body()
-    override suspend fun uploadImage(folder: String, fileName: List<String>, contentType: List<String>): BaseResponse<List<UploadImageResponseDto>> =
-        httpClient.post("/s3/presigned-upload") {
-            parameter("folder", folder)
-            parameter("fileName", fileName)
-            parameter("contentType", contentType)
-            header(HttpHeaders.ContentType, ContentType.Application.Json) }.body()
+    override suspend fun uploadImage(request: UploadImageRequestDto): BaseResponse<List<UploadImageResponseDto>> =  httpClient.post("/s3/presigned-upload"){setBody(request)}.body()
 }

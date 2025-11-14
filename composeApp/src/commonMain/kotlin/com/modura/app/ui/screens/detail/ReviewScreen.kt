@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,10 +41,21 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
         val rootNavigator = LocalRootNavigator.current
         val navigator = LocalRootNavigator.currentOrThrow
         val screenModel: DetailScreenModel = getScreenModel()
+        val reviewUiState by screenModel.reviewUiState
         var userRating by remember(initialRating) { mutableStateOf(initialRating) }
         val selectedPhotos = remember { mutableStateListOf<String>() }
         var reviewText by remember { mutableStateOf("") }
 
+
+        if (reviewUiState.inProgress) {
+            CircularProgressIndicator()
+        }
+
+        LaunchedEffect(reviewUiState.success) {
+            if (reviewUiState.success) {
+                println()
+            }
+        }
 
         val imagePicker = rememberImagePicker { uris ->
             if (selectedPhotos.size + uris.size <= 5) {
@@ -76,14 +88,12 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                             comment = reviewText,
                             photoUris = selectedPhotos
                         )
-                        rootNavigator?.pop()
                     }else if(reviewType=="콘텐츠") {
                         val request = ContentReviewRequestModel(
                             rating = userRating,
                             comment = reviewText
                         )
                         screenModel.contentReviewRegister(id,request)
-                        rootNavigator?.pop()
                     }
                 })
             }
@@ -153,7 +163,15 @@ fun getMimeType(fileUri: String): String {
     return when (extension.lowercase()) {
         "jpg", "jpeg" -> "image/jpeg"
         "png" -> "image/png"
-        "gif" -> "image/gif"
-        else -> "application/octet-stream"
+        else -> "image/jpeg"
+    }
+}
+
+
+ fun extensionFromMimeType(mimeType: String): String {
+    return when (mimeType) {
+        "image/jpeg" -> "jpg"
+        "image/png" -> "png"
+        else -> "jpg"
     }
 }

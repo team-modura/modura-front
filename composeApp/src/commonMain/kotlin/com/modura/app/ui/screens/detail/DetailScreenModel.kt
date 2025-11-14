@@ -4,14 +4,35 @@ import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.modura.app.data.dto.response.detail.ContentDetailResponseDto
+import com.modura.app.di.NetworkQualifiers
 import com.modura.app.domain.model.request.detail.ContentReviewRequestModel
 import com.modura.app.domain.model.request.detail.PlaceReviewRequestModel
+import com.modura.app.domain.model.request.detail.UploadImageRequestModel
 import com.modura.app.domain.model.response.detail.ContentDetailResponseModel
+import com.modura.app.domain.model.response.detail.PlaceDetailResponseModel
+import com.modura.app.domain.model.response.detail.UploadImageResponseModel
 import com.modura.app.domain.model.response.youtube.YoutubeModel
 import com.modura.app.domain.repository.DetailRepository
+import com.modura.app.ui.components.ReviewList
+import com.modura.app.util.platform.readFileAsBytes
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.header
+import io.ktor.client.request.put
 import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.http.HttpHeaders
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.io.IOException
+import kotlinx.io.files.FileNotFoundException
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 
 data class YoutubeUiState(
     val videos: List<YoutubeModel> = emptyList(),
@@ -26,13 +47,29 @@ data class DetailContentUiState(
     val errorMessage: String? = null
 )
 
+data class DetailPlaceUiState(
+    val inProgress: Boolean = false,
+    val success: Boolean = false,
+    val data: PlaceDetailResponseModel? = null,
+    val errorMessage: String? = null
+)
+
+data class ReviewUiState(
+    val inProgress: Boolean = false,
+    val success: Boolean = false,
+    val errorMessage: String? = null
+)
+
 class DetailScreenModel(
     private val repository: DetailRepository
-) : ScreenModel {
+) : ScreenModel,KoinComponent {
 
     val youtubeUiState = mutableStateOf(YoutubeUiState())
     var detailUiState = mutableStateOf(DetailContentUiState())
+    var detailPlaceUiState = mutableStateOf(DetailPlaceUiState())
+    var reviewUiState = mutableStateOf(ReviewUiState())
 
+    private val s3HttpClient: HttpClient by inject(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
     fun detailContent(contentId: Int) {
         screenModelScope.launch {
             detailUiState.value = DetailContentUiState(inProgress = true)
@@ -42,6 +79,18 @@ class DetailScreenModel(
             }.onFailure {
                 detailUiState.value =
                     DetailContentUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun detailPlace(placeId: Int) {
+        screenModelScope.launch {
+            detailPlaceUiState.value = DetailPlaceUiState(inProgress = true)
+            repository.detailPlace(placeId).onSuccess {
+                detailPlaceUiState.value = DetailPlaceUiState(inProgress = false, data = it)
+            }.onFailure {
+                detailPlaceUiState.value = DetailPlaceUiState(inProgress = false, errorMessage = "상세 정보를 불러오는데 실패했습니다.")
                 it.printStackTrace()
             }
         }
@@ -116,24 +165,79 @@ class DetailScreenModel(
     }
 
     fun placeReviewRegister(placeId: Int, rating: Int, comment: String, photoUris: List<String>) {
+        println("${placeId} ${rating} ${comment}")
         screenModelScope.launch {
+            reviewUiState.value = ReviewUiState(inProgress = true)
+            try {
                 val finalImageUrls: List<String>
+
                 if (photoUris.isNotEmpty()) {
-                    val fileNames = photoUris.map { it.substringAfterLast('/') }
+                    println(photoUris)
                     val mimeTypes = photoUris.map { getMimeType(it) }
-                    val uploadResponses = repository.uploadImage(
-                        folder = "reviews",
-                        fileName = fileNames,
-                        contentType = mimeTypes
-                    ).getOrThrow()
-                    finalImageUrls = uploadResponses.map { it.presignedUrl.substringBefore("?") }
-                } else { finalImageUrls = emptyList() }
+                    val fileNames = photoUris.mapIndexed { index, uri ->
+                        val originalName = uri.substringAfterLast('/')
+                        val mimeType = mimeTypes[index]
+                        "$originalName.${extensionFromMimeType(mimeType)}"
+                    }
+                    val uploadRequest = UploadImageRequestModel("reviews", fileNames, mimeTypes)
+                    var presignedUrlResponses: List<UploadImageResponseModel>? = null
+
+                    repository.uploadImage(uploadRequest)
+                        .onSuccess { responses ->
+                            println("✅ Presigned URL 요청 성공: $responses")
+                            reviewUiState.value = ReviewUiState(success = true)
+                            presignedUrlResponses = responses
+                        }
+                        .onFailure { error ->
+                            println("❌ Presigned URL 요청 실패: ${error.message}")
+                            error.printStackTrace()
+                            reviewUiState.value = ReviewUiState(errorMessage = "이미지 업로드에 실패했습니다.")
+                            throw error
+                        }
+
+                    // 2. 실제 파일 업로드 (PUT)
+                    val uploadJobs = presignedUrlResponses!!.mapIndexed { index, response ->
+                        async(Dispatchers.IO) {
+                            val originalUri = photoUris[index]
+                            val mimeType = mimeTypes[index]
+                            val fileBytes: ByteArray = readFileAsBytes(originalUri)
+
+                            // ✨ 3. 루프 밖에서 주입받은 s3HttpClient 재사용
+                            val httpResponse = s3HttpClient.put(response.presignedUrl) {
+                                setBody(fileBytes)
+                                header(HttpHeaders.ContentType, mimeType)
+                            }
+
+                            if (!httpResponse.status.isSuccess()) {
+                                throw IOException("S3 Upload Failed for ${response.key}: ${httpResponse.status}")
+                            }
+                        }
+                    }
+                    uploadJobs.awaitAll()
+
+                    // 4. 최종 이미지 URL 목록 생성
+                    // ✨ 4. 'uploadResponses'가 아닌 'presignedUrlResponses' 변수 사용
+                    finalImageUrls = presignedUrlResponses!!.map {
+                        it.presignedUrl.substringBefore("?")
+                    }
+
+                } else {
+                    finalImageUrls = emptyList()
+                }
+
+                // 5. 모든 이미지 URL을 포함하여 최종 리뷰 등록
                 val reviewRequest = PlaceReviewRequestModel(rating, comment, finalImageUrls)
                 repository.placeReviewRegister(placeId, reviewRequest).onSuccess {
-                    println("리뷰 등록 성공")
+                    println("✅ 리뷰 등록 성공")
+                    // TODO: 리뷰 등록 성공 UI 상태 업데이트 또는 화면 전환 로직
                 }.onFailure {
                     it.printStackTrace()
+                    // TODO: 리뷰 등록 실패 UI 상태 업데이트
                 }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
