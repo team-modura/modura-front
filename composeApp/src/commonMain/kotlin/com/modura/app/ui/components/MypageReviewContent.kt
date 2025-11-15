@@ -51,6 +51,7 @@ import kotlin.math.max
 fun MypageReviewContent(
     thumbnail: String,
     id: Int,
+    contentId: Int,
     title: String,
     name: String,
     score: Int,

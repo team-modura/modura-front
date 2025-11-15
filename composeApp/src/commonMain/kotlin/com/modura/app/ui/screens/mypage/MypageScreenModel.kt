@@ -28,6 +28,8 @@ data class MypageUiState(
 )
 data class MypageReview(
     val id: Int,
+    val contentId: Int?,
+    val placeId: Int?,
     val type: String, // "series", "movies", "장소"
     val title: String,
     val username: String,
@@ -112,6 +114,8 @@ class MypageScreenModel(
                 val newReiviews = it.contentReviewList.map{
                     MypageReview(
                         id = it.id,
+                        contentId = it.contentId,
+                        placeId = null,
                         type = type,
                         title = it.title,
                         username = it.username,
@@ -137,6 +141,8 @@ class MypageScreenModel(
                 val newReiviews = it.placeReviewList.map{
                     MypageReview(
                         id = it.id,
+                        contentId = null,
+                        placeId = it.placeId,
                         type = type,
                         title = it.name,
                         username = it.username,

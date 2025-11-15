@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PlaceReviewMypageResponseModel(
     val id: Int,
+    val placeId: Int,
     val name: String,
     val username: String,
     val rating: Int,

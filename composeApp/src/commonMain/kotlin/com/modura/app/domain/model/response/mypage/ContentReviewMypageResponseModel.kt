@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ContentReviewMypageResponseModel(
     val id: Int,
+    val contentId: Int,
     val title: String,
     val username: String,
     val rating: Int,

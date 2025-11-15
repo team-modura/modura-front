@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ContentReviewMypageResponseDto(
     val id: Int,
+    val contentId: Int,
     val title: String,
     val username: String,
     val rating: Int,
@@ -17,5 +18,5 @@ data class ContentReviewMypageResponseDto(
     val createdAt: String,
     val thumbnail: String?
 ) {
-    fun toCotentReviewMypageResponseModel() = ContentReviewMypageResponseModel(id, title, username, rating, comment, createdAt, thumbnail)
+    fun toCotentReviewMypageResponseModel() = ContentReviewMypageResponseModel(id, contentId, title, username, rating, comment, createdAt, thumbnail)
 }

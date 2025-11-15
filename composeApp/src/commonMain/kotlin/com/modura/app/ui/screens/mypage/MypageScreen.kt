@@ -94,10 +94,10 @@ object MyPageScreen : Screen {
                     when (selectedOption) {
                         "상세보기" -> {
                             if (selectedReview!!.type == "place") {
-                                navigator.push(PlaceDetailScreen(selectedReview!!.id))
+                                navigator.push(PlaceDetailScreen(selectedReview!!.placeId?:0))
                                 println("장소 상세보기: ${selectedReview!!.title}")
                             } else {
-                                navigator.push(ContentDetailScreen(selectedReview!!.id))
+                                navigator.push(ContentDetailScreen(selectedReview!!.contentId?:0))
                             }
                         }
                         "수정" -> { /* TODO: 수정 로직 */ println("수정: ${selectedReview!!.title}") }
@@ -328,10 +328,12 @@ object MyPageScreen : Screen {
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         items(reviews, key = { "${it.type}-${it.id}" }) { review ->
-                            if (review.type == "장소") {
+                            if (review.type == "place") {
+                                println(review.imageUrl)
                                 MypageReviewLocation(
                                     thumbnail = review.thumbnail?:"",
                                     id = review.id,
+                                    placeId = review.placeId?:0,
                                     title = review.title,
                                     name = review.username,
                                     score = review.rating,
@@ -348,6 +350,7 @@ object MyPageScreen : Screen {
                                 MypageReviewContent(
                                     thumbnail = review.thumbnail?:"",
                                     id = review.id,
+                                    contentId = review.contentId?:0,
                                     title = review.title,
                                     name = review.username,
                                     score = review.rating,

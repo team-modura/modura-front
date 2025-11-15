@@ -14,12 +14,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +54,7 @@ import kotlin.math.max
 @Composable
 fun MypageReviewLocation(
     id: Int,
+    placeId: Int,
     thumbnail:String,
     title: String,
     name: String,
@@ -59,6 +64,7 @@ fun MypageReviewLocation(
     image: List<String>,
     onClick: () -> Unit = {}
 ) {
+    println(image)
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     rememberImageBitmapFromUrl(
         url = thumbnail,
@@ -72,15 +78,12 @@ fun MypageReviewLocation(
             .clip(RoundedCornerShape(8.dp))
             .drawWithContent {
                 imageBitmap?.let { bitmap ->
-                    // 3-1. this.size가 패딩 적용 전의 '전체 크기'를 나타냅니다.
                     val dstSize = this.size
                     val srcSize = Size(bitmap.width.toFloat(), bitmap.height.toFloat())
 
-                    // 3-2. ContentScale.Crop 계산을 통해 확대/축소 비율을 구합니다.
                     val scaleFactor = ContentScale.Crop.computeScaleFactor(srcSize, dstSize)
                     val finalScale = max(scaleFactor.scaleX, scaleFactor.scaleY)
 
-                    // 3-3. 확대된 이미지의 크기와, 화면 중앙에 맞추기 위해 이동해야 할 좌표(dx, dy)를 계산합니다.
                     val scaledWidth = srcSize.width * finalScale
                     val scaledHeight = srcSize.height * finalScale
                     val dx = (dstSize.width - scaledWidth) / 2.0f
@@ -89,72 +92,57 @@ fun MypageReviewLocation(
                     drawImage(
                         image = bitmap,
                         dstOffset = androidx.compose.ui.unit.IntOffset(dx.toInt(), dy.toInt()),
-                        dstSize = androidx.compose.ui.unit.IntSize(scaledWidth.toInt(), scaledHeight.toInt())
+                        dstSize = androidx.compose.ui.unit.IntSize(
+                            scaledWidth.toInt(),
+                            scaledHeight.toInt()
+                        )
                     )
-                    // 3-5. 50% 검은색 오버레이를 그립니다.
                     drawRect(color = Black50P, size = dstSize)
                 }
-                // 3-6. 원래 콘텐츠(텍스트 등)를 그립니다.
                 drawContent()
             }
             .clickable(onClick = onClick)
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
-    )  {
-            Spacer(Modifier.height(16.dp))
-            Column {
-                Text(
-                    text = title,
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(Modifier.height(4.dp))
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row {
-                    for (i in 1..5) {
-                        val fraction = when {
-                            score >= i -> 1f
-                            score > i - 1 -> score - (i - 1)
-                            else -> 0f
-                        }
-                        ReviewStar(fraction.toFloat(), color = Gray100)
-                    }
-                }
-                Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
-                Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
-            }
+    ) {
+        Spacer(Modifier.height(16.dp))
+        Column {
             Text(
-                text,
-                style = MaterialTheme.typography.bodySmall,
-                color = Gray100,
+                text = title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(4.dp))
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(image.size) { index ->
-                    val imageUrl = image[index]
-                    var reviewImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-                    rememberImageBitmapFromUrl(
-                        url = imageUrl,
-                        onSuccess = { loadedBitmap -> reviewImageBitmap = loadedBitmap },
-                        onFailure = { errorMessage -> println("리뷰 이미지 로드 실패: $errorMessage") }
-                    )
-                    reviewImageBitmap?.let {
-                        Image(
-                            bitmap = it,
-                            contentDescription = "리뷰 이미지 ${index + 1}",
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(80.dp),
-                            contentScale = ContentScale.Crop
-                        )
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row {
+                for (i in 1..5) {
+                    val fraction = when {
+                        score >= i -> 1f
+                        score > i - 1 -> score - (i - 1)
+                        else -> 0f
                     }
+                    ReviewStar(fraction.toFloat(), color = Gray100)
                 }
+            }
+            Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
+            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
+        }
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = Gray100,
+        )
+        Spacer(Modifier.height(4.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(image) { imageUrl ->
+                ReviewImageItem(imageUrl)
             }
         }
     }
+}
