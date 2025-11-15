@@ -40,9 +40,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ListMapItem(
     place: PlaceResponseModel,
-    onClick: () -> Unit
+    onClick: (Int) -> Unit
 ) {
-    val bookmark = if (place.isLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 /*    val distanceText = if (place.distance >= 1000) {
         val km = place.distance / 1000.0
         val roundedKm = kotlin.math.round(km * 10) / 10.0
@@ -52,34 +51,36 @@ fun ListMapItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable{ onClick(place.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(Res.drawable.img_example),
             contentDescription = null,
-            modifier = Modifier.height(100.dp).width(100.dp)
+            modifier = Modifier.height(80.dp).width(80.dp)
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
         Spacer(Modifier.width(8.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = bookmark,
-                    contentDescription = "북마크",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .width(7.dp)
-                        .height(12.dp)
-                        .clickable {}
-                )
-                Spacer(Modifier.width(4.dp))
+                if (place.isLiked) {
+                    Icon(
+                        painter =painterResource(Res.drawable.img_bookmark_big_selected),
+                        contentDescription = "북마크",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .width(7.dp)
+                            .height(12.dp)
+                            .clickable {}
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
                 Text(place.name, style = MaterialTheme.typography.bodyMedium)
             }
             Spacer(Modifier.height(4.dp))
-            Row {
-                Text(place.rating.toString(), style = MaterialTheme.typography.labelLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(place.rating.toString(), style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.width(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),

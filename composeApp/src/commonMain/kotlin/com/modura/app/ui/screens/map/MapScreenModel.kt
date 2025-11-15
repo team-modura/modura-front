@@ -18,6 +18,8 @@ data class MapUiState(
     val inProgress: Boolean = false,
     val success: Boolean = false,
     val places: List<PlaceResponseModel> = emptyList(),
+    val currentLocation: Location? = null,
+    val focusedPlace: PlaceResponseModel? = null,
     val errorMessage: String? = null
 )
 
@@ -59,13 +61,21 @@ class MapScreenModel(
                         )
                         distance
                     }
-                    _uiState.update { it.copy(inProgress = false, success = true, places = sortedList) }
+                    _uiState.update { it.copy(inProgress = false, success = true, places = sortedList, currentLocation = currentLocation ) }
                 }.onFailure { exception ->
                     _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
                 }
             } else {
                 _uiState.update { it.copy(inProgress = false, success = false, errorMessage = "현재 위치를 가져올 수 없습니다. 권한을 확인해주세요.") }
             }
+        }
+    }
+    fun setFocusedPlace(place: PlaceResponseModel?) {
+        _uiState.update {
+            it.copy(
+                focusedPlace = place,
+                currentLocation = if (place != null) Location(place.latitude, place.longitude) else it.currentLocation
+            )
         }
     }
 }

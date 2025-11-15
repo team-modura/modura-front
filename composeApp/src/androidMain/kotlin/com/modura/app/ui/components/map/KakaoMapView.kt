@@ -32,13 +32,15 @@ import com.kakao.vectormap.MapView
 import com.kakao.vectormap.LatLng as KakaoLatLng
 import com.modura.app.data.dev.LatLng
 import com.modura.app.domain.Location
+import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.screens.map.MapScreenModel
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
 @Composable
-actual fun KakaoMapView(modifier: Modifier, screenModel: MapScreenModel) {
+actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>,
+                        currentLocation: Location?) {
     val context = LocalContext.current
     val locationClient = remember {LocationServices.getFusedLocationProviderClient(context) }
     val screenModel: MapScreenModel = koinInject()

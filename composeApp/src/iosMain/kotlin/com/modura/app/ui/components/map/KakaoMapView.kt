@@ -21,6 +21,6 @@ import platform.KakaoMapsSDK.KakaoMapObserver
 import platform.KakaoMapsSDK.MapPoint*/
 
 @Composable
-actual fun KakaoMapView(modifier: Modifier, screenModel: MapScreenModel) {
+actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>, currentLocation: Location?) {
 
 }
