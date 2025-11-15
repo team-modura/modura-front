@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.data.dev.PlaceInfo
@@ -43,25 +45,27 @@ object MapScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
+        val screenModel = getScreenModel<MapScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
 
         var searchValue by remember { mutableStateOf("") }
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var recentSearches by remember { mutableStateOf(listOf<String>()) }
 
-        var places by remember { mutableStateOf<List<PlaceInfo>>(emptyList()) }
         var isPlaceListExpanded by remember { mutableStateOf(false) }
 
         val fullHeight = 400.dp
         val collapsedHeight = 160.dp
-
         val blockHeight by animateDpAsState(
             targetValue = if (isPlaceListExpanded) fullHeight else collapsedHeight,
             label = "placeListHeightAnimation"
         )
-
         LaunchedEffect(Unit) {
-            places = DummyProvider.dummyPlaces
-            if (places.isNotEmpty()) {
+            screenModel.getPlaces(null)
+        }
+
+        LaunchedEffect(uiState.places) {
+            if (uiState.places.isNotEmpty()) {
                 isPlaceListExpanded = true
             }
         }
@@ -73,7 +77,6 @@ object MapScreen : Screen {
                 modifier = Modifier.fillMaxSize().pointerInput(Unit) {
                     detectTapGestures {
                         isPlaceListExpanded = !isPlaceListExpanded
-                        println("클릭됨")
                     }
                 }
             )
@@ -88,6 +91,7 @@ object MapScreen : Screen {
                     onValueChange = { searchValue = it },
                     onSearch = { searchTerm ->
                         if (searchTerm.isNotBlank()) {
+                            screenModel.getPlaces(null)
                             localRepository.addSearchTerm(searchTerm)
                             recentSearches = localRepository.getRecentSearches()
                             searchValue = ""
@@ -95,7 +99,6 @@ object MapScreen : Screen {
                     })
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    //여유있을 때 chip으로
                     Text(text = "AI 추천 촬영지",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
@@ -117,16 +120,17 @@ object MapScreen : Screen {
                         text = "주변 촬영지",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
-                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
-                            .clickable { println("주변 촬영지 클릭됨") }
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable {screenModel.getPlaces(null); println("주변 촬영지 클릭됨") }
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 12.dp, vertical = 8.dp)
                     )
                 }
             }
+            println(uiState.places)
             PlaceListBlock(
                 modifier = Modifier.align(Alignment.BottomCenter).height(blockHeight),
-                places = places,
+                places = uiState.places,
                 onPlaceClick = { placeId ->
                     println("장소 ID 클릭됨: $placeId")
         },

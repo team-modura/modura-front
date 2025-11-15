@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray700
 import com.modura.app.ui.theme.light8
@@ -38,15 +39,15 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ListMapItem(
-    place: PlaceInfo,
+    place: PlaceResponseModel,
     onClick: () -> Unit
 ) {
-    val bookmark = if (place.bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
-    val distanceText = if (place.distance >= 1000) {
+    val bookmark = if (place.isLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
+/*    val distanceText = if (place.distance >= 1000) {
         val km = place.distance / 1000.0
         val roundedKm = kotlin.math.round(km * 10) / 10.0
         "${roundedKm}km"
-    }else { "${place.distance}m" }
+    }else { "${place.distance}m" }*/
 
     Row(
         modifier = Modifier
@@ -102,17 +103,17 @@ fun ListMapItem(
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Row{
+            /*Row{
                 Text(distanceText, style = MaterialTheme.typography.labelSmall)
                 Spacer(Modifier.width(12.dp))
                 Text(text = place.address, style = MaterialTheme.typography.bodySmall)
-            }
+            }*/
             Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(place.filmedContent) { title ->
-                    Text(text = title,
+                items(place.content.size) {
+                    Text(text = place.content[it],
                     style = MaterialTheme.typography.titleSmall,
                     color = Gray700,
                     modifier = Modifier

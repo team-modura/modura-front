@@ -23,12 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
 
 @Composable
 fun PlaceListBlock(
     modifier: Modifier = Modifier,
-    places: List<PlaceInfo>,
+    places: List<PlaceResponseModel>,
     onPlaceClick: (String) -> Unit,
     onHandleClick: () -> Unit,
     //onDragDown: () -> Unit,
@@ -101,6 +102,7 @@ fun PlaceListBlock(
                 items = places,
                 key = { it.id }
             ) { place ->
+                println("장소 ID: ${place}")
                 ListMapItem(
                     place = place,
                     onClick = { onPlaceClick(place.id.toString())

@@ -104,14 +104,21 @@ val networkModule = module {
         }
     }
     single(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT)) {
+        val tokenRepository: TokenRepository = get()
         HttpClient(CIO) {
+            defaultRequest {
+                url(BASE_URL)
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                val accessToken = tokenRepository.getAccessToken()
+                if (accessToken.isNotBlank()) {
+                    header(HttpHeaders.Authorization, "Bearer $accessToken")
+                }
+            }
+            install(ContentNegotiation) { json(Json { prettyPrint = true; isLenient = true; ignoreUnknownKeys = true }) }
+
             install(Logging) {
                 level = LogLevel.ALL
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        println("S3 Uploader Log: $message")
-                    }
-                }
+                logger = object : Logger { override fun log(message: String) { println("S3 Uploader Log: $message") } }
             }
         }
     }
