@@ -14,12 +14,18 @@ import com.modura.app.domain.model.response.mypage.StillcutResponseModel
 import com.modura.app.domain.model.response.mypage.StillcutsResponseModel
 import com.modura.app.domain.repository.LoginRepository
 import com.modura.app.domain.repository.MypageRepository
+import com.modura.app.domain.repository.TokenRepository
+import com.modura.app.ui.screens.login.LoginScreen
+import com.modura.app.ui.screens.login.LoginScreenModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.collections.remove
 
 data class MypageUiState(
     val inProgress: Boolean = false,
@@ -41,12 +47,13 @@ data class MypageReview(
 )
 
 class MypageScreenModel(
-    private val repository: MypageRepository
+    private val repository: MypageRepository,
+    private  val tokenRepository: TokenRepository,
+    private val loginScreenModel: LoginScreenModel
 ) : ScreenModel {
 
     private val _uiState = MutableStateFlow(MypageUiState())
     val uiState = _uiState.asStateFlow()
-
 
     private val _likedSeries = MutableStateFlow<List<ContentLikedResponseModel>>(emptyList())
     val likedSeries: StateFlow<List<ContentLikedResponseModel>> = _likedSeries.asStateFlow()
@@ -160,6 +167,18 @@ class MypageScreenModel(
             }
         }
     }
+
+    fun logout() {
+        screenModelScope.launch {
+            repository.logout()
+            println("로그아웃 성공")
+            tokenRepository.clearTokens()
+            println("토큰 삭제 완료.")
+            loginScreenModel.resetLoginState()
+            println("로그아웃 절차 완료: LoginScreen으로 이동을 요청합니다.")
+        }
+    }
+
     fun clearReviews() {
         _reviews.value = emptyList()
     }

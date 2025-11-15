@@ -135,7 +135,7 @@ object MyPageScreen : Screen {
                     painter = painterResource(Res.drawable.ic_setting),
                     contentDescription = "설정",
                     modifier = Modifier.size(20.dp)
-                    .clickable { navigator.push(MypageSettingScreen) }
+                    .clickable { navigator.push(MypageSettingScreen()) }
                 )
             }
             Spacer(Modifier.height(20.dp))

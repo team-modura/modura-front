@@ -40,4 +40,7 @@ class MypageDataSourceImpl(
 
     override suspend fun placeReviewsMypage(type: String): BaseResponse<PlaceReviewsMypageResponseDto>
         = httpClient.get("/users/reviews?type=$type").body()
+
+    override suspend fun logout(): BaseResponse<Unit>
+        = httpClient.post("/auth/logout").body()
 }

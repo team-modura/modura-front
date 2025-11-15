@@ -71,12 +71,13 @@ class LoginScreen : Screen {
         var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
 
-
-        if (uiState.success) {
-            if(screenModel.isNewUser.value){
-                showBottomSheet = true
-            }else{
-                rootNavigator?.push(MainScreen)
+        LaunchedEffect(uiState.success) {
+            if (uiState.success) {
+                if (screenModel.isNewUser.value) {
+                    showBottomSheet = true
+                } else {
+                    rootNavigator?.replaceAll(MainScreen)
+                }
             }
         }
 

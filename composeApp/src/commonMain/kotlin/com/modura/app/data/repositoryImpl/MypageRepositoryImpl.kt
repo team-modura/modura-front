@@ -37,4 +37,8 @@ class MypageRepositoryImpl(
 
     override suspend fun placeReviewsMypage(type: String): Result<PlaceReviewsMypageResponseModel> =
         runCatching { dataSource.placeReviewsMypage(type).result!!.toPlaceReviewsMypageResponseModel() }
+
+    override suspend fun logout(): Result<Unit> =
+        runCatching { dataSource.logout().result!! }
+
 }

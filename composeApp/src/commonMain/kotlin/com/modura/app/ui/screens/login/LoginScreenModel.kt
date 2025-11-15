@@ -24,6 +24,11 @@ class LoginScreenModel(
     private val repository: LoginRepository
 ) : ScreenModel {
 
+    fun resetLoginState() {
+        _uiState.value = LoginUiState(inProgress = false, success = false)
+        _isNewUser.value = false
+        println("LoginScreenModel: 상태가 초기화되었습니다.")
+    }
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 

@@ -18,4 +18,5 @@ interface MypageRepository {
     suspend fun stillcutDetail(stillcutId: Int): Result<StillcutDetailResponseModel>
     suspend fun contentReviewsMypage(type: String): Result<ContentReviewsMypageResponseModel>
     suspend fun placeReviewsMypage(type: String): Result<PlaceReviewsMypageResponseModel>
+    suspend fun logout(): Result<Unit>
 }

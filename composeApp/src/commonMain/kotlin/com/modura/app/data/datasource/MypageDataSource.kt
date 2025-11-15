@@ -11,6 +11,5 @@ interface MypageDataSource {
     suspend fun stillcutDetail(stillcutId: Int): BaseResponse<StillcutDetailResponseDto>
     suspend fun contentReviewsMypage(type: String): BaseResponse<ContentReviewsMypageResponseDto>
     suspend fun placeReviewsMypage(type: String): BaseResponse<PlaceReviewsMypageResponseDto>
-
-
+    suspend fun logout(): BaseResponse<Unit>
 }
