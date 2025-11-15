@@ -51,8 +51,14 @@ class DetailRepositoryImpl (
     override suspend fun contentReviewEdit(contentId: Int, reviewId: Int, request: ContentReviewRequestModel): Result<Unit> =
         runCatching { dataSource.contentReviewEdit(contentId, reviewId, request.toContentReviewRequestDto()) }
 
+    override suspend fun placeReviewEdit(placeId: Int, reviewId: Int, request: ContentReviewRequestModel): Result<Unit> =
+        runCatching { dataSource.placeReviewEdit(placeId, reviewId, request.toContentReviewRequestDto()) }
+
     override suspend fun contentReviewDelete(contentId: Int, reviewId: Int): Result<Unit> =
         runCatching { dataSource.contentReviewDelete(contentId, reviewId)}
+
+    override suspend fun placeReviewDelete(placeId: Int, reviewId: Int): Result<Unit> =
+        runCatching { dataSource.placeReviewDelete(placeId, reviewId)}
 
     override suspend fun stillcut(placeId: Int): Result<StillcutsResponseModel> =
         runCatching { dataSource.stillcut(placeId).result!!.toStillcutsResponseModel() }

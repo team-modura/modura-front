@@ -48,6 +48,7 @@ import com.modura.app.ui.components.MypageReviewContent
 import com.modura.app.ui.components.MypageReviewLocation
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
@@ -62,6 +63,7 @@ object MyPageScreen : Screen {
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
         val screenModel = getScreenModel<MypageScreenModel>()
+        val detailScreenModel = getScreenModel<DetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val likedSeries by screenModel.likedSeries.collectAsState()
         val likedMovies by screenModel.likedMovies.collectAsState()
@@ -101,7 +103,13 @@ object MyPageScreen : Screen {
                             }
                         }
                         "수정" -> { /* TODO: 수정 로직 */ println("수정: ${selectedReview!!.title}") }
-                        "삭제" -> { /* TODO: 삭제 로직 */ println("삭제: ${selectedReview!!.title}") }
+                        "삭제" ->
+                            //삭제 후 새로고침 이랑 Toast
+                            if( selectedReview!!.type == "place"){
+                                detailScreenModel.reviewDelete("place",selectedReview!!.placeId?:0,selectedReview!!.id)
+                            }else{
+                                detailScreenModel.reviewDelete("content",selectedReview!!.contentId?:0,selectedReview!!.id)
+                            }
                     }
                     showBottomSheet = false
                 }

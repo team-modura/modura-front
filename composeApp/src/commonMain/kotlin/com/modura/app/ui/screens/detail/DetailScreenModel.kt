@@ -215,6 +215,43 @@ class DetailScreenModel(
         }
     }
 
+    fun reviewEdit(type: String, typeId: Int, reviewId: Int,rating: Int,comment: String) {
+        screenModelScope.launch {
+            val request = ContentReviewRequestModel(rating, comment)
+            if(type == "place"){
+                repository.placeReviewEdit(typeId, reviewId, request).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }else{
+                repository.contentReviewEdit(typeId, reviewId, request).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun reviewDelete(type: String, typeId: Int, reviewId: Int) {
+        screenModelScope.launch {
+            if (type == "place") {
+                repository.placeReviewDelete(typeId, reviewId).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            } else {
+                repository.contentReviewDelete(typeId, reviewId).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
+        }
+    }
+
     fun getStillcut(placeId: Int){
         screenModelScope.launch {
             repository.stillcut(placeId).onSuccess {
