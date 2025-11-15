@@ -1,8 +1,11 @@
 package com.modura.app.di
 
+import com.modura.app.data.dto.BaseResponse
+import com.modura.app.domain.model.response.login.ReissueTokenResult
 import com.modura.app.domain.repository.TokenRepository
 import com.modura.app.util.platform.BASE_URL
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -16,6 +19,7 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.request.post
 import io.ktor.http.encodedPath
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
@@ -29,6 +33,7 @@ object NetworkQualifiers {
 
 val networkModule = module {
     single(named(NetworkQualifiers.MODURA_HTTP_CLIENT)) {
+        val noAuthHttpClient: HttpClient = get(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
         val tokenRepository: TokenRepository = get()
         HttpClient(CIO) {
             defaultRequest {
@@ -58,9 +63,21 @@ val networkModule = module {
                         }
                     }
                     refreshTokens {
-                        println(">>> 401 Unauthorized 감지. 토큰 재발급 로직은 현재 주석 처리됨.")
-                        tokenRepository.clearTokens()
-                        null
+                        println(">>> 401 Unauthorized 감지. 토큰 재발급을 시도합니다.")
+
+                        val oldRefreshToken = tokenRepository.getRefreshToken()
+                        if (oldRefreshToken.isBlank()) {
+                            println(">>> 저장된 Refresh Token이 없어 재발급을 중단합니다.")
+                            tokenRepository.clearTokens()
+                            return@refreshTokens null
+                        }
+                        val response: BaseResponse<ReissueTokenResult> = noAuthHttpClient.post("${BASE_URL}auth/reissue") { header("X-Refresh-Token", oldRefreshToken) }.body()
+                        val newTokens = response.result
+
+                        tokenRepository.saveTokens(newTokens?.accessToken ?: "", newTokens?.refreshToken ?: "")
+                        println(">>> 토큰 재발급 및 저장 성공!")
+
+                        BearerTokens(newTokens?.accessToken ?: "", newTokens?.refreshToken)
                     }
                     /*sendWithoutRequest { request ->
                         val urlPath = request.url.encodedPath
