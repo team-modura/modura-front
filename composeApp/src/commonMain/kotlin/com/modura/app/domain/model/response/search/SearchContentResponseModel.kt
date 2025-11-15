@@ -7,5 +7,5 @@ data class SearchContentResponseModel(
     val id : Int,
     val title:String,
     val isLiked: Boolean,
-    val thumbnail:String
+    val thumbnail:String?
 )

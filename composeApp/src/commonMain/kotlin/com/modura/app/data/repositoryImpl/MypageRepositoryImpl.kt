@@ -6,7 +6,9 @@ import com.modura.app.domain.model.request.login.LoginRequestModel
 import com.modura.app.domain.model.request.login.UserRequestModel
 import com.modura.app.domain.model.response.login.LoginResponseModel
 import com.modura.app.domain.model.response.mypage.ContentLikedResponseModel
+import com.modura.app.domain.model.response.mypage.ContentReviewsMypageResponseModel
 import com.modura.app.domain.model.response.mypage.ContentsLikedResponseModel
+import com.modura.app.domain.model.response.mypage.PlaceReviewsMypageResponseModel
 import com.modura.app.domain.model.response.mypage.PlacesLikedResponseModel
 import com.modura.app.domain.model.response.mypage.StillcutDetailResponseModel
 import com.modura.app.domain.model.response.mypage.StillcutsResponseModel
@@ -29,4 +31,10 @@ class MypageRepositoryImpl(
 
     override suspend fun stillcutDetail(stillcutId: Int): Result<StillcutDetailResponseModel> =
         runCatching { dataSource.stillcutDetail(stillcutId).result!!.toStillcutDetailResponseModel() }
+
+    override suspend fun contentReviewsMypage(type: String): Result<ContentReviewsMypageResponseModel> =
+        runCatching { dataSource.contentReviewsMypage(type).result!!.toCotentReviewsMypageResponseModel() }
+
+    override suspend fun placeReviewsMypage(type: String): Result<PlaceReviewsMypageResponseModel> =
+        runCatching { dataSource.placeReviewsMypage(type).result!!.toPlaceReviewsMypageResponseModel() }
 }

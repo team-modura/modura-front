@@ -14,7 +14,7 @@ data class ContentDetailResponseModel(
     val year : Int,
     val contentCategories: List<String?>,
     val plot :String,
-    val thumbnail: String,
+    val thumbnail: String?,
     val platforms: List<String?>,
     val reviewAvg: Double,
     val fiveStarCount: Int,

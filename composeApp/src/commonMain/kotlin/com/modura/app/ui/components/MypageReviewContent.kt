@@ -20,12 +20,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -33,6 +40,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.*
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_example
 import org.jetbrains.compose.resources.painterResource
@@ -41,74 +49,91 @@ import kotlin.math.max
 
 @Composable
 fun MypageReviewContent(
-    type: String,
+    thumbnail: String,
+    id: Int,
     title: String,
     name: String,
-    score: Float,
+    score: Int,
     date: String,
     text: String,
     onClick: () -> Unit = {}
 ) {
-    val backgroundImage: Painter = painterResource(Res.drawable.img_example)
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
 
+    rememberImageBitmapFromUrl(
+        url = thumbnail,
+        onSuccess = { loadedBitmap ->
+            imageBitmap = loadedBitmap
+            isLoading = false
+        },
+        onFailure = { errorMessage ->
+            println("이미지 로드 실패: $errorMessage")
+            isLoading = false
+        }
+    )
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .drawWithContent {
-                val painter = backgroundImage
-                val paddingInPx = with(density) { 12.dp.toPx() }  //dp => px
-                val backgroundSize = androidx.compose.ui.geometry.Size( this.size.width + (paddingInPx * 2) , this.size.height + (paddingInPx * 2))
-                val scaleFactor = ContentScale.Crop.computeScaleFactor(srcSize = painter.intrinsicSize, dstSize = backgroundSize)
-                val finalScale = max(scaleFactor.scaleX, scaleFactor.scaleY)
-                val dx = (painter.intrinsicSize.width * finalScale - size.width) / 2f
-                val dy = (painter.intrinsicSize.height * finalScale - size.height) / 2f
-                withTransform({
-                    translate(left = +paddingInPx, top = -paddingInPx)
-                    scale(scaleX = finalScale, scaleY = finalScale)
-                    translate(left = +dx, top = -dy)
-                }) {
-                    with(painter) {
-                        draw(size = painter.intrinsicSize)
-                    }
-                }
+                imageBitmap?.let { bitmap ->
+                    // 3-1. this.size가 패딩 적용 전의 '전체 크기'를 나타냅니다.
+                    val dstSize = this.size
+                    val srcSize = Size(bitmap.width.toFloat(), bitmap.height.toFloat())
 
-                translate(left = -paddingInPx, top = -paddingInPx) {
-                    drawRect(color = Black50P, size = backgroundSize)
+                    // 3-2. ContentScale.Crop 계산을 통해 확대/축소 비율을 구합니다.
+                    val scaleFactor = ContentScale.Crop.computeScaleFactor(srcSize, dstSize)
+                    val finalScale = max(scaleFactor.scaleX, scaleFactor.scaleY)
+
+                    // 3-3. 확대된 이미지의 크기와, 화면 중앙에 맞추기 위해 이동해야 할 좌표(dx, dy)를 계산합니다.
+                    val scaledWidth = srcSize.width * finalScale
+                    val scaledHeight = srcSize.height * finalScale
+                    val dx = (dstSize.width - scaledWidth) / 2.0f
+                    val dy = (dstSize.height - scaledHeight) / 2.0f
+
+                    drawImage(
+                        image = bitmap,
+                        dstOffset = androidx.compose.ui.unit.IntOffset(dx.toInt(), dy.toInt()),
+                        dstSize = androidx.compose.ui.unit.IntSize(scaledWidth.toInt(), scaledHeight.toInt())
+                    )
+                    // 3-5. 50% 검은색 오버레이를 그립니다.
+                    drawRect(color = Black50P, size = dstSize)
                 }
+                // 3-6. 원래 콘텐츠(텍스트 등)를 그립니다.
                 drawContent()
             }
             .clickable(onClick = onClick)
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = title,
-            color = Color.White,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row {
-                for (i in 1..5) {
-                    val fraction = when {
-                        score >= i -> 1f
-                        score > i - 1 -> score - (i - 1)
-                        else -> 0f
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row {
+                    for (i in 1..5) {
+                        val fraction = when {
+                            score >= i -> 1f
+                            score > i - 1 -> score - (i - 1)
+                            else -> 0f
+                        }
+                        ReviewStar(fraction.toFloat(), color = Gray100)
                     }
-                    ReviewStar(fraction, color = Gray100)
                 }
+                Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
+                Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
             }
-            Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
+            Text(
+                text,
+                style = MaterialTheme.typography.bodySmall,
+                color = Gray100
+            )
         }
-        Text(
-            text,
-            style = MaterialTheme.typography.bodySmall,
-            color = Gray100
-        )
-    }
 }

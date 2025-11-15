@@ -63,13 +63,11 @@ class DetailRepositoryImpl (
     override suspend fun uploadImage(request: UploadImageRequestModel): Result<List<UploadImageResponseModel>>     {
             val response = dataSource.uploadImage(request.toUploadImageRequestDto())
 
-            // 2. '!!' 대신, 서버 응답이 성공이고 result가 null이 아닐 때만 데이터를 변환합니다.
             if (response.isSuccess && response.result != null) {
                 val models = response.result.map { dto -> dto.toUploadImageResponseModel() }
                 return Result.success(models)
             } else {
-                // 3. 서버가 실패 응답을 보냈거나 result가 null이면, 실패 Result를 직접 만들어 반환합니다.
-                val errorMessage =
+                  val errorMessage =
                     "Presigned URL 요청 실패: ${response.message} (Code: ${response.code})"
                 return Result.failure(Exception(errorMessage))
             }

@@ -9,4 +9,6 @@ interface MypageDataSource {
     suspend fun placesLikes(): BaseResponse<PlacesLikedResponseDto>
     suspend fun stillcuts(): BaseResponse<StillcutsResponseDto>
     suspend fun stillcutDetail(stillcutId: Int): BaseResponse<StillcutDetailResponseDto>
+    suspend fun contentReviewsMypage(type: String): BaseResponse<ContentReviewsMypageResponseDto>
+    suspend fun placeReviewsMypage(type: String): BaseResponse<PlaceReviewsMypageResponseDto>
 }

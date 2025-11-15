@@ -80,7 +80,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
         }
         detailUiState.data?.let { contentData ->
             rememberImageBitmapFromUrl(
-                url = contentData.thumbnail,
+                url = contentData.thumbnail?:"",
                 onSuccess = { loadedBitmap ->
                     imageBitmap = loadedBitmap
                     isLoading = false

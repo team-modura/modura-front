@@ -26,6 +26,17 @@ data class MypageUiState(
     val success: Boolean = false,
     val errorMessage: String? = null
 )
+data class MypageReview(
+    val id: Int,
+    val type: String, // "series", "movies", "장소"
+    val title: String,
+    val username: String,
+    val rating: Int,
+    val comment: String,
+    val createdAt: String,
+    val thumbnail: String?,
+    val imageUrl: List<String> = emptyList()
+)
 
 class MypageScreenModel(
     private val repository: MypageRepository
@@ -46,6 +57,9 @@ class MypageScreenModel(
 
     private val _stillcuts = MutableStateFlow<List<StillcutResponseModel>>(emptyList())
     val stillcuts: StateFlow<List<StillcutResponseModel>> = _stillcuts.asStateFlow()
+
+    private val _reviews = MutableStateFlow<List<MypageReview>>(emptyList())
+    val reviews = _reviews.asStateFlow()
 
     fun getLikedContents(type: String) {
         screenModelScope.launch {
@@ -91,4 +105,56 @@ class MypageScreenModel(
         }
     }
 
+    fun getContentReviewsMypage(type: String){
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.contentReviewsMypage(type).onSuccess {
+                val newReiviews = it.contentReviewList.map{
+                    MypageReview(
+                        id = it.id,
+                        type = type,
+                        title = it.title,
+                        username = it.username,
+                        rating = it.rating,
+                        comment = it.comment,
+                        createdAt = it.createdAt,
+                        thumbnail = it.thumbnail,
+                        imageUrl = emptyList()
+                    )
+                }
+                _reviews.value = newReiviews
+                _uiState.update { it.copy(inProgress = false, success = true) }
+            }.onFailure {
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+            }
+        }
+    }
+
+    fun getPlaceReviewsMypage(type: String){
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.placeReviewsMypage(type).onSuccess {
+                val newReiviews = it.placeReviewList.map{
+                    MypageReview(
+                        id = it.id,
+                        type = type,
+                        title = it.name,
+                        username = it.username,
+                        rating = it.rating,
+                        comment = it.comment,
+                        createdAt = it.createdAt,
+                        thumbnail = it.thumbnail,
+                        imageUrl = it.imageUrl
+                    )
+                }
+                _reviews.value = newReiviews
+                _uiState.update { it.copy(inProgress = false, success = true) }
+            }.onFailure {
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+            }
+        }
+    }
+    fun clearReviews() {
+        _reviews.value = emptyList()
+    }
 }

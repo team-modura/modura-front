@@ -8,7 +8,7 @@ data class SearchContentResponseDto(
     val id : Int,
     val title:String,
     val isLiked: Boolean,
-    val thumbnail:String
+    val thumbnail:String?
 ){
     fun toSearchContentResponseModel()= SearchContentResponseModel(id, title, isLiked, thumbnail)
 }

@@ -34,14 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import coil3.compose.AsyncImage
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.DummyProvider
-import com.modura.app.data.dev.MypageReview
 import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ListBottomSheet
 import com.modura.app.ui.components.MypageReviewContent
@@ -78,7 +78,7 @@ object MyPageScreen : Screen {
         LaunchedEffect(selectedTab) {
             if (selectedTab == "찜") {
                 screenModel.getLikedContents("series")
-                screenModel.getLikedContents("movies")
+                screenModel.getLikedContents("movie")
                 screenModel.getLikedPlaces()
             } else if (selectedTab == "스틸컷") {
                 screenModel.getStillcuts()
@@ -93,7 +93,7 @@ object MyPageScreen : Screen {
                     // 2. 옵션 선택 시 동작 정의
                     when (selectedOption) {
                         "상세보기" -> {
-                            if (selectedReview!!.type == "장소") {
+                            if (selectedReview!!.type == "place") {
                                 navigator.push(PlaceDetailScreen(selectedReview!!.id))
                                 println("장소 상세보기: ${selectedReview!!.title}")
                             } else {
@@ -263,7 +263,7 @@ object MyPageScreen : Screen {
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
-                        modifier = Modifier.fillMaxSize().padding(top = 10.dp)
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(stillcuts, key = { it.id }) { stillcut ->
                             AsyncImage(
@@ -281,7 +281,21 @@ object MyPageScreen : Screen {
                 }
             }
             else if (selectedTab == "리뷰") {
+                val reviews by screenModel.reviews.collectAsState()
                 var selectedReviewType by remember { mutableStateOf("전체") }
+                LaunchedEffect(selectedReviewType) {
+                    screenModel.clearReviews()
+                    when (selectedReviewType) {
+                        "전체" -> {
+                            screenModel.getContentReviewsMypage("series")
+                            screenModel.getContentReviewsMypage("movie")
+                            screenModel.getPlaceReviewsMypage("place")
+                        }
+                        "시리즈" -> screenModel.getContentReviewsMypage("series")
+                        "영화" -> screenModel.getContentReviewsMypage("movie")
+                        "장소" -> screenModel.getPlaceReviewsMypage("place")
+                    }
+                }
                 Spacer(Modifier.height(20.dp))
                 Row(modifier = Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)){
                     Text(
@@ -304,44 +318,48 @@ object MyPageScreen : Screen {
                         modifier = Modifier.clickable { selectedReviewType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))
-
-                val reviewList = DummyProvider.dummyReviews
-                val filteredReviews = when (selectedReviewType) {
-                    "전체" -> reviewList
-                    "시리즈" -> reviewList.filter { it.type == "시리즈" }
-                    "영화" -> reviewList.filter { it.type == "영화" }
-                    "장소" -> reviewList.filter { it.type == "장소" }
-                    else -> emptyList()
-                }
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp))
-                {
-                    items(filteredReviews)  { review ->
-                        if (review.type == "장소") {
-                            MypageReviewLocation(
-                                title = review.title,
-                                location = review.location ?: "",
-                                region = review.region ?: "",
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { selectedReview = review
-                                    showBottomSheet = true
-                                    println("장소 리뷰 ${review.id} 클릭") }
-                            )
-                        } else {
-                            MypageReviewContent(
-                                type = review.type,
-                                title = review.title,
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { selectedReview = review
-                                    showBottomSheet = true
-                                    println("콘텐츠 리뷰 ${review.id} 클릭") }
-                            )
+                if (uiState.inProgress) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        items(reviews, key = { "${it.type}-${it.id}" }) { review ->
+                            if (review.type == "장소") {
+                                MypageReviewLocation(
+                                    thumbnail = review.thumbnail?:"",
+                                    id = review.id,
+                                    title = review.title,
+                                    name = review.username,
+                                    score = review.rating,
+                                    date = review.createdAt,
+                                    text = review.comment,
+                                    image = review.imageUrl,
+                                    onClick = {
+                                        selectedReview = review
+                                        showBottomSheet = true
+                                        println("장소 리뷰 ${review.id} 클릭")
+                                    }
+                                )
+                            } else {
+                                MypageReviewContent(
+                                    thumbnail = review.thumbnail?:"",
+                                    id = review.id,
+                                    title = review.title,
+                                    name = review.username,
+                                    score = review.rating,
+                                    date = review.createdAt,
+                                    text = review.comment,
+                                    onClick = {
+                                        selectedReview = review
+                                        showBottomSheet = true
+                                        println("콘텐츠 리뷰 ${review.id} 클릭")
+                                    }
+                                )
+                            }
                         }
                     }
                 }
