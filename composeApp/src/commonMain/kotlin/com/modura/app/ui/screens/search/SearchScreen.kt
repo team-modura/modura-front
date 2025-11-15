@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +35,7 @@ import com.modura.app.ui.theme.Gray700
 import com.russhwolf.settings.Settings
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-object SearchScreen : Screen {
+class SearchScreen : Screen {
     override val key: String = "SearchScreenKey"
 
     @Composable
@@ -42,10 +43,12 @@ object SearchScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
         var searchValue by remember { mutableStateOf("") }
-        val popularSearches = listOf("자켓", "청바지", "슬랙스", "니트", "신발")
+        val screenModel = getScreenModel<SearchScreenModel>()
+        val uiState by screenModel.uiState.collectAsState()
         var recentSearches by remember { mutableStateOf(listOf<String>()) }
         LaunchedEffect(Unit) {
             recentSearches = localRepository.getRecentSearches()
+            screenModel.searchPopular()
         }
         Box(
             modifier = Modifier
@@ -71,15 +74,23 @@ object SearchScreen : Screen {
                 Text("인기 검색어", style = MaterialTheme.typography.titleSmall, color = Gray700)
                 Spacer(Modifier.height(12.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    popularSearches.forEachIndexed { index, term ->
-                        PopularSearchTerm(
-                            rank = index + 1,
-                            term = term,
-                            onClick = {
-                                searchValue = term
-                                navigator.push(SearchResultScreen(searchValue))
-                            }
-                        )
+                    if (uiState.inProgress) {
+                        Text("인기 검색어를 불러오는 중...", style = MaterialTheme.typography.bodyMedium, color = Gray600)
+                    }
+                    else if (uiState.errorMessage != null) {
+                        Text(uiState.errorMessage!!,style = MaterialTheme.typography.bodyMedium, color = Gray600)
+                    }
+                    else {
+                        uiState.keywords.forEachIndexed { index, term ->
+                            PopularSearchTerm(
+                                rank = index + 1,
+                                term = term,
+                                onClick = {
+                                    searchValue = term
+                                    navigator.push(SearchResultScreen(searchValue))
+                                }
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(40.dp))
@@ -111,10 +122,4 @@ object SearchScreen : Screen {
             }
         }
     }
-}
-
-@Composable
-@Preview
-private fun Preview(){
-    SearchScreen.Content()
 }

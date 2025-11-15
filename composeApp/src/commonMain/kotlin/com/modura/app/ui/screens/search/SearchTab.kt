@@ -20,6 +20,6 @@ object SearchTab : Tab {
 
     @Composable
     override fun Content() {
-        Navigator(screen = SearchScreen)
+        Navigator(screen = SearchScreen())
     }
 }

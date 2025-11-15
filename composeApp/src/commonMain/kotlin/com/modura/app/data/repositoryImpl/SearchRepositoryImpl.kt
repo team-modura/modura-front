@@ -3,11 +3,15 @@ package com.modura.app.data.repositoryImpl
 import com.modura.app.data.datasource.SearchDataSource
 import com.modura.app.domain.model.response.search.SearchContentListResponseModel
 import com.modura.app.domain.model.response.search.SearchPlaceListResponseModel
+import com.modura.app.domain.model.response.search.SearchPopularResponseModel
 import com.modura.app.domain.repository.SearchRepository
 
 class SearchRepositoryImpl (
     private val dataSource: SearchDataSource
 ): SearchRepository {
+    override suspend fun searchPopular(): Result<SearchPopularResponseModel> =
+        runCatching { dataSource.searchPopular().result!!.toSearchPopularResponseModel() }
+
     override suspend fun searchContents(query: String): Result<SearchContentListResponseModel> =
          runCatching {
             val response = dataSource.searchContents(query)
