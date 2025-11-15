@@ -290,15 +290,10 @@ object MyPageScreen : Screen {
             }
             else if (selectedTab == "리뷰") {
                 val reviews by screenModel.reviews.collectAsState()
-                var selectedReviewType by remember { mutableStateOf("전체") }
+                var selectedReviewType by remember { mutableStateOf("시리즈") }
                 LaunchedEffect(selectedReviewType) {
                     screenModel.clearReviews()
                     when (selectedReviewType) {
-                        "전체" -> {
-                            screenModel.getContentReviewsMypage("series")
-                            screenModel.getContentReviewsMypage("movie")
-                            screenModel.getPlaceReviewsMypage("place")
-                        }
                         "시리즈" -> screenModel.getContentReviewsMypage("series")
                         "영화" -> screenModel.getContentReviewsMypage("movie")
                         "장소" -> screenModel.getPlaceReviewsMypage("place")
@@ -306,11 +301,6 @@ object MyPageScreen : Screen {
                 }
                 Spacer(Modifier.height(20.dp))
                 Row(modifier = Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)){
-                    Text(
-                        "전체", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "전체") Black else Gray500,
-                        modifier = Modifier.clickable { selectedReviewType = "전체" }
-                    )
                     Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
                         color = if (selectedReviewType == "시리즈") Black else Gray500,
