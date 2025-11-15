@@ -31,13 +31,17 @@ import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapView
 import com.kakao.vectormap.LatLng as KakaoLatLng
 import com.modura.app.data.dev.LatLng
+import com.modura.app.domain.Location
+import com.modura.app.ui.screens.map.MapScreenModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
 @Composable
-actual fun KakaoMapView(modifier: Modifier) {
+actual fun KakaoMapView(modifier: Modifier, screenModel: MapScreenModel) {
     val context = LocalContext.current
     val locationClient = remember {LocationServices.getFusedLocationProviderClient(context) }
+    val screenModel: MapScreenModel = koinInject()
 
     val mapView = remember {
         MapView(context)
@@ -53,54 +57,42 @@ actual fun KakaoMapView(modifier: Modifier) {
     var currentLatLng by remember { mutableStateOf<KakaoLatLng?>(null) }
     var locationError by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(locationPermissionsState.allPermissionsGranted) {
+    Box(modifier = modifier) {
         if (locationPermissionsState.allPermissionsGranted) {
-            val cancellationTokenSource = CancellationTokenSource()
-            locationClient.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                cancellationTokenSource.token
-            ).addOnSuccessListener { location ->
-                location?.let {
-                    currentLatLng = KakaoLatLng.from(it.latitude, it.longitude)
-                    Log.d("KakaoMapView", "Location Success: $currentLatLng")
-                } ?: run {
-                    locationError = "위치 정보를 찾을 수 없습니다."
-                    Log.e("KakaoMapView", "Location is null")
-                }
-            }.addOnFailureListener { e ->
-                locationError = "위치 획득에 실패했습니다: ${e.message}"
-                Log.e("KakaoMapView", "Location Failure", e)
+            AndroidView(
+                factory = { mapView },
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            // 권한이 없으면 권한을 요청합니다.
+            LaunchedEffect(Unit) {
+                locationPermissionsState.launchMultiplePermissionRequest()
             }
+            Text("지도를 표시하려면 위치 권한이 필요합니다.", modifier = Modifier.align(Alignment.Center))
         }
     }
 
-    Box(modifier = modifier) {
-        when {
-            locationPermissionsState.allPermissionsGranted -> {
-                when {
-                    currentLatLng != null -> {
-                        KakaoMapViewInternal(
-                            modifier = Modifier.fillMaxSize(),
-                            kakaoLatLng = currentLatLng!!
-                        )
-                    }
-                    locationError != null -> {
-                        Text(locationError!!, modifier = Modifier.align(Alignment.Center))
-                    }
-                    else -> {
-                        Text("현재 위치를 가져오는 중입니다...", modifier = Modifier.align(Alignment.Center))
-                    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> {
+                    mapView.start(object : MapLifeCycleCallback() {
+                        override fun onMapDestroy() { /* 지도 API가 더 이상 사용되지 않을 때 호출 */ }
+                        override fun onMapError(error: Exception) { Log.e("KakaoMapView", "Map Error", error) }
+                    }, object : KakaoMapReadyCallback() {
+                        override fun onMapReady(kakaoMap: KakaoMap) { /* 지도 로딩 완료 */ }
+                    })
                 }
+                Lifecycle.Event.ON_RESUME -> mapView.resume()
+                Lifecycle.Event.ON_PAUSE -> mapView.pause()
+                Lifecycle.Event.ON_DESTROY -> mapView.finish()
+                else -> {}
             }
-            locationPermissionsState.shouldShowRationale -> {
-                Text("지도를 보려면 위치 권한이 필요합니다.", modifier = Modifier.align(Alignment.Center))
-            }
-            else -> {
-                LaunchedEffect(Unit) {
-                    locationPermissionsState.launchMultiplePermissionRequest()
-                }
-                Text("위치 권한을 요청합니다...", modifier = Modifier.align(Alignment.Center))
-            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }

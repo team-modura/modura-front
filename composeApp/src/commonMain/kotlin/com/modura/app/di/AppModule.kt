@@ -10,6 +10,7 @@ val appModule = module {
         repositoryModule,
         dataSourceModule,
         screenModelModule,
-        storageModule
+        storageModule,
+        platformModule
     )
 }

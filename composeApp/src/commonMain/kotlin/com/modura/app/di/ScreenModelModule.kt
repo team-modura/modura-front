@@ -10,7 +10,7 @@ import org.koin.dsl.module
 
 val screenModelModule = module {
     factoryOf(::DetailScreenModel)
-    factoryOf(::MapScreenModel)
+    factory{ MapScreenModel(get(), get())}
     factoryOf(::LoginScreenModel)
     factoryOf(::SearchScreenModel)
     factoryOf(::MypageScreenModel)

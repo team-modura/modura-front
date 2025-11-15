@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,9 +62,6 @@ object MapScreen : Screen {
             targetValue = if (isPlaceListExpanded) fullHeight else collapsedHeight,
             label = "placeListHeightAnimation"
         )
-        LaunchedEffect(Unit) {
-            screenModel.getPlaces(null)
-        }
 
         LaunchedEffect(uiState.places) {
             if (uiState.places.isNotEmpty()) {
@@ -78,7 +77,8 @@ object MapScreen : Screen {
                     detectTapGestures {
                         isPlaceListExpanded = !isPlaceListExpanded
                     }
-                }
+                },
+                screenModel = screenModel
             )
             Column(
                 modifier = Modifier
@@ -91,7 +91,7 @@ object MapScreen : Screen {
                     onValueChange = { searchValue = it },
                     onSearch = { searchTerm ->
                         if (searchTerm.isNotBlank()) {
-                            screenModel.getPlaces(null)
+                            screenModel.getPlaces(searchTerm)
                             localRepository.addSearchTerm(searchTerm)
                             recentSearches = localRepository.getRecentSearches()
                             searchValue = ""
@@ -99,7 +99,8 @@ object MapScreen : Screen {
                     })
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(text = "AI 추천 촬영지",
+                    Text(
+                        text = "AI 추천 촬영지",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
@@ -121,24 +122,42 @@ object MapScreen : Screen {
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
-                            .clickable {screenModel.getPlaces(null); println("주변 촬영지 클릭됨") }
+                            .clickable { println("주변 촬영지 버튼 클릭됨 (동작 없음)") }
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 12.dp, vertical = 8.dp)
                     )
                 }
             }
-            println(uiState.places)
-            PlaceListBlock(
-                modifier = Modifier.align(Alignment.BottomCenter).height(blockHeight),
-                places = uiState.places,
-                onPlaceClick = { placeId ->
-                    println("장소 ID 클릭됨: $placeId")
-        },
-                onHandleClick = {
-                    isPlaceListExpanded = !isPlaceListExpanded
-                },
-                isExpanded = isPlaceListExpanded
-            )
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                if (uiState.inProgress && uiState.places.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .height(collapsedHeight)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(Modifier.height(8.dp))
+                        Text("주변 장소를 찾고 있습니다...")
+                    }
+                } else {
+                    PlaceListBlock(
+                        modifier = Modifier.height(blockHeight),
+                        places = uiState.places,
+                        onPlaceClick = { placeId ->
+                            println("장소 ID 클릭됨: $placeId")
+                        },
+                        onHandleClick = {
+                            isPlaceListExpanded = !isPlaceListExpanded
+                        },
+                        isExpanded = isPlaceListExpanded
+                    )
+                }
             }
+        }
     }
 }

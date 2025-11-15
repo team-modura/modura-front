@@ -20,13 +20,7 @@ class MainApplication : Application() {
         appContext = this
         startKoin {
             androidContext(this@MainApplication)
-            modules(
-                networkModule,
-                dataSourceModule,
-                repositoryModule,
-                screenModelModule,
-                storageModule
-            )
+            modules(appModule)
         }
         KakaoSdk.init(this, getString(R.string.kakao_native_app_key))
         KakaoMapSdk.init(this, getString(R.string.kakao_native_app_key))
