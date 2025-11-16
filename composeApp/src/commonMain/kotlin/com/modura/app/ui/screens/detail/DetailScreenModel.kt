@@ -300,11 +300,11 @@ class DetailScreenModel(
 
             val request = StillcutRequestModel(
                 imageUrl = response.key,
-                similarity = totalScore!!.toInt(),
-                angle = structureScore!!.toInt(),
-                clarity = clarityScore!!.toInt(),
-                color = toneScore!!.toInt(),
-                palette = paletteScore!!.toInt()
+                similarity = (totalScore ?: 0.0).toInt(),
+                angle = (structureScore ?: 0.0).toInt(),
+                clarity = (clarityScore ?: 0.0).toInt(),
+                color = (toneScore ?: 0.0).toInt(),
+                palette = (paletteScore ?: 0.0).toInt()
             )
             repository.stillcutSave(placeId, stillcutId, request).onSuccess {
                 println("✅ 서버에 스틸컷 정보 저장 성공: $it")

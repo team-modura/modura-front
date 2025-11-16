@@ -48,6 +48,7 @@ import com.modura.app.ui.components.SceneScoreDetail
 import com.modura.app.ui.components.StillcutItem
 import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.theme.Main500
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
@@ -155,9 +156,9 @@ class StillcutScreen(private val placeId: Int) : Screen {
                         selectedStillcutId?.let { id ->
                         screenModel.postStillcut(context, placeId, id)
                         }
-                        //rootNavigator?.push(PlaceDetailScreen(id = placeId))
+                        rootNavigator?.push(PlaceDetailScreen(id = placeId))
                     }) {
-                        Text("저장하기", fontSize = 16.sp)
+                        Text("저장하기", fontSize = 16.sp,color= Main500)
                     }
                 }
             }

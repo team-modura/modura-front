@@ -88,12 +88,14 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                             comment = reviewText,
                             photoUris = selectedPhotos
                         )
+                        rootNavigator?.pop()
                     }else if(reviewType=="콘텐츠") {
                         val request = ContentReviewRequestModel(
                             rating = userRating,
                             comment = reviewText
                         )
                         screenModel.contentReviewRegister(id,request)
+                        rootNavigator?.pop()
                     }
                 })
             }
