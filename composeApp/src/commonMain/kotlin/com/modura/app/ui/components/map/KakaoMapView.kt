@@ -10,4 +10,6 @@ import com.modura.app.ui.screens.map.MapScreenModel
 
 
 @Composable
-expect fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>, currentLocation: Location?)
+expect fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>, currentLocation: Location?,
+                        cameraEvent: MapScreenModel.CameraEvent? = null,
+                        onCameraEventConsumed: () -> Unit)

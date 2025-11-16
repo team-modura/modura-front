@@ -18,10 +18,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +35,7 @@ import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray700
 import com.modura.app.ui.theme.light8
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_bookmark_big_selected
 import modura.composeapp.generated.resources.img_bookmark_big_unselected
@@ -42,31 +48,50 @@ fun ListMapItem(
     place: PlaceResponseModel,
     onClick: (Int) -> Unit
 ) {
-/*    val distanceText = if (place.distance >= 1000) {
-        val km = place.distance / 1000.0
-        val roundedKm = kotlin.math.round(km * 10) / 10.0
-        "${roundedKm}km"
-    }else { "${place.distance}m" }*/
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    rememberImageBitmapFromUrl(
+        url = place.thumbnail ?: "",
+        onSuccess = { loadedBitmap ->
+            imageBitmap = loadedBitmap
+            isLoading = false
+        },
+        onFailure = { errorMessage ->
+            println("이미지 로드 실패: $errorMessage")
+            isLoading = false
+        }
+    )
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable{ onClick(place.id) },
+            .clickable { onClick(place.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(Res.drawable.img_example),
-            contentDescription = null,
-            modifier = Modifier.height(80.dp).width(80.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+        if (isLoading || imageBitmap == null) {
+            Spacer(
+                modifier = Modifier
+                    .height(80.dp)
+                    .width(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Gray100) // 또는 다른 회색
+            )
+        } else {
+            Image(
+                bitmap = imageBitmap!!,
+                contentDescription = null,
+                modifier = Modifier.height(80.dp).width(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
         Spacer(Modifier.width(8.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (place.isLiked) {
                     Icon(
-                        painter =painterResource(Res.drawable.img_bookmark_big_selected),
+                        painter = painterResource(Res.drawable.img_bookmark_big_selected),
                         contentDescription = "북마크",
                         tint = Color.Unspecified,
                         modifier = Modifier
@@ -105,22 +130,23 @@ fun ListMapItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             /*Row{
-                Text(distanceText, style = MaterialTheme.typography.labelSmall)
-                Spacer(Modifier.width(12.dp))
-                Text(text = place.address, style = MaterialTheme.typography.bodySmall)
-            }*/
+                    Text(distanceText, style = MaterialTheme.typography.labelSmall)
+                    Spacer(Modifier.width(12.dp))
+                    Text(text = place.address, style = MaterialTheme.typography.bodySmall)
+                }*/
             Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(place.content.size) {
-                    Text(text = place.content[it],
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Gray700,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Gray100)
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                    Text(
+                        text = place.content[it],
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Gray700,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Gray100)
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
                 }
             }

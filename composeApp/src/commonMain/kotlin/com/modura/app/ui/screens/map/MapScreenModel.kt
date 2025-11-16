@@ -20,6 +20,7 @@ data class MapUiState(
     val places: List<PlaceResponseModel> = emptyList(),
     val currentLocation: Location? = null,
     val focusedPlace: PlaceResponseModel? = null,
+    val cameraEvent: MapScreenModel.CameraEvent? = null,
     val errorMessage: String? = null
 )
 
@@ -30,6 +31,9 @@ class MapScreenModel(
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
+
+    private val _cameraEvent = MutableStateFlow<CameraEvent?>(null)
+    val cameraEvent: StateFlow<CameraEvent?> = _cameraEvent.asStateFlow()
 
     init {
         getPlacesByDistance()
@@ -47,21 +51,21 @@ class MapScreenModel(
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
 
-            val currentLocation = locationHelper.getCurrentLocation()
-
-            if (currentLocation != null) {
-                println("### MapScreenModel: 현재 위치 획득 -> ${currentLocation.latitude}, ${currentLocation.longitude}")
+            val fetchedLocation = locationHelper.getCurrentLocation()
+            if (fetchedLocation != null) {
+                _uiState.update { it.copy(currentLocation = fetchedLocation) }
+                println("### MapScreenModel: 현재 위치 획득 -> ${fetchedLocation.latitude}, ${fetchedLocation.longitude}")
                 repository.getPlaces(null).onSuccess { response ->
                     val sortedList = response.placeList.sortedBy { place ->
                         val distance = calculateDistance(
-                            currentLocation.latitude,
-                            currentLocation.longitude,
+                            fetchedLocation.latitude,
+                            fetchedLocation.longitude,
                             place.latitude,
                             place.longitude
                         )
                         distance
                     }
-                    _uiState.update { it.copy(inProgress = false, success = true, places = sortedList, currentLocation = currentLocation ) }
+                    _uiState.update { it.copy(inProgress = false, success = true, places = sortedList, currentLocation = fetchedLocation ) }
                 }.onFailure { exception ->
                     _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
                 }
@@ -72,10 +76,22 @@ class MapScreenModel(
     }
     fun setFocusedPlace(place: PlaceResponseModel?) {
         _uiState.update {
-            it.copy(
-                focusedPlace = place,
-                currentLocation = if (place != null) Location(place.latitude, place.longitude) else it.currentLocation
-            )
+            it.copy(focusedPlace = place)
         }
+    }
+
+    fun moveToCurrentLocation() {
+        _uiState.value.currentLocation?.let {
+            _cameraEvent.value = CameraEvent.MoveTo(it.longitude, it.latitude)
+            _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.longitude, it.latitude)) }
+        }
+    }
+
+    fun consumeCameraEvent() {
+        _cameraEvent.value = null
+        _uiState.update { state -> state.copy(cameraEvent = null) }
+    }
+    sealed class CameraEvent {
+        data class MoveTo(val lon: Double, val lat: Double) : CameraEvent()
     }
 }

@@ -13,14 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -43,8 +43,6 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.DummyProvider
-import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
 import com.modura.app.domain.repository.LocalRepository
 import com.modura.app.ui.components.PlaceListBlock
@@ -52,9 +50,11 @@ import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.russhwolf.settings.Settings
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import modura.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.painterResource
 
+import modura.composeapp.generated.resources.*
 object MapScreen : Screen {
     override val key: String = "MapScreenKey"
 
@@ -71,6 +71,14 @@ object MapScreen : Screen {
                 initialValue = SheetValue.PartiallyExpanded,
                 skipHiddenState = true
             )
+        )
+
+        val bottomPadding by animateDpAsState(
+            targetValue = if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
+                346.dp
+            } else {
+                146.dp
+            }
         )
 
         var searchValue by remember { mutableStateOf("") }
@@ -113,8 +121,23 @@ object MapScreen : Screen {
                                 }
                             }
                         },
-                        places = uiState.places, // screenModel이 아닌 places 직접 전달
-                        currentLocation = uiState.currentLocation // screenModel이 아닌 currentLocation 직접 전달
+                        places = uiState.places,
+                        currentLocation = uiState.currentLocation,
+                        cameraEvent = uiState.cameraEvent,
+                        onCameraEventConsumed = { screenModel.consumeCameraEvent() }
+                    )
+                }
+                IconButton(
+                    onClick = { screenModel.moveToCurrentLocation() },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = bottomPadding)
+                ) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        painter = painterResource(Res.drawable.ic_my_location),
+                        contentDescription = "내 위치로 이동",
+                        tint = Color.Unspecified
                     )
                 }
                 Column(

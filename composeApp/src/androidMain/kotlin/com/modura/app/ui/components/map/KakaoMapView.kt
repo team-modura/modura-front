@@ -29,6 +29,11 @@ import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapView
+import com.kakao.vectormap.label.LabelLayer
+import com.kakao.vectormap.label.LabelOptions
+import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelStyles
+import com.modura.app.R
 import com.kakao.vectormap.LatLng as KakaoLatLng
 import com.modura.app.data.dev.LatLng
 import com.modura.app.domain.Location
@@ -39,15 +44,20 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("MissingPermission")
 @Composable
-actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>,
-                        currentLocation: Location?) {
+actual fun KakaoMapView(
+    modifier: Modifier,
+    places: List<PlaceResponseModel>,
+    currentLocation: Location?,
+    cameraEvent: MapScreenModel.CameraEvent?,
+    onCameraEventConsumed: () -> Unit,
+) {
     val context = LocalContext.current
-    val locationClient = remember {LocationServices.getFusedLocationProviderClient(context) }
-    val screenModel: MapScreenModel = koinInject()
+    val mapView = remember { MapView(context) }
 
-    val mapView = remember {
-        MapView(context)
-    }
+    var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
+    var labelLayer by remember { mutableStateOf<LabelLayer?>(null) }
+
+    var isMapInitialized by remember { mutableStateOf(false) }
 
     val locationPermissionsState = rememberMultiplePermissionsState(
         listOf(
@@ -56,9 +66,6 @@ actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>,
         )
     )
 
-    var currentLatLng by remember { mutableStateOf<KakaoLatLng?>(null) }
-    var locationError by remember { mutableStateOf<String?>(null) }
-
     Box(modifier = modifier) {
         if (locationPermissionsState.allPermissionsGranted) {
             AndroidView(
@@ -66,11 +73,48 @@ actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>,
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            // 권한이 없으면 권한을 요청합니다.
             LaunchedEffect(Unit) {
                 locationPermissionsState.launchMultiplePermissionRequest()
             }
             Text("지도를 표시하려면 위치 권한이 필요합니다.", modifier = Modifier.align(Alignment.Center))
+        }
+    }
+    LaunchedEffect(places, kakaoMap) {
+        val map = kakaoMap ?: return@LaunchedEffect
+        val layer = labelLayer ?: map.labelManager?.layer ?: return@LaunchedEffect
+
+        layer.removeAll()
+
+        places.forEach { place ->
+            val position = KakaoLatLng.from(place.longitude, place.latitude)
+            Log.d("pin", "정상 핀 위치: $position")
+            val options = LabelOptions.from(position)
+                .setStyles(LabelStyles.from(LabelStyle.from(R.drawable.img_pin)))
+            layer.addLabel(options)
+        }
+
+        places.firstOrNull()?.let { firstPlace ->
+            val position = KakaoLatLng.from(firstPlace.longitude, firstPlace.latitude)
+            map.moveCamera(
+                com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position, 15)
+            )
+            Log.d("KakaoMapView", "핀 목록 업데이트됨. 첫 번째 핀 위치로 카메라 이동: $position")
+        }
+    }
+    LaunchedEffect(cameraEvent, kakaoMap) {
+        val map = kakaoMap ?: return@LaunchedEffect
+        when (cameraEvent) {
+            is MapScreenModel.CameraEvent.MoveTo -> {
+                val position = KakaoLatLng.from(cameraEvent.lat, cameraEvent.lon)
+                map.moveCamera(
+                    com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position, 15)
+                )
+                Log.d("KakaoMapView", "카메라 이벤트 수신: 내 위치로 이동 -> $position")
+                onCameraEventConsumed() // 이벤트 소비 완료 알림
+            }
+            null -> {
+                // 이벤트가 없으면 아무것도 하지 않음
+            }
         }
     }
 
@@ -80,10 +124,25 @@ actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>,
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.start(object : MapLifeCycleCallback() {
-                        override fun onMapDestroy() { /* 지도 API가 더 이상 사용되지 않을 때 호출 */ }
+                        override fun onMapDestroy() { }
                         override fun onMapError(error: Exception) { Log.e("KakaoMapView", "Map Error", error) }
                     }, object : KakaoMapReadyCallback() {
-                        override fun onMapReady(kakaoMap: KakaoMap) { /* 지도 로딩 완료 */ }
+                        override fun onMapReady(map: KakaoMap) {
+
+                            kakaoMap = map
+                            labelLayer = map.labelManager?.layer
+                            Log.d("KakaoMapView", "onMapReady: kakaoMap 상태 업데이트됨. 핀 찍기 준비 완료.")
+
+                            if (isMapInitialized) return
+
+                            currentLocation?.let {
+                                val position = KakaoLatLng.from(it.latitude, it.longitude)
+                                map.moveCamera(com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position, 15))
+                                Log.d("KakaoMapView", "지도 준비 및 초기 위치 이동 완료: $position")
+
+                                isMapInitialized = true
+                            }   
+                        }
                     })
                 }
                 Lifecycle.Event.ON_RESUME -> mapView.resume()
