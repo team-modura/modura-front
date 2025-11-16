@@ -59,6 +59,7 @@ fun MypageReviewContent(
     text: String,
     onClick: () -> Unit = {}
 ) {
+    val formattedDate = date.substringBefore(" ").replace("-", ".")
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -129,7 +130,7 @@ fun MypageReviewContent(
                     }
                 }
                 Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
-                Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
+                Text("(${formattedDate})", style = MaterialTheme.typography.labelSmall, color = Gray100)
             }
             Text(
                 text,

@@ -69,12 +69,14 @@ class LoginScreen : Screen {
 
         val coroutineScope = rememberCoroutineScope()
         val uiState by screenModel.uiState.collectAsState()
+        val isNewUser by screenModel.isNewUser.collectAsState()
+
         var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
 
         LaunchedEffect(uiState.success) {
             if (uiState.success) {
-                if (screenModel.isNewUser.value) {
+                if (isNewUser) {
                     showBottomSheet = true
                 } else {
                     rootNavigator?.replaceAll(MainScreen)

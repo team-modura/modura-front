@@ -67,7 +67,7 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 40.dp).background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.fillMaxSize().padding(top = 40.dp).background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -101,7 +101,7 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                     }
                 })
             }
-            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
             ReviewStarInput(
                 rating = userRating,
                 onRatingChange = { newRating ->
@@ -125,14 +125,14 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                 },
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent
                 ),
-                textStyle = MaterialTheme.typography.bodyMedium
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground)
             )
             if (reviewType == "장소") {
                 LazyRow(

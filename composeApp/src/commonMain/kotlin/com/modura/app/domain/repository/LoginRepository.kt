@@ -8,4 +8,5 @@ interface LoginRepository {
 
     suspend fun login(request: LoginRequestModel): Result<LoginResponseModel>
     suspend fun user(request: UserRequestModel): Result<Unit>
+    suspend fun reactivate(): Result<Unit>
 }

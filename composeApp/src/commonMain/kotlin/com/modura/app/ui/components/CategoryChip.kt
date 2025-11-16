@@ -40,7 +40,7 @@ fun CategoryChip(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (isSelected) Main500 else MaterialTheme.colorScheme.surface
-    val textColor = if (isSelected) White else MaterialTheme.colorScheme.surface
+    val textColor = if (isSelected) White else MaterialTheme.colorScheme.onBackground
 
     Box(modifier = modifier) {
         Box(modifier = Modifier

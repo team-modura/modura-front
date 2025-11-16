@@ -237,7 +237,7 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                                 userRating = newRating
                                 rootNavigator?.push(
                                     ReviewScreen(
-                                        1,
+                                        id,
                                         "장소",
                                         placeData.name,
                                         newRating

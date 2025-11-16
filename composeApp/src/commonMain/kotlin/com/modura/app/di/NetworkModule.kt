@@ -22,33 +22,32 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.request.post
 import io.ktor.http.encodedPath
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 object NetworkQualifiers {
-    const val MODURA_HTTP_CLIENT = "ModuraHttpClient"
-    const val YOUTUBE_HTTP_CLIENT = "YoutubeHttpClient"
+    const val AUTH_HTTP_CLIENT = "AuthHttpClient"
     const val NO_AUTH_HTTP_CLIENT = "NoAuthHttpClient"
-    const val TOKEN_REFRESH_HTTP_CLIENT = "TokenRefresHttpClient"
+    const val TOKEN_REFRESH_HTTP_CLIENT = "TokenRefreshHttpClient"
+    const val YOUTUBE_HTTP_CLIENT = "YoutubeHttpClient"
 }
 
 val networkModule = module {
-    single(named(NetworkQualifiers.MODURA_HTTP_CLIENT)) {
-        val noAuthHttpClient: HttpClient = get(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT))
+    single(named(NetworkQualifiers.AUTH_HTTP_CLIENT)) {
         val tokenRepository: TokenRepository = get()
-        val tokenRefreshHttpClient: HttpClient = get(named(NetworkQualifiers.TOKEN_REFRESH_HTTP_CLIENT))
-        HttpClient(CIO) {
+        // 토큰 재발급 전용 클라이언트를 여기서 직접 생성
+        val tokenRefreshClient = HttpClient(CIO) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             defaultRequest {
                 url(BASE_URL)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 15000L // 요청 전체에 대한 타임아웃 (15초)
-                connectTimeoutMillis = 15000L // 서버 연결에 대한 타임아웃 (15초)
-                socketTimeoutMillis = 15000L  // 데이터 수신에 대한 타임아웃 (15초)
-            }
+        }
 
+        HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
                     prettyPrint = true
@@ -56,55 +55,53 @@ val networkModule = module {
                     ignoreUnknownKeys = true
                 })
             }
-            install(Logging) {
-                level = LogLevel.ALL
+            install(Logging) { level = LogLevel.ALL }
+            defaultRequest {
+                url(BASE_URL)
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
+
             install(Auth) {
                 bearer {
                     loadTokens {
-                        val accessToken = tokenRepository.getAccessToken()
-                        val refreshToken = tokenRepository.getRefreshToken()
-
-                        if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
-                            BearerTokens(accessToken, refreshToken)
-                        } else {
-                            null
+                        // runBlocking: suspend 함수가 끝날 때까지 동기적으로 기다리게 만듦
+                        runBlocking {
+                            val accessToken = tokenRepository.getAccessToken()
+                            val refreshToken = tokenRepository.getRefreshToken()
+                            if (accessToken.isNotBlank()) {
+                                BearerTokens(accessToken, refreshToken)
+                            } else {
+                                null
+                            }
                         }
                     }
+
                     refreshTokens {
-                        println(">>> 401 Unauthorized 감지. 토큰 재발급을 시도합니다.")
+                        // runBlocking: suspend 함수가 끝날 때까지 동기적으로 기다리게 만듦
+                        runBlocking {
+                            val oldRefreshToken = tokenRepository.getRefreshToken()
+                            if (oldRefreshToken.isBlank()) return@runBlocking null
 
-                        val oldRefreshToken = tokenRepository.getRefreshToken()
-                        if (oldRefreshToken.isBlank()) {
-                            println(">>> 저장된 Refresh Token이 없어 재발급을 중단합니다.")
-                            tokenRepository.clearTokens()
-                            return@refreshTokens null
+                            try {
+                                val response: BaseResponse<ReissueTokenResult> =
+                                    tokenRefreshClient.post("auth/reissue") {
+                                        header("X-Refresh-Token", oldRefreshToken)
+                                    }.body()
+
+                                val newTokens = response.result
+                                if (newTokens != null) {
+                                    tokenRepository.saveTokens(newTokens.accessToken, newTokens.refreshToken)
+                                    BearerTokens(newTokens.accessToken, newTokens.refreshToken)
+                                } else {
+                                    tokenRepository.clearTokens()
+                                    null
+                                }
+                            } catch (e: Exception) {
+                                tokenRepository.clearTokens()
+                                null
+                            }
                         }
-                        val response: BaseResponse<ReissueTokenResult> =
-                            tokenRefreshHttpClient.post("auth/reissue") { // BASE_URL이 이미 설정되어 있으므로 경로만 적습니다.
-                                header("X-Refresh-Token", oldRefreshToken)
-                            }.body()
-
-                        val newTokens = response.result
-
-                        tokenRepository.saveTokens(newTokens?.accessToken ?: "", newTokens?.refreshToken ?: "")
-                        println(">>> 토큰 재발급 및 저장 성공!")
-
-                        BearerTokens(newTokens?.accessToken ?: "", newTokens?.refreshToken)
                     }
-                    sendWithoutRequest { request ->
-                        request.url.host == "flicker-bucket.s3.ap-northeast-2.amazonaws.com"
-                    }
-                    /*sendWithoutRequest { request ->
-                        val urlPath = request.url.encodedPath
-                        val shouldSendWithoutToken = urlPath.startsWith("/s3/")
-
-                        println("--- Auth Plugin Check ---")
-                        println("Request URL Path: $urlPath")
-                        println("Condition (startsWith /s3/): $shouldSendWithoutToken")
-
-                        shouldSendWithoutToken
-                    }*/
                 }
             }
         }
@@ -120,11 +117,18 @@ val networkModule = module {
         }
     }
     single(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT)) {
-        val tokenRepository: TokenRepository = get()
         HttpClient(CIO) {
-            install(Logging) {
-                level = LogLevel.ALL
-                logger = object : Logger { override fun log(message: String) { println("S3 Uploader Log: $message") } }
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
+            install(Logging) { level = LogLevel.ALL }
+            defaultRequest {
+                url(BASE_URL)
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
         }
     }

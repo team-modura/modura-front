@@ -25,10 +25,10 @@ import org.koin.dsl.module
 
 val dataSourceModule = module {
     single<YoutubeService> { YoutubeServiceImpl( get(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT))) }
-    single<LoginDataSource> { LoginDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
-    single<ListDataSource> { ListDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
-    single<DetailDataSource> { DetailDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT)), get() )}
-    single<SearchDataSource> { SearchDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
-    single<MypageDataSource> { MypageDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
-    single<MapDataSource>{ MapDataSourceImpl(get(named(NetworkQualifiers.MODURA_HTTP_CLIENT))) }
+    single<LoginDataSource> {  LoginDataSourceImpl(noAuthHttpClient = get(named(NetworkQualifiers.NO_AUTH_HTTP_CLIENT)), authHttpClient = get(named(NetworkQualifiers.AUTH_HTTP_CLIENT)))}
+    single<ListDataSource> { ListDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
+    single<DetailDataSource> { DetailDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT)), get() )}
+    single<SearchDataSource> { SearchDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
+    single<MypageDataSource> { MypageDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
+    single<MapDataSource>{ MapDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
 }

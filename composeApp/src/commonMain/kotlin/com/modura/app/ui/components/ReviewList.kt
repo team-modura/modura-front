@@ -24,6 +24,8 @@ fun ReviewList(
     date: String,
     text: String
 ){
+    val formattedDate = date.substringBefore(" ").replace("-", ".")
+
     Column(Modifier.padding(20.dp,10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)){
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically){
             Row{
@@ -38,7 +40,7 @@ fun ReviewList(
             }
             Text(name, style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onBackground)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall,
+            Text("(${formattedDate})", style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onBackground)
         }
         Text(text, style = MaterialTheme.typography.bodySmall,

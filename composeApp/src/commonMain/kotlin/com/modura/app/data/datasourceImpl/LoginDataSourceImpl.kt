@@ -13,10 +13,13 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
 class LoginDataSourceImpl(
-    private val httpClient: HttpClient
+    private val noAuthHttpClient: HttpClient,
+    private val authHttpClient: HttpClient
 ) : LoginDataSource {
     override suspend fun login(request: LoginRequestDto): BaseResponse<LoginResponseDto>
-        = httpClient.post("/auth/login") { setBody(request) }.body()
+        = noAuthHttpClient.post("/auth/login") { setBody(request) }.body()
     override suspend fun user(request: UserRequestDto): BaseResponse<Unit>
-        = httpClient.patch("/users"){setBody(request)}.body()
+        = authHttpClient.patch("/users"){setBody(request)}.body()
+    override suspend fun reactivate(): BaseResponse<Unit>
+        = authHttpClient.patch("/auth/reactivate").body()
 }

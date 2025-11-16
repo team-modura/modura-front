@@ -73,7 +73,6 @@ fun AddressBottomSheet(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .background(White)
                 ) {
                     items(address) { state ->
                         Text(

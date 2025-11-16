@@ -2,6 +2,8 @@ package com.modura.app.domain.repository
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 class TokenRepository(
     private val settings: Settings
@@ -11,22 +13,21 @@ class TokenRepository(
         private const val REFRESH_TOKEN_KEY = "refresh_token"
     }
 
-    fun saveTokens(accessToken: String, refreshToken: String) {
+    suspend fun saveTokens(accessToken: String, refreshToken: String) {
         settings.putString(ACCESS_TOKEN_KEY, accessToken)
         settings.putString(REFRESH_TOKEN_KEY, refreshToken)
-        println("저장된 accessToken: ${settings.getString(ACCESS_TOKEN_KEY, "저장 실패")}")
-        println("저장된 refreshToken: ${settings.getString(REFRESH_TOKEN_KEY, "저장 실패")}")
+        println(">>> 토큰 저장 요청 완료 (Save Requested) <<<")
     }
 
-    fun getAccessToken(): String {
+    suspend fun  getAccessToken(): String {
         return settings.getString(ACCESS_TOKEN_KEY, "")
     }
 
-    fun getRefreshToken(): String {
+    suspend fun  getRefreshToken(): String {
         return settings.getString(REFRESH_TOKEN_KEY, "")
     }
 
-    fun clearTokens() {
+    suspend fun  clearTokens() {
         settings.remove(ACCESS_TOKEN_KEY)
         settings.remove(REFRESH_TOKEN_KEY)
     }

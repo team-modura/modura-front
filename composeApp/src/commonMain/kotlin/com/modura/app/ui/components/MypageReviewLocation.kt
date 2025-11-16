@@ -65,6 +65,7 @@ fun MypageReviewLocation(
     onClick: () -> Unit = {}
 ) {
     println(image)
+    val formattedDate = date.substringBefore(" ").replace("-", ".")
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     rememberImageBitmapFromUrl(
         url = thumbnail,
@@ -129,7 +130,7 @@ fun MypageReviewLocation(
                 }
             }
             Text(name, style = MaterialTheme.typography.labelSmall, color = Gray100)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray100)
+            Text("(${formattedDate})", style = MaterialTheme.typography.labelSmall, color = Gray100)
         }
         Text(
             text,

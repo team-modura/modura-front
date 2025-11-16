@@ -27,4 +27,7 @@ class LoginRepositoryImpl(
     override suspend fun user(request: UserRequestModel): Result<Unit> =
         runCatching { loginDataSource.user(request.toUserRequestDto()) }
 
+    override suspend fun reactivate(): Result<Unit> =
+        runCatching { loginDataSource.reactivate().result!!}
+
 }

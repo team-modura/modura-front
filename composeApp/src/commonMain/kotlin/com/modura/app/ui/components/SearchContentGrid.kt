@@ -92,10 +92,13 @@ fun SearchContentGrid(
             }
             else -> {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_x),
+                    Image(
+                        painter = painterResource(Res.drawable.img_not_found),
                         contentDescription = "로드 실패",
-                        modifier = Modifier.align(Alignment.Center)
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                            .aspectRatio(210f/297f)
+                            .clip(RoundedCornerShape(8.dp))
                     )
                 }
             }

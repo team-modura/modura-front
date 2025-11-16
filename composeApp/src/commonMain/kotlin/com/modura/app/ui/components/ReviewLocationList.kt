@@ -40,6 +40,7 @@ fun ReviewLocationList(
     text: String,
     image: List<String>
 ){
+    val formattedDate = date.substringBefore(" ").replace("-", ".")
     Column(Modifier.padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)){
         Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically){
             Row{
@@ -53,7 +54,7 @@ fun ReviewLocationList(
                 }
             }
             Text(name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+            Text("(${formattedDate})", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
         }
         Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp))
         Spacer(Modifier.height(4.dp))
