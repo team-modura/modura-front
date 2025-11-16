@@ -44,10 +44,10 @@ import kotlin.math.sqrt
 fun ContentItemSmall(
     id:Int,
     bookmark: Boolean = false,
-    ott: List<String> = listOf("netflix", "watcha"),
+   // ott: List<String> = listOf("netflix", "watcha"),
     image: String = "",
     title: String = "제목",
-    rank: String = "순위",
+    rank: Int = 0,
     onClick: () -> Unit = {}
 ){
     val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
@@ -126,7 +126,7 @@ fun ContentItemSmall(
                         .align(Alignment.TopEnd)
                         .padding(vertical = 10.dp) ,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
+                ) {/*
                     ott.forEach { platform ->
                         when(platform) {
                             "netflix" -> Image(painter = painterResource(Res.drawable.img_netflix), contentDescription = "Netflix", modifier = Modifier.size(16.dp))
@@ -137,7 +137,7 @@ fun ContentItemSmall(
                             "tving" -> Image(painter = painterResource(Res.drawable.img_tving), contentDescription = "tving", modifier = Modifier.size(16.dp))
                             else -> {}
                         }
-                    }
+                    }*/
                 }
             }
             Box(modifier = Modifier.weight(1f))
@@ -145,7 +145,7 @@ fun ContentItemSmall(
                 modifier = Modifier.padding(5.dp)
             ) {
                 Text(
-                    text = rank,
+                    text = rank.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )

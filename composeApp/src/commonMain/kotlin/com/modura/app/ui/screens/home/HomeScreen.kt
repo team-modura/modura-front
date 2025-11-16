@@ -3,6 +3,7 @@ package com.modura.app.ui.screens.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,11 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentItemSmall
+import com.modura.app.ui.components.HomeContentRow
+import com.modura.app.ui.components.HomePlaceRow
 import com.modura.app.ui.components.LocationItemSmall
+import com.modura.app.ui.components.SectionTitle
 import com.modura.app.ui.screens.detail.ContentDetailScreen
 import com.modura.app.ui.theme.Gray100
 import modura.composeapp.generated.resources.Res
@@ -41,15 +50,24 @@ import modura.composeapp.generated.resources.img_diagnosis
 import modura.composeapp.generated.resources.img_logo_text
 import org.jetbrains.compose.resources.painterResource
 import kotlin.time.ExperimentalTime
-
-object HomeScreen : Screen {
+class HomeScreen : Screen {
     override val key: String = "HomeScreenKey"
-    @OptIn(ExperimentalTime::class)
+
     @Composable
     override fun Content() {
+        val screenModel = getScreenModel<HomeScreenModel>()
         val navigator = LocalRootNavigator.current!!
         val scrollState = rememberScrollState()
-        val mediaList = DummyProvider.dummyMedia
+        val uiState by screenModel.uiStateFlow.collectAsState()
+        val topSeries by screenModel.topSeries.collectAsState()
+        val topMovie by screenModel.topMovie.collectAsState()
+        val topPlaces by screenModel.topPlaces.collectAsState()
+
+        LaunchedEffect(Unit) {
+            screenModel.topSeries()
+            screenModel.topMovie()
+            screenModel.topPlaces()
+        }
 
         Box(
             modifier = Modifier
@@ -77,6 +95,7 @@ object HomeScreen : Screen {
                         .fillMaxWidth()
                         .aspectRatio(16f/9f)
                         .shadow(elevation =2.dp, shape = RoundedCornerShape(8.dp), clip = false)
+                        .clickable {}
                         .clip(RoundedCornerShape(8.dp))
                         .border(width = 0.5.dp, color = Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp)),
                     painter = painterResource(Res.drawable.img_diagnosis),
@@ -84,88 +103,17 @@ object HomeScreen : Screen {
                     contentScale = ContentScale.Crop
                 )
                 Spacer(Modifier.height(20.dp))
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp),
-                    text = "TOP 10 Series",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(Modifier.height(5.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(mediaList.size) { index ->
-                        val item = mediaList[index]
+                SectionTitle("TOP 10 Series")
+                HomeContentRow(topSeries, navigator)
 
-                        ContentItemSmall(
-                            id = item.id,
-                            bookmark = item.bookmark,
-                            ott = item.ott,
-                            image = item.image,
-                            title = item.title,
-                            rank = item.rank,
-                            onClick = {
-                                println("${item.title} 클릭됨")
-                                navigator?.push(ContentDetailScreen(item.id))
-                            }
-                        )
-                    }
-                }
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp),
-                    text = "TOP 10 촬영지",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(Modifier.height(5.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(5) { index ->
+                // --- TOP 10 촬영지 ---
+                SectionTitle("TOP 10 촬영지")
+                HomePlaceRow(topPlaces, navigator)
 
-                        LocationItemSmall(
-/*                            bookmark = item.bookmark,
-                            image = item.image,
-                            title = item.title,
-                            rank = item.rank,*/
-                            onClick = {
-                                println("ㅇㅇ 클릭됨")
-                            }
-                        )
-                    }
-                }
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp),
-                    text = "힐링이 필요할 때",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(Modifier.height(5.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(mediaList.size) { index ->
-                        val item = mediaList[index]
+                // --- TOP 10 Movie ---
+                SectionTitle("TOP 10 Movie")
+                HomeContentRow(topMovie, navigator)
 
-                        ContentItemSmall(
-                            id = item.id,
-                            bookmark = item.bookmark,
-                            ott = item.ott,
-                            image = item.image,
-                            title = item.title,
-                            rank = item.rank,
-                            onClick = {
-                                println("${item.title} 클릭됨")
-                                navigator?.push(ContentDetailScreen(1))
-                            }
-                        )
-                    }
-                }
                 Spacer(Modifier.height(20.dp))
             }
         }

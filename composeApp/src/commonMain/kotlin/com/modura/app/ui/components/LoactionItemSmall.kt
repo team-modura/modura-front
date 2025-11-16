@@ -37,8 +37,9 @@ import kotlin.math.sqrt
 
 @Composable
 fun LocationItemSmall(
+    id: Int,
     bookmark: Boolean = false,
-    rank: String = "0",
+    rank: Int = 0,
     title: String = "제목",
     region: String = "지역",
     location: String = "장소",
@@ -92,7 +93,7 @@ fun LocationItemSmall(
             Box(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.padding(5.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)){
                 Text(
-                    text = rank,
+                    text = rank.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -121,14 +122,4 @@ fun LocationItemSmall(
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun Preview(){
-    LocationItemSmall(
-        bookmark = false,
-        image = "",
-        title = "기묘한 이야기",
-    )
 }

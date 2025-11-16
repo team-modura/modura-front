@@ -244,6 +244,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     ) {
                                         items(contentData.places.filterNotNull()) { place ->
                                             LocationItemSmall(
+                                                id = place.id,
                                                 bookmark = place.isLiked,
                                                 image = place.thumbnail,
                                                 title = place.name,

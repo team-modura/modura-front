@@ -188,12 +188,11 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                         ) {
                             items(5) { index ->
                                 LocationItemSmall(
-                                    /*bookmark = item.bookmark,
-                                image = item.image,
-                                title = item.title,
-                                rank = item.rank,*/
+                                    id = placeData.placeId,
+                                    bookmark = placeData.isLiked,
+                                    image = placeData.placeImageUrl,
                                     onClick = {
-                                        println("ㅇㅇ 클릭됨")
+                                        rootNavigator?.push(PlaceDetailScreen(placeData.placeId))
                                     }
                                 )
                             }
