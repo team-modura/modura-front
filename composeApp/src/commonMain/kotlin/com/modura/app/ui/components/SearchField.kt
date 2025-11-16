@@ -34,16 +34,17 @@ fun SearchField(
     onValueChange: (String) -> Unit,
     onSearch:(String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "검색어를 입력해주세요."
+    placeholder: String = "검색어를 입력해주세요.",
+    white: Boolean =  false
 ){
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(White)
+            .background(if(white)White else MaterialTheme.colorScheme.surface)
             .clip(RoundedCornerShape(8.dp))
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(horizontal = 20.dp, vertical = 12.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         BasicTextField(
@@ -51,7 +52,7 @@ fun SearchField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = Gray800
+                color = if(white)White else MaterialTheme.colorScheme.onBackground
             ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -76,7 +77,8 @@ fun SearchField(
                 contentDescription = "Clear text",
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .clickable { onValueChange("") }
+                    .clickable { onValueChange("") },
+                tint = if(white)White else MaterialTheme.colorScheme.onBackground
             )
         }
     }

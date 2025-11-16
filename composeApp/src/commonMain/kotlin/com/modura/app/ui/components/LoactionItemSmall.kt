@@ -31,9 +31,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
+import com.modura.app.ui.theme.White
 import com.modura.app.ui.theme.light8
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
@@ -107,7 +109,7 @@ fun LocationItemSmall(
                 .align(Alignment.BottomCenter)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(BlackTransparent, Black),
+                        colors = listOf( BlackTransparent, Black),
                         endY = Float.POSITIVE_INFINITY
                     )
                 )
@@ -132,7 +134,7 @@ fun LocationItemSmall(
                 if(rank!=0){
                     Text(
                         text = rank.toString(),
-                        color = Color.White,
+                        color = White,
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -140,7 +142,9 @@ fun LocationItemSmall(
                     if(title!="제목"){
                         Text(
                             text = title,
-                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = White,
                             style = MaterialTheme.typography.light8
                         )
                     }
@@ -149,14 +153,14 @@ fun LocationItemSmall(
                     ){
                         Text(
                             text = location,
-                            color = Color.White,
+                            color = White,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Box(modifier = Modifier.weight(1f))
                         if(region!="지역"){
                             Text(
                                 text = region,
-                                color = Color.White,
+                                color = White,
                                 style = MaterialTheme.typography.light8
                             )
                         }

@@ -92,7 +92,6 @@ object MyPageScreen : Screen {
                 items = bottomSheetItems,
                 onDismissRequest = { showBottomSheet = false },
                 onSelect = { selectedOption ->
-                    // 2. 옵션 선택 시 동작 정의
                     when (selectedOption) {
                         "상세보기" -> {
                             if (selectedReview!!.type == "place") {
@@ -117,9 +116,9 @@ object MyPageScreen : Screen {
         }
 
         Column(
-            modifier = Modifier.background(Gray100)
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) {
-            val name: String? = "김승혁"
+            val name: String? = "이용자"
             Row(
                 modifier = Modifier.fillMaxWidth().padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -128,18 +127,19 @@ object MyPageScreen : Screen {
                     painter = painterResource(Res.drawable.img_logo_text),
                     contentDescription = "로고",
                     modifier = Modifier.height(15.dp),
-                    colorFilter = ColorFilter.tint(Color.Black)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground )
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
                     painter = painterResource(Res.drawable.ic_setting),
                     contentDescription = "설정",
                     modifier = Modifier.size(20.dp)
-                    .clickable { navigator.push(MypageSettingScreen()) }
+                    .clickable { navigator.push(MypageSettingScreen()) },
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(Modifier.height(20.dp))
-            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
+            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.onBackground)
 
             Column {
                 Row(
@@ -178,15 +178,15 @@ object MyPageScreen : Screen {
                 ) {
                     Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "시리즈") Black else Gray500,
+                        color = if (selectedType == "시리즈") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "시리즈" })
                     Text(
                         "영화", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "영화") Black else Gray500,
+                        color = if (selectedType == "영화") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "영화" })
                     Text(
                         "장소", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "장소") Black else Gray500,
+                        color = if (selectedType == "장소") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))
@@ -303,16 +303,16 @@ object MyPageScreen : Screen {
                 Row(modifier = Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)){
                     Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "시리즈") Black else Gray500,
+                        color = if (selectedReviewType == "시리즈") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "시리즈" }
                     )
                     Text(
                         "영화", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "영화") Black else Gray500,
+                        color = if (selectedReviewType == "영화") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "영화" })
                     Text(
                         "장소", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "장소") Black else Gray500,
+                        color = if (selectedReviewType == "장소") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))

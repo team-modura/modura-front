@@ -1,10 +1,12 @@
 package com.modura.app.ui.screens.mypage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,35 +46,36 @@ class MypageSettingScreen : Screen, KoinComponent {
         val screenModel = getScreenModel<MypageScreenModel>()
         var version = "1.0.0"
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .padding(top = 60.dp, bottom = 20.dp, start = 20.dp, end = 20.dp)
         ) {
             Row {
                 Icon(
                     painter = painterResource(Res.drawable.ic_back),
                     contentDescription = "뒤로가기",
-                    modifier = Modifier.size(24.dp).clickable { rootNavigator?.pop() }
+                    modifier = Modifier.size(24.dp).clickable { rootNavigator?.pop() },
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(Modifier.weight(1f))
             }
-            Text("SETTING", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 20.dp))
+            Text("SETTING", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 20.dp), color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(32.dp))
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text("로그아웃", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable {
+                Text("로그아웃", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.clickable {
                     println("로그아웃 클릭됨")
                     screenModel.logout()
                     rootNavigator.replaceAll(LoginScreen())
             })
-                Text("계정탈퇴", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable {
+                Text("계정탈퇴", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.clickable {
                     println("계정탈퇴 클릭됨")
                 })
                 Row{
-                    Text("버전 정보", style = MaterialTheme.typography.bodyMedium)
+                    Text("버전 정보", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.width(12.dp))
                     Text("version ${version}", style = MaterialTheme.typography.bodySmall, color = Gray500)
                 }
                 Column{
-                    Text("약관 동의", style = MaterialTheme.typography.bodyMedium)
+                    Text("약관 동의", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("플리커 이용약관 >", style = MaterialTheme.typography.bodySmall, color = Gray500)

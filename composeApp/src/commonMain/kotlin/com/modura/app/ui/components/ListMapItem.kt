@@ -3,6 +3,7 @@ package com.modura.app.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -33,7 +35,11 @@ import androidx.compose.ui.unit.dp
 import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.theme.Gray100
+import com.modura.app.ui.theme.Gray300
 import com.modura.app.ui.theme.Gray700
+import com.modura.app.ui.theme.Gray800
+import com.modura.app.ui.theme.Gray900
+import com.modura.app.ui.theme.White
 import com.modura.app.ui.theme.light8
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.Res
@@ -63,6 +69,15 @@ fun ListMapItem(
             isLoading = false
         }
     )
+
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroudColor = remember(isDarkTheme) {
+        if (isDarkTheme) { Gray800 } else {Gray100}
+    }
+    val textColor = remember(isDarkTheme){
+        if(isDarkTheme){ Gray300 } else {Gray700}
+    }
+
 
     Row(
         modifier = Modifier
@@ -104,11 +119,11 @@ fun ListMapItem(
                     )
                     Spacer(Modifier.width(4.dp))
                 }
-                Text(place.name, style = MaterialTheme.typography.bodyMedium)
+                Text(place.name, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(place.rating.toString(), style = MaterialTheme.typography.titleSmall)
+                Text(place.rating.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.width(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -128,7 +143,8 @@ fun ListMapItem(
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = "(${place.reviewCount.toString()})",
-                    style = MaterialTheme.typography.light8
+                    style = MaterialTheme.typography.light8,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -145,10 +161,10 @@ fun ListMapItem(
                     Text(
                         text = place.content[it],
                         style = MaterialTheme.typography.titleSmall,
-                        color = Gray700,
+                        color = textColor,
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Gray100)
+                            .background(backgroudColor)
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
                 }

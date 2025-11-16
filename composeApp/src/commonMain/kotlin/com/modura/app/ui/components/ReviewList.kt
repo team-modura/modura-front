@@ -33,13 +33,16 @@ fun ReviewList(
                         score > i - 1 -> score - (i - 1)
                         else -> 0f
                     }
-                    ReviewStar(fraction.toFloat())
+                    ReviewStar(fraction.toFloat(), color = MaterialTheme.colorScheme.onBackground)
                 }
             }
-            Text(name, style = MaterialTheme.typography.labelSmall, color = Gray800)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray800)
+            Text(name, style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onBackground)
+            Text("(${date})", style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onBackground)
         }
-        Text(text, style = MaterialTheme.typography.bodySmall, color = Gray800)
+        Text(text, style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground)
     }
 }
 /*

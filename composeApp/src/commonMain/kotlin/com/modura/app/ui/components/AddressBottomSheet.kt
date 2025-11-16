@@ -58,7 +58,7 @@ fun AddressBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = null,
     ) {
         Column(
@@ -83,7 +83,7 @@ fun AddressBottomSheet(
                                 .clickable { selectedState = state }
                                 .padding(16.dp),
                             fontWeight = if (selectedState == state) FontWeight.Bold else FontWeight.Normal,
-                            color = if (selectedState == state) Color.Black else Gray500
+                            color = if (selectedState == state)MaterialTheme.colorScheme.onBackground else Gray500
                         )
                     }
                 }
@@ -103,7 +103,7 @@ fun AddressBottomSheet(
                                         onDismissRequest()
                                     }
                                     .padding(16.dp),
-                                color = Gray800
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }

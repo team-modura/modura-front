@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(label, modifier = Modifier.width(60.dp), style = MaterialTheme.typography.bodyLarge)
+        Text(label, modifier = Modifier.width(60.dp), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
         SceneScoreBar(
             progress = (finalScore / 100).toFloat(),
             modifier = Modifier.weight(1f)
@@ -31,8 +31,7 @@ import androidx.compose.ui.unit.dp
             text = finalScore.toInt().toString(),
             modifier = Modifier.width(30.dp),
             style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.End,
-            fontWeight = FontWeight.Bold
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

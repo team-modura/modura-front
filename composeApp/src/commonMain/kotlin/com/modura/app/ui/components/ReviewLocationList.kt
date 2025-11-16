@@ -49,13 +49,13 @@ fun ReviewLocationList(
                         score > i - 1 -> score - (i - 1)
                         else -> 0f
                     }
-                    ReviewStar(fraction.toFloat())
+                    ReviewStar(fraction.toFloat(), color = MaterialTheme.colorScheme.onBackground)
                 }
             }
-            Text(name, style = MaterialTheme.typography.labelSmall, color = Gray800)
-            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = Gray800)
+            Text(name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+            Text("(${date})", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
         }
-        Text(text, style = MaterialTheme.typography.bodySmall, color = Gray800, modifier = Modifier.padding(horizontal = 20.dp))
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp))
         Spacer(Modifier.height(4.dp))
         if (image.isNotEmpty()) {
             LazyRow(

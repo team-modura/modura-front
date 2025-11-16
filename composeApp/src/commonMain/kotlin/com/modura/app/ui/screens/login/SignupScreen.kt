@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.forEach
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -95,7 +96,7 @@ class SignupScreen() : Screen {
                 rootNavigator?.push(MainScreen)
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,6 +105,7 @@ class SignupScreen() : Screen {
                 Text(
                     "인생작과 내 주변 명소를\n발견하도록, 지금 알려주세요.",
                     style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(top = 90.dp, bottom = 20.dp)
                 )
                 val addressText = if (selectedState != null && selectedCity != null) {
@@ -122,7 +124,7 @@ class SignupScreen() : Screen {
                     }
                 )
                 Spacer(Modifier.height(40.dp))
-                Text("좋아하는 주제 (최소 3개 선택 가능)", style = MaterialTheme.typography.titleLarge)
+                Text("좋아하는 주제 (최소 3개 선택 가능)", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(16.dp))
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),

@@ -49,6 +49,8 @@ import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.theme.Gray900
+import com.modura.app.ui.theme.White
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.launch
 import modura.composeapp.generated.resources.Res
@@ -88,6 +90,7 @@ object MapScreen : Screen {
 
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
+            sheetContentColor = MaterialTheme.colorScheme.surface,
             sheetPeekHeight = 140.dp,
             sheetContent = {
                 PlaceListBlock(
@@ -97,11 +100,11 @@ object MapScreen : Screen {
                     onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) }
                 )
             },
-            sheetContainerColor = Color.White,
+            sheetContainerColor = MaterialTheme.colorScheme.surface,
             sheetShadowElevation = 0.dp
         ) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)
             ) {
                 if (uiState.inProgress && uiState.places.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -157,31 +160,35 @@ object MapScreen : Screen {
                                     scaffoldState.bottomSheetState.expand()
                                 }
                             }
-                        }
+                        },
+                        white = true
                     )
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             text = "AI 추천 촬영지",
                             style = MaterialTheme.typography.bodySmall,
+                            color = Gray900,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
                                 .clickable { println("AI 추천 촬영지 클릭됨") }
-                                .background(MaterialTheme.colorScheme.surface)
+                                .background(White)
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         )
                         Text(
                             text = "인기 촬영지",
                             style = MaterialTheme.typography.bodySmall,
+                            color =Gray900,
                             modifier = Modifier
                                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
                                 .clickable { println("인기 촬영지 클릭됨") }
-                                .background(MaterialTheme.colorScheme.surface)
+                                .background(White)
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         )
                         Text(
                             text = "주변 촬영지",
                             style = MaterialTheme.typography.bodySmall,
+                            color = Gray900,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
                                 .clickable {
@@ -190,7 +197,7 @@ object MapScreen : Screen {
                                         scaffoldState.bottomSheetState.expand()
                                     }
                                 }
-                                .background(MaterialTheme.colorScheme.surface)
+                                .background(White)
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         )
                     }

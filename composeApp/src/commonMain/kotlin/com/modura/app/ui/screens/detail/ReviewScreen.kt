@@ -1,5 +1,6 @@
 package com.modura.app.ui.screens.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -66,7 +67,7 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
         }
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 40.dp).background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -77,10 +78,11 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                     modifier = Modifier.size(24.dp)
                         .clickable {
                             rootNavigator?.pop()
-                        }
+                        },
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(Modifier.weight(1f))
-                Text("완료", style= MaterialTheme.typography.bodyLarge, modifier = Modifier.clickable {
+                Text("완료", style= MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.clickable {
                     if(reviewType=="장소"){
                         screenModel.placeReviewRegister(
                             placeId = id,
@@ -118,14 +120,14 @@ data class ReviewScreen(val id: Int, val reviewType: String, val title: String ,
                     Text(
                         text = "리뷰를 입력해주세요.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Gray500
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Gray300,
-                    unfocusedContainerColor = Gray300,
-                    disabledContainerColor = Gray300,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent

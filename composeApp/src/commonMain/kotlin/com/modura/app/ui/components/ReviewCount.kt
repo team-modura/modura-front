@@ -44,12 +44,12 @@ fun ReviewCount(
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically){
-        Text("${num}점",style = MaterialTheme.typography.bodySmall, color = Gray800,modifier=Modifier.width(20.dp))
+        Text("${num}점",style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground,modifier=Modifier.width(20.dp))
         Box(
             modifier = Modifier.weight(1f)
                 .height(6.dp)
                 .clip(RoundedCornerShape(99.dp))
-                .background(White)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             Box(
                 modifier = Modifier
@@ -59,6 +59,6 @@ fun ReviewCount(
                     .background(Main500)
             )
         }
-        Text(count.toString(),style = MaterialTheme.typography.labelSmall, color = Gray800)
+        Text(count.toString(),style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
     }
 }

@@ -69,7 +69,6 @@ fun PlaceListBlock(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxWidth(),
-            // userScrollEnabled는 항상 true여야 시트 내부 스크롤이 가능합니다.
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp), // 하단 여백 추가
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

@@ -23,10 +23,10 @@ fun Review(
     count: List<Int>
 ){
     val maxCount = count.max()
-    Row(modifier = Modifier.fillMaxWidth().padding(50.dp,10.dp).background(White), verticalAlignment = Alignment.CenterVertically){
+    Row(modifier = Modifier.fillMaxWidth().padding(50.dp,10.dp).background(MaterialTheme.colorScheme.surface), verticalAlignment = Alignment.CenterVertically){
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)){
-            Text("평균",style = MaterialTheme.typography.bodySmall, color = Gray800)
-            Text(average.toString(),style = MaterialTheme.typography.headlineLarge, color = Gray800)
+            Text("평균",style = MaterialTheme.typography.bodySmall,color = MaterialTheme.colorScheme.onBackground)
+            Text(average.toString(),style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground)
             Row{
                 for (i in 1..5) {
                     val fraction = when {

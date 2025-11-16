@@ -52,7 +52,7 @@ class SearchScreen : Screen {
         }
         Box(
             modifier = Modifier
-                .background(Gray100)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(
                 modifier = Modifier
@@ -71,14 +71,14 @@ class SearchScreen : Screen {
                         }
                     })
                 Spacer(Modifier.height(40.dp))
-                Text("인기 검색어", style = MaterialTheme.typography.titleSmall, color = Gray700)
+                Text("인기 검색어", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(12.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (uiState.inProgress) {
-                        Text("인기 검색어를 불러오는 중...", style = MaterialTheme.typography.bodyMedium, color = Gray600)
+                        Text("인기 검색어를 불러오는 중...", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                     }
                     else if (uiState.errorMessage != null) {
-                        Text(uiState.errorMessage!!,style = MaterialTheme.typography.bodyMedium, color = Gray600)
+                        Text(uiState.errorMessage!!,style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                     }
                     else {
                         uiState.keywords.forEachIndexed { index, term ->
@@ -94,13 +94,13 @@ class SearchScreen : Screen {
                     }
                 }
                 Spacer(Modifier.height(40.dp))
-                Text("최근 검색어", style = MaterialTheme.typography.titleSmall, color = Gray700)
+                Text("최근 검색어", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(12.dp))
                 if (recentSearches.isEmpty()) {
                     Text(
                         "최근 검색 기록이 없습니다.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Gray600
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

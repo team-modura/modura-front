@@ -71,7 +71,7 @@ class HomeScreen : Screen {
 
         Box(
             modifier = Modifier
-                .background(Gray100)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(modifier = Modifier .fillMaxSize()
                 .verticalScroll(scrollState)
@@ -85,10 +85,9 @@ class HomeScreen : Screen {
                         painter = painterResource(Res.drawable.img_logo_text),
                         contentDescription = "로고",
                         modifier = Modifier.height(15.dp),
-                        colorFilter = ColorFilter.tint(Color.Black)
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                     )
                 }
-                Spacer(Modifier.height(20.dp))
                 Image(
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
@@ -102,7 +101,6 @@ class HomeScreen : Screen {
                     contentDescription = "상단 배너",
                     contentScale = ContentScale.Crop
                 )
-                Spacer(Modifier.height(20.dp))
                 SectionTitle("TOP 10 Series")
                 HomeContentRow(topSeries, navigator)
 

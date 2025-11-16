@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
         modifier = Modifier.padding(horizontal = 20.dp),
         text = title,
         style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground
     )
     Spacer(Modifier.height(5.dp))
 }

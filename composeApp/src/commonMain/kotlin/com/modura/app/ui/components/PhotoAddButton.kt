@@ -41,7 +41,7 @@ fun PhotoAddButton(
     Box(
         modifier = Modifier
             .size(100.dp)
-            .border(1.dp, Gray300, RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -53,12 +53,12 @@ fun PhotoAddButton(
                 painter = painterResource(Res.drawable.ic_camera),
                 contentDescription = "사진 추가",
                 modifier = Modifier.size(40.dp),
-                tint = Gray300
+                tint = MaterialTheme.colorScheme.surfaceVariant
             )
             Row{
-                Text(text = "사진", style = MaterialTheme.typography.bodyMedium, color = Gray300)
+                Text(text = "사진", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.surfaceVariant)
                 Spacer(Modifier.width(4.dp))
-                Text(text = "$count/$limit", style = MaterialTheme.typography.bodyMedium, color = Gray300)
+                Text(text = "$count/$limit", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.surfaceVariant)
             }
         }
     }

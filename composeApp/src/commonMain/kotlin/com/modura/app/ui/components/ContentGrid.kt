@@ -82,15 +82,16 @@ fun ContentGrid(
             }
             else -> {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_x),
+                    Image(
+                        painter = painterResource(Res.drawable.img_not_found),
                         contentDescription = "로드 실패",
-                        modifier = Modifier.align(Alignment.Center)
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(title,style = MaterialTheme.typography.labelLarge, modifier = Modifier.height(40.dp))
+        Text(title,style = MaterialTheme.typography.labelLarge, modifier = Modifier.height(40.dp), color = MaterialTheme.colorScheme.onBackground)
     }
 }

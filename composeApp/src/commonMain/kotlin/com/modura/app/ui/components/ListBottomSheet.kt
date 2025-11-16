@@ -39,7 +39,7 @@ fun ListBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface ,
         dragHandle = null
     ) {
         Column(
@@ -49,7 +49,7 @@ fun ListBottomSheet(
             horizontalAlignment = Alignment.Start
         ) {
             if(title!=null){
-                Text(text = title, style = MaterialTheme.typography.headlineMedium)
+                Text(text = title, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(modifier = Modifier.height(20.dp))
             }
             Column {
@@ -64,7 +64,7 @@ fun ListBottomSheet(
                             }
                             .padding(vertical = 10.dp),
                         style = MaterialTheme.typography.labelLarge,
-                        color = if (selectedItem == item) Gray800 else Gray500,
+                        color = if (selectedItem == item) MaterialTheme.colorScheme.onBackground  else Gray500,
                         fontWeight = if (selectedItem == item) FontWeight.Bold else FontWeight.Normal
                     )
                 }
