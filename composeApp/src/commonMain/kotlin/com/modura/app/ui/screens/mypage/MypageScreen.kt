@@ -72,7 +72,7 @@ object MyPageScreen : Screen {
 
         var showBottomSheet by remember { mutableStateOf(false) }
         var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
-        val bottomSheetItems = listOf("상세보기", "수정", "삭제")
+        val bottomSheetItems = listOf("상세보기", /*"수정",*/ "삭제")
 
 
         var selectedTab by remember { mutableStateOf("찜") }

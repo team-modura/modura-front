@@ -19,4 +19,5 @@ interface MypageRepository {
     suspend fun contentReviewsMypage(type: String): Result<ContentReviewsMypageResponseModel>
     suspend fun placeReviewsMypage(type: String): Result<PlaceReviewsMypageResponseModel>
     suspend fun logout(): Result<Unit>
+    suspend fun withdraw(): Result<Unit>
 }

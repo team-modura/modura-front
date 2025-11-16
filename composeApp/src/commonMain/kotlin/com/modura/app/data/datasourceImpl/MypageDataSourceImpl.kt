@@ -43,4 +43,7 @@ class MypageDataSourceImpl(
 
     override suspend fun logout(): BaseResponse<Unit>
         = httpClient.post("/auth/logout").body()
+
+    override suspend fun withdraw(): BaseResponse<Unit>
+        = httpClient.patch("/auth/withdrawal").body()
 }

@@ -44,6 +44,7 @@ class MypageSettingScreen : Screen, KoinComponent {
     override fun Content() {
         val rootNavigator = LocalNavigator.currentOrThrow
         val screenModel = getScreenModel<MypageScreenModel>()
+        val coroutineScope = rememberCoroutineScope() // 1. 코루틴 스코프 생성
         var version = "1.0.0"
         Column(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
@@ -63,11 +64,21 @@ class MypageSettingScreen : Screen, KoinComponent {
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text("로그아웃", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.clickable {
                     println("로그아웃 클릭됨")
-                    screenModel.logout()
-                    rootNavigator.replaceAll(LoginScreen())
+                    coroutineScope.launch {
+                        screenModel.logout()
+                        rootNavigator.replaceAll(LoginScreen())
+                    }
             })
                 Text("계정탈퇴", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.clickable {
                     println("계정탈퇴 클릭됨")
+                    coroutineScope.launch {
+                        val success = screenModel.withdraw()
+                        if (success) {
+                            rootNavigator.replaceAll(LoginScreen())
+                        } else {
+                            println("회원탈퇴에 실패했습니다.")
+                        }
+                    }
                 })
                 Row{
                     Text("버전 정보", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)

@@ -41,4 +41,6 @@ class MypageRepositoryImpl(
     override suspend fun logout(): Result<Unit> =
         runCatching { dataSource.logout().result!! }
 
+    override suspend fun withdraw(): Result<Unit> =
+        runCatching { dataSource.withdraw().result!! }
 }

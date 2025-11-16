@@ -259,7 +259,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         }
                                     }
                                 }
-                                Spacer(Modifier.height(20.dp))
+                               /* Spacer(Modifier.height(20.dp))
                                 Text(
                                     "출연진",
                                     modifier = Modifier.padding(horizontal = 20.dp),
@@ -274,7 +274,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     items(5) { index ->
                                         Cast("김승혁", "감독")
                                     }
-                                }
+                                }*/
                                 Spacer(Modifier.height(20.dp))
                                 Text(
                                     "영상",

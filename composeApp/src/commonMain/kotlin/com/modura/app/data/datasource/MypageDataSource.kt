@@ -12,4 +12,5 @@ interface MypageDataSource {
     suspend fun contentReviewsMypage(type: String): BaseResponse<ContentReviewsMypageResponseDto>
     suspend fun placeReviewsMypage(type: String): BaseResponse<PlaceReviewsMypageResponseDto>
     suspend fun logout(): BaseResponse<Unit>
+    suspend fun withdraw(): BaseResponse<Unit>
 }

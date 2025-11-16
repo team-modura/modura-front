@@ -179,6 +179,17 @@ class MypageScreenModel(
         }
     }
 
+    suspend fun withdraw(): Boolean { // 함수를 suspend로 변경
+        return try {
+            repository.withdraw()
+            tokenRepository.clearTokens()
+            println("회원탈퇴 성공")
+            true
+        } catch (e: Exception) {
+            println("회원탈퇴 실패: ${e.message}")
+            false
+        }
+    }
     fun clearReviews() {
         _reviews.value = emptyList()
     }
