@@ -34,20 +34,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import coil3.compose.AsyncImage
 import com.modura.app.LocalRootNavigator
-import com.modura.app.data.dev.DummyProvider
-import com.modura.app.data.dev.MypageReview
 import com.modura.app.ui.components.ContentGrid
 import com.modura.app.ui.components.ListBottomSheet
 import com.modura.app.ui.components.MypageReviewContent
 import com.modura.app.ui.components.MypageReviewLocation
 import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
@@ -62,6 +63,7 @@ object MyPageScreen : Screen {
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
         val screenModel = getScreenModel<MypageScreenModel>()
+        val detailScreenModel = getScreenModel<DetailScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val likedSeries by screenModel.likedSeries.collectAsState()
         val likedMovies by screenModel.likedMovies.collectAsState()
@@ -70,7 +72,7 @@ object MyPageScreen : Screen {
 
         var showBottomSheet by remember { mutableStateOf(false) }
         var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
-        val bottomSheetItems = listOf("상세보기", "수정", "삭제")
+        val bottomSheetItems = listOf("상세보기", /*"수정",*/ "삭제")
 
 
         var selectedTab by remember { mutableStateOf("찜") }
@@ -78,7 +80,7 @@ object MyPageScreen : Screen {
         LaunchedEffect(selectedTab) {
             if (selectedTab == "찜") {
                 screenModel.getLikedContents("series")
-                screenModel.getLikedContents("movies")
+                screenModel.getLikedContents("movie")
                 screenModel.getLikedPlaces()
             } else if (selectedTab == "스틸컷") {
                 screenModel.getStillcuts()
@@ -90,18 +92,23 @@ object MyPageScreen : Screen {
                 items = bottomSheetItems,
                 onDismissRequest = { showBottomSheet = false },
                 onSelect = { selectedOption ->
-                    // 2. 옵션 선택 시 동작 정의
                     when (selectedOption) {
                         "상세보기" -> {
-                            if (selectedReview!!.type == "장소") {
-                                navigator.push(PlaceDetailScreen(selectedReview!!.id))
+                            if (selectedReview!!.type == "place") {
+                                navigator.push(PlaceDetailScreen(selectedReview!!.placeId?:0))
                                 println("장소 상세보기: ${selectedReview!!.title}")
                             } else {
-                                navigator.push(ContentDetailScreen(selectedReview!!.id))
+                                navigator.push(ContentDetailScreen(selectedReview!!.contentId?:0))
                             }
                         }
                         "수정" -> { /* TODO: 수정 로직 */ println("수정: ${selectedReview!!.title}") }
-                        "삭제" -> { /* TODO: 삭제 로직 */ println("삭제: ${selectedReview!!.title}") }
+                        "삭제" ->
+                            //삭제 후 새로고침 이랑 Toast
+                            if( selectedReview!!.type == "place"){
+                                detailScreenModel.reviewDelete("place",selectedReview!!.placeId?:0,selectedReview!!.id)
+                            }else{
+                                detailScreenModel.reviewDelete("content",selectedReview!!.contentId?:0,selectedReview!!.id)
+                            }
                     }
                     showBottomSheet = false
                 }
@@ -109,9 +116,9 @@ object MyPageScreen : Screen {
         }
 
         Column(
-            modifier = Modifier.background(Gray100)
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) {
-            val name: String? = "김승혁"
+            val name: String? = "이용자"
             Row(
                 modifier = Modifier.fillMaxWidth().padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -120,18 +127,19 @@ object MyPageScreen : Screen {
                     painter = painterResource(Res.drawable.img_logo_text),
                     contentDescription = "로고",
                     modifier = Modifier.height(15.dp),
-                    colorFilter = ColorFilter.tint(Color.Black)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground )
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
                     painter = painterResource(Res.drawable.ic_setting),
                     contentDescription = "설정",
                     modifier = Modifier.size(20.dp)
-                    .clickable { navigator.push(MypageSettingScreen) }
+                    .clickable { navigator.push(MypageSettingScreen()) },
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(Modifier.height(20.dp))
-            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp))
+            Text("${name}님 안녕하세요!", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.onBackground)
 
             Column {
                 Row(
@@ -170,15 +178,15 @@ object MyPageScreen : Screen {
                 ) {
                     Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "시리즈") Black else Gray500,
+                        color = if (selectedType == "시리즈") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "시리즈" })
                     Text(
                         "영화", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "영화") Black else Gray500,
+                        color = if (selectedType == "영화") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "영화" })
                     Text(
                         "장소", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedType == "장소") Black else Gray500,
+                        color = if (selectedType == "장소") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))
@@ -263,7 +271,7 @@ object MyPageScreen : Screen {
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
-                        modifier = Modifier.fillMaxSize().padding(top = 10.dp)
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(stillcuts, key = { it.id }) { stillcut ->
                             AsyncImage(
@@ -281,67 +289,78 @@ object MyPageScreen : Screen {
                 }
             }
             else if (selectedTab == "리뷰") {
-                var selectedReviewType by remember { mutableStateOf("전체") }
+                val reviews by screenModel.reviews.collectAsState()
+                var selectedReviewType by remember { mutableStateOf("시리즈") }
+                LaunchedEffect(selectedReviewType) {
+                    screenModel.clearReviews()
+                    when (selectedReviewType) {
+                        "시리즈" -> screenModel.getContentReviewsMypage("series")
+                        "영화" -> screenModel.getContentReviewsMypage("movie")
+                        "장소" -> screenModel.getPlaceReviewsMypage("place")
+                    }
+                }
                 Spacer(Modifier.height(20.dp))
                 Row(modifier = Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)){
                     Text(
-                        "전체", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "전체") Black else Gray500,
-                        modifier = Modifier.clickable { selectedReviewType = "전체" }
-                    )
-                    Text(
                         "시리즈", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "시리즈") Black else Gray500,
+                        color = if (selectedReviewType == "시리즈") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "시리즈" }
                     )
                     Text(
                         "영화", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "영화") Black else Gray500,
+                        color = if (selectedReviewType == "영화") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "영화" })
                     Text(
                         "장소", style = MaterialTheme.typography.titleMedium,
-                        color = if (selectedReviewType == "장소") Black else Gray500,
+                        color = if (selectedReviewType == "장소") MaterialTheme.colorScheme.onBackground else Gray500,
                         modifier = Modifier.clickable { selectedReviewType = "장소" })
                 }
                 Spacer(Modifier.height(10.dp))
-
-                val reviewList = DummyProvider.dummyReviews
-                val filteredReviews = when (selectedReviewType) {
-                    "전체" -> reviewList
-                    "시리즈" -> reviewList.filter { it.type == "시리즈" }
-                    "영화" -> reviewList.filter { it.type == "영화" }
-                    "장소" -> reviewList.filter { it.type == "장소" }
-                    else -> emptyList()
-                }
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp))
-                {
-                    items(filteredReviews)  { review ->
-                        if (review.type == "장소") {
-                            MypageReviewLocation(
-                                title = review.title,
-                                location = review.location ?: "",
-                                region = review.region ?: "",
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { selectedReview = review
-                                    showBottomSheet = true
-                                    println("장소 리뷰 ${review.id} 클릭") }
-                            )
-                        } else {
-                            MypageReviewContent(
-                                type = review.type,
-                                title = review.title,
-                                name = review.name,
-                                score = review.score,
-                                date = review.date,
-                                text = review.text,
-                                onClick = { selectedReview = review
-                                    showBottomSheet = true
-                                    println("콘텐츠 리뷰 ${review.id} 클릭") }
-                            )
+                if (uiState.inProgress) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        items(reviews, key = { "${it.type}-${it.id}" }) { review ->
+                            if (review.type == "place") {
+                                println(review.imageUrl)
+                                MypageReviewLocation(
+                                    thumbnail = review.thumbnail?:"",
+                                    id = review.id,
+                                    placeId = review.placeId?:0,
+                                    title = review.title,
+                                    name = review.username,
+                                    score = review.rating,
+                                    date = review.createdAt,
+                                    text = review.comment,
+                                    image = review.imageUrl,
+                                    onClick = {
+                                        selectedReview = review
+                                        showBottomSheet = true
+                                        println("장소 리뷰 ${review.id} 클릭")
+                                    }
+                                )
+                            } else {
+                                MypageReviewContent(
+                                    thumbnail = review.thumbnail?:"",
+                                    id = review.id,
+                                    contentId = review.contentId?:0,
+                                    title = review.title,
+                                    name = review.username,
+                                    score = review.rating,
+                                    date = review.createdAt,
+                                    text = review.comment,
+                                    onClick = {
+                                        selectedReview = review
+                                        showBottomSheet = true
+                                        println("콘텐츠 리뷰 ${review.id} 클릭")
+                                    }
+                                )
+                            }
                         }
                     }
                 }

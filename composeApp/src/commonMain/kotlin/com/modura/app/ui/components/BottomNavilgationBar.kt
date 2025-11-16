@@ -2,6 +2,7 @@ package com.modura.app.ui.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -12,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.Tab
 import com.modura.app.ui.navigation.BottomNavItem
+import com.modura.app.ui.theme.Gray800
+import com.modura.app.ui.theme.Main500
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -30,7 +33,7 @@ fun BottomNavigationBar(
     NavigationBar (
         modifier = Modifier
             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     ){
         items.forEach { item ->
             val tab = item.route
@@ -46,8 +49,8 @@ fun BottomNavigationBar(
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Unspecified,
-                    unselectedIconColor = Color.Unspecified,
+                    selectedIconColor = Main500,
+                    unselectedIconColor = Gray800,
                     indicatorColor = Color.Transparent
                 )
             )

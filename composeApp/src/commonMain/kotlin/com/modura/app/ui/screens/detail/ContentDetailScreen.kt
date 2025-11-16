@@ -58,7 +58,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
         }
         if (detailUiState.inProgress) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Gray100),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -72,7 +72,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
             ) {
                 Text(
                     text = detailUiState.errorMessage ?: "오류가 발생했습니다.",
-                    color = Gray700,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -80,7 +80,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
         }
         detailUiState.data?.let { contentData ->
             rememberImageBitmapFromUrl(
-                url = contentData.thumbnail,
+                url = contentData.thumbnail?:"",
                 onSuccess = { loadedBitmap ->
                     imageBitmap = loadedBitmap
                     isLoading = false
@@ -97,7 +97,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
             }
             val bookmark=if(internalIsLiked) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 val initialImageHeight = this.maxHeight
                 val minImageHeight = 240.dp
                 val lazyListState = rememberLazyListState()
@@ -123,7 +123,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Gray100)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -135,19 +135,21 @@ data class ContentDetailScreen(val id: Int) : Screen {
                         item {
                             Column(
                                 modifier = Modifier
-                                    .background(Gray100)
+                                    .background(MaterialTheme.colorScheme.background)
                             ) {
                                 Column {
                                     Spacer(Modifier.height(20.dp))
                                     Text(
                                         "줄거리",
                                         style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         modifier = Modifier.padding(horizontal = 20.dp)
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         contentData.plot,
                                         style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         modifier = Modifier.padding(horizontal = 20.dp)
                                     )
                                     Spacer(Modifier.height(12.dp))
@@ -168,14 +170,14 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     }
                                     Column(Modifier.padding(vertical = 12.dp)) {
                                         Row(modifier = Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.Bottom) {
-                                            Text("리뷰", style = MaterialTheme.typography.titleLarge)
+                                            Text("리뷰", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
                                             Spacer(Modifier.weight(1f))
-                                            Text("전체보기", style = MaterialTheme.typography.bodySmall)
+                                            Text("전체보기", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
                                         }
                                         Spacer(Modifier.height(4.dp))
-                                        Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                                        Row(modifier = Modifier.padding(horizontal = 20.dp).clip(RoundedCornerShape(8.dp))) {
                                             Box(
-                                                modifier = Modifier.background(White)
+                                                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                                                     .clip(RoundedCornerShape(8.dp)),
                                                 contentAlignment = Alignment.Center
                                             ) {
@@ -193,14 +195,14 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         }
                                         Spacer(Modifier.height(20.dp))
                                         Column(
-                                            Modifier.background(White).fillMaxWidth(),
+                                            Modifier.background(MaterialTheme.colorScheme.surface).fillMaxWidth(),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.spacedBy(4.dp),
                                         ) {
                                             Text(
                                                 "감상 후기를 남겨주세요!",
                                                 style = MaterialTheme.typography.bodyMedium,
-                                                color = Gray700,
+                                                color = MaterialTheme.colorScheme.onBackground,
                                                 modifier = Modifier.padding(top = 12.dp)
                                             )
                                             var userRating by remember { mutableStateOf(0) }
@@ -208,14 +210,14 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                                 rating = userRating,
                                                 onRatingChange = { newRating ->
                                                     userRating = newRating
-                                                    rootNavigator?.push(ReviewScreen(1, "콘텐츠",contentData.titleKr,newRating))
+                                                    rootNavigator?.push(ReviewScreen(id, "콘텐츠",contentData.titleKr,newRating))
                                                 }
                                             )
                                             Spacer(Modifier.height(12.dp))
                                         }
                                         Spacer(Modifier.height(4.dp))
                                             Column(
-                                                modifier = Modifier.background(White).fillMaxWidth(),
+                                                modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxWidth(),
                                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                                             ) {
                                                 contentReviews.take(2).forEach { review ->
@@ -229,13 +231,13 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                             }
                                     }
                                 }
-
-                                Spacer(Modifier.height(20.dp))
                                 if (!contentData.places.isNullOrEmpty()) {
+                                    Spacer(Modifier.height(20.dp))
                                     Text(
                                         "촬영지",
                                         modifier = Modifier.padding(horizontal = 20.dp),
-                                        style = MaterialTheme.typography.titleMedium
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                     Spacer(Modifier.height(4.dp))
                                     LazyRow(
@@ -244,9 +246,11 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     ) {
                                         items(contentData.places.filterNotNull()) { place ->
                                             LocationItemSmall(
+                                                id = place.id,
                                                 bookmark = place.isLiked,
                                                 image = place.thumbnail,
-                                                title = place.name,
+                                                title = contentData.titleKr,
+                                                location = place.name,
                                                 onClick = {
                                                     println("${place.name}(id: ${place.id}) 클릭됨")
                                                     rootNavigator?.push(PlaceDetailScreen(place.id))
@@ -255,11 +259,12 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         }
                                     }
                                 }
-                                Spacer(Modifier.height(20.dp))
+                               /* Spacer(Modifier.height(20.dp))
                                 Text(
                                     "출연진",
                                     modifier = Modifier.padding(horizontal = 20.dp),
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 LazyRow(
@@ -269,12 +274,13 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     items(5) { index ->
                                         Cast("김승혁", "감독")
                                     }
-                                }
+                                }*/
                                 Spacer(Modifier.height(20.dp))
                                 Text(
                                     "영상",
                                     modifier = Modifier.padding(horizontal = 20.dp),
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(4.dp))
 
@@ -351,7 +357,12 @@ data class ContentDetailScreen(val id: Int) : Screen {
                     ) {
                         when {
                             isLoading -> {
-                                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+                                Image(
+                                    modifier = Modifier.fillMaxSize(),
+                                    painter = painterResource(Res.drawable.img_not_found),
+                                    contentDescription = "로딩 중",
+                                    contentScale  = ContentScale.Crop
+                                )
                             }
                             imageBitmap != null -> {
                                 Image(
@@ -363,10 +374,11 @@ data class ContentDetailScreen(val id: Int) : Screen {
                             }
                             else -> {
                                 Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_x),
-                                        contentDescription = "로드 실패",
-                                        modifier = Modifier.align(Alignment.Center)
+                                    Image(
+                                        modifier = Modifier.fillMaxSize(),
+                                        painter = painterResource(Res.drawable.img_not_found),
+                                        contentDescription = "로딩 중",
+                                        contentScale  = ContentScale.Crop
                                     )
                                 }
                             }
@@ -377,8 +389,9 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                 .background(
                                     brush = Brush.verticalGradient(
                                         colors = listOf(
-                                            Color.Transparent, BlackTransparent,
-                                            Color.Black
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.onSurface,
+                                            MaterialTheme.colorScheme.surface
                                         ),
                                         startY = currentImageHeightPx / 2
                                     )
@@ -398,7 +411,8 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                     modifier = Modifier.width(24.dp).height(64.dp)
                                         .padding(top = 40.dp).clickable {
                                         rootNavigator?.pop()
-                                    }
+                                    },
+                                    tint = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.weight(1f))
                                 Image(
@@ -467,20 +481,20 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     contentData.titleKr,
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     style = MaterialTheme.typography.headlineLarge
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     contentData.titleEng,
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     style = MaterialTheme.typography.labelSmall
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Row {
                                     Text(
                                         contentData.year.toString(),
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                         style = MaterialTheme.typography.labelLarge
                                     )
                                     Spacer(Modifier.width(8.dp))
@@ -488,13 +502,13 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         contentData.contentCategories.forEachIndexed { index, category ->
                                             Text(
                                                 text = category.toString(),
-                                                color = Color.White,
+                                                color = MaterialTheme.colorScheme.onBackground,
                                                 style = MaterialTheme.typography.labelSmall
                                             )
                                             if (index < contentData.contentCategories.lastIndex) {
                                                 Text(
                                                     text = "・",
-                                                    color = Color.White,
+                                                    color = MaterialTheme.colorScheme.onBackground,
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                             }

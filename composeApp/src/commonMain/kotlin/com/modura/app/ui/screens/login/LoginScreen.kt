@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,15 +69,18 @@ class LoginScreen : Screen {
 
         val coroutineScope = rememberCoroutineScope()
         val uiState by screenModel.uiState.collectAsState()
+        val isNewUser by screenModel.isNewUser.collectAsState()
+
         var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
 
-
-        if (uiState.success) {
-            if(screenModel.isNewUser.value){
-                showBottomSheet = true
-            }else{
-                rootNavigator?.push(MainScreen)
+        LaunchedEffect(uiState.success) {
+            if (uiState.success) {
+                if (isNewUser) {
+                    showBottomSheet = true
+                } else {
+                    rootNavigator?.replaceAll(MainScreen)
+                }
             }
         }
 
@@ -88,7 +92,24 @@ class LoginScreen : Screen {
             }
         }
 
-        val gradientBrush = Brush.verticalGradient(colors = listOf(Color(0xFFCADBDB), Color(0xFF90D8D8)))
+        val isDarkTheme = isSystemInDarkTheme()
+        val gradientBrush = remember(isDarkTheme) {
+            if (isDarkTheme) {
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF2B3C3C),
+                        Color(0xFF034040)
+                    )
+                )
+            } else {
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFCADBDB),
+                        Color(0xFF90D8D8)
+                    )
+                )
+            }
+        }
 
         LaunchedEffect(Unit) {
             startAnimation = true

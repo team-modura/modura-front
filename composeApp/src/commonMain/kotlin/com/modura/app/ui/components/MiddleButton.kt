@@ -42,6 +42,6 @@ fun MiddleButton(
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = text, style = MaterialTheme.typography.titleLarge,color = Color.White)
+        Text(text = text, style = MaterialTheme.typography.titleLarge,color = MaterialTheme.colorScheme.surface )
     }
 }

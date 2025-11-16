@@ -31,9 +31,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
+import com.modura.app.ui.theme.White
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -44,10 +46,10 @@ import kotlin.math.sqrt
 fun ContentItemSmall(
     id:Int,
     bookmark: Boolean = false,
-    ott: List<String> = listOf("netflix", "watcha"),
+   // ott: List<String> = listOf("netflix", "watcha"),
     image: String = "",
     title: String = "제목",
-    rank: String = "순위",
+    rank: Int = 0,
     onClick: () -> Unit = {}
 ){
     val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
@@ -88,10 +90,10 @@ fun ContentItemSmall(
             }
             else -> {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_x),
+                    Image(
+                        painter = painterResource(Res.drawable.img_not_found),
                         contentDescription = "로드 실패",
-                        modifier = Modifier.align(Alignment.Center)
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
@@ -103,7 +105,7 @@ fun ContentItemSmall(
                 .align(Alignment.BottomCenter)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(BlackTransparent, Black),
+                        colors = listOf( BlackTransparent, Black),
                         endY = Float.POSITIVE_INFINITY
                     )
                 )
@@ -126,7 +128,7 @@ fun ContentItemSmall(
                         .align(Alignment.TopEnd)
                         .padding(vertical = 10.dp) ,
                     horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
+                ) {/*
                     ott.forEach { platform ->
                         when(platform) {
                             "netflix" -> Image(painter = painterResource(Res.drawable.img_netflix), contentDescription = "Netflix", modifier = Modifier.size(16.dp))
@@ -137,7 +139,7 @@ fun ContentItemSmall(
                             "tving" -> Image(painter = painterResource(Res.drawable.img_tving), contentDescription = "tving", modifier = Modifier.size(16.dp))
                             else -> {}
                         }
-                    }
+                    }*/
                 }
             }
             Box(modifier = Modifier.weight(1f))
@@ -145,13 +147,15 @@ fun ContentItemSmall(
                 modifier = Modifier.padding(5.dp)
             ) {
                 Text(
-                    text = rank,
-                    color = Color.White,
+                    text = rank.toString(),
+                    color = White,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = title,
-                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = White,
                     style = MaterialTheme.typography.titleMedium
                 )
             }

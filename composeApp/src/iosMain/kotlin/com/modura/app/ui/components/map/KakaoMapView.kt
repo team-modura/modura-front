@@ -20,8 +20,9 @@ import platform.KakaoMapsSDK.KakaoMap
 import platform.KakaoMapsSDK.KakaoMapObserver
 import platform.KakaoMapsSDK.MapPoint*/
 
-@OptIn(ExperimentalForeignApi::class)
 @Composable
-actual fun KakaoMapView(modifier: Modifier) {
+actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>, currentLocation: Location?,
+                        cameraEvent: MapScreenModel.CameraEvent?,
+                        onCameraEventConsumed: () -> Unit,) {
 
 }

@@ -8,4 +8,5 @@ import com.modura.app.data.dto.response.login.LoginResponseDto
 interface LoginDataSource {
     suspend fun login(request: LoginRequestDto): BaseResponse<LoginResponseDto>
     suspend fun user(request: UserRequestDto): BaseResponse<Unit>
+    suspend fun reactivate(): BaseResponse<Unit>
 }

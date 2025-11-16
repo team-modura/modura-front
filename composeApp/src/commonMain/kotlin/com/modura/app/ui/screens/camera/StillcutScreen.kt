@@ -1,6 +1,7 @@
 package com.modura.app.ui.screens.camera
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import com.modura.app.ui.components.SceneScoreDetail
 import com.modura.app.ui.components.StillcutItem
 import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.theme.Main500
 import com.modura.app.util.platform.ImageComparator
 import com.modura.app.util.platform.rememberCameraManager
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
@@ -95,80 +97,93 @@ class StillcutScreen(private val placeId: Int) : Screen {
         }
 
         if (capturedImage != null && recomposeTrigger != null)  {
-            // [상태 2] 촬영 후 결과 화면
-            Column(
-                modifier = Modifier.fillMaxSize().padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(Modifier.height(60.dp))
-                Text("유사도", style = MaterialTheme.typography.bodyLarge)
-                Spacer(Modifier.height(12.dp))
-                if (isLoading) {
-                    Text("계산중입니다", style = MaterialTheme.typography.headlineLarge)
-                } else {
-                    Text("${totalScore?.toInt() ?: 0}%", style = MaterialTheme.typography.headlineLarge)
-                }
-                Spacer(modifier = Modifier.height(80.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    originalBitmap?.let {
+                    Spacer(Modifier.height(60.dp))
+                    Text(
+                        "유사도",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    if (isLoading) {
+                        Text(
+                            "계산중입니다",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    } else {
+                        Text(
+                            "${totalScore?.toInt() ?: 0}%",
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(80.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(120.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        originalBitmap?.let {
+                            Image(
+                                bitmap = it,
+                                contentDescription = "원본 사진",
+                                modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                         Image(
-                            bitmap = it,
-                            contentDescription = "원본 사진",
+                            bitmap = capturedImage,
+                            contentDescription = "촬영한 사진",
                             modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop
                         )
                     }
-                    Image(
-                        bitmap = capturedImage,
-                        contentDescription = "촬영한 사진",
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                Spacer(modifier = Modifier.height(80.dp))
+                    Spacer(modifier = Modifier.height(80.dp))
 
-                if (isLoading) {
-                    CircularProgressIndicator()
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(50.dp)) {
-                        SceneScoreDetail(label = "구도", score = structureScore)
-                        SceneScoreDetail(label = "선명도", score = clarityScore)
-                        SceneScoreDetail(label = "색감", score = toneScore)
-                        SceneScoreDetail(label = "색 구성", score = paletteScore)
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    // ✨ '다시 찍기' 클릭 시 ScreenModel의 초기화 함수 호출
-                    TextButton(onClick = { screenModel.clearStillcutState() }) {
-                        Text("다시 찍기", fontSize = 16.sp)
-                    }
-                    TextButton(onClick = {
-                        selectedStillcutId?.let { id ->
-                        screenModel.postStillcut(context, placeId, id)
+                    if (isLoading) {
+                        CircularProgressIndicator()
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(50.dp)) {
+                            SceneScoreDetail(label = "구도", score = structureScore)
+                            SceneScoreDetail(label = "선명도", score = clarityScore)
+                            SceneScoreDetail(label = "색감", score = toneScore)
+                            SceneScoreDetail(label = "색 구성", score = paletteScore)
                         }
-                        //rootNavigator?.push(PlaceDetailScreen(id = placeId))
-                    }) {
-                        Text("저장하기", fontSize = 16.sp)
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        TextButton(onClick = { screenModel.clearStillcutState() }) {
+                            Text("다시 찍기", fontSize = 16.sp)
+                        }
+                        TextButton(onClick = {
+                            selectedStillcutId?.let { id ->
+                                screenModel.postStillcut(context, placeId, id)
+                            }
+                            rootNavigator?.push(PlaceDetailScreen(id = placeId))
+                        }) {
+                            Text("저장하기", fontSize = 16.sp, color = Main500)
+                        }
                     }
                 }
             }
         } else {
             // [상태 1] 스틸컷 선택 화면
-            Column(modifier = Modifier.fillMaxSize().padding(top = 40.dp)) {
+            Column(modifier = Modifier.fillMaxSize().padding(top = 40.dp).background(MaterialTheme.colorScheme.background)) {
                 Row(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                     Icon(
                         painter = painterResource(Res.drawable.ic_back),
                         contentDescription = "뒤로가기",
-                        Modifier.size(24.dp).clickable { rootNavigator?.pop() }
+                        Modifier.size(24.dp).clickable { rootNavigator?.pop() },
+                        tint = MaterialTheme.colorScheme.onBackground,
                     )
                 }
                 if (stillcutList.isEmpty()) {

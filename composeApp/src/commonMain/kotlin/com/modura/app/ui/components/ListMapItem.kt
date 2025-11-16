@@ -3,6 +3,7 @@ package com.modura.app.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,67 +19,111 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.theme.Gray100
+import com.modura.app.ui.theme.Gray300
 import com.modura.app.ui.theme.Gray700
+import com.modura.app.ui.theme.Gray800
+import com.modura.app.ui.theme.Gray900
+import com.modura.app.ui.theme.White
 import com.modura.app.ui.theme.light8
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_bookmark_big_selected
 import modura.composeapp.generated.resources.img_bookmark_big_unselected
 import modura.composeapp.generated.resources.img_example
+import modura.composeapp.generated.resources.img_not_found
 import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
 fun ListMapItem(
-    place: PlaceInfo,
-    onClick: () -> Unit
+    place: PlaceResponseModel,
+    onClick: (Int) -> Unit
 ) {
-    val bookmark = if (place.bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
-    val distanceText = if (place.distance >= 1000) {
-        val km = place.distance / 1000.0
-        val roundedKm = kotlin.math.round(km * 10) / 10.0
-        "${roundedKm}km"
-    }else { "${place.distance}m" }
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    rememberImageBitmapFromUrl(
+        url = place.thumbnail ?: "",
+        onSuccess = { loadedBitmap ->
+            imageBitmap = loadedBitmap
+            isLoading = false
+        },
+        onFailure = { errorMessage ->
+            println("이미지 로드 실패: $errorMessage")
+            isLoading = false
+        }
+    )
+
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroudColor = remember(isDarkTheme) {
+        if (isDarkTheme) { Gray800 } else {Gray100}
+    }
+    val textColor = remember(isDarkTheme){
+        if(isDarkTheme){ Gray300 } else {Gray700}
+    }
+
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable { onClick(place.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(Res.drawable.img_example),
-            contentDescription = null,
-            modifier = Modifier.height(100.dp).width(100.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+        if (isLoading || imageBitmap == null) {
+            Image(
+                modifier = Modifier
+                    .height(80.dp)
+                    .width(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                painter = painterResource(Res.drawable.img_not_found),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+                )
+        } else {
+            Image(
+                bitmap = imageBitmap!!,
+                contentDescription = null,
+                modifier = Modifier.height(80.dp).width(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
         Spacer(Modifier.width(8.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = bookmark,
-                    contentDescription = "북마크",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .width(7.dp)
-                        .height(12.dp)
-                        .clickable {}
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(place.name, style = MaterialTheme.typography.bodyMedium)
+                if (place.isLiked) {
+                    Icon(
+                        painter = painterResource(Res.drawable.img_bookmark_big_selected),
+                        contentDescription = "북마크",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .width(7.dp)
+                            .height(12.dp)
+                            .clickable {}
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+                Text(place.name, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(Modifier.height(4.dp))
-            Row {
-                Text(place.rating.toString(), style = MaterialTheme.typography.labelLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(place.rating.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.width(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -98,27 +143,29 @@ fun ListMapItem(
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = "(${place.reviewCount.toString()})",
-                    style = MaterialTheme.typography.light8
+                    style = MaterialTheme.typography.light8,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Row{
-                Text(distanceText, style = MaterialTheme.typography.labelSmall)
-                Spacer(Modifier.width(12.dp))
-                Text(text = place.address, style = MaterialTheme.typography.bodySmall)
-            }
+            /*Row{
+                    Text(distanceText, style = MaterialTheme.typography.labelSmall)
+                    Spacer(Modifier.width(12.dp))
+                    Text(text = place.address, style = MaterialTheme.typography.bodySmall)
+                }*/
             Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(place.filmedContent) { title ->
-                    Text(text = title,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Gray700,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Gray100)
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                items(place.content.size) {
+                    Text(
+                        text = place.content[it],
+                        style = MaterialTheme.typography.titleSmall,
+                        color = textColor,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(backgroudColor)
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
                 }
             }

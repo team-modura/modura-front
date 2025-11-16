@@ -7,5 +7,5 @@ data class SearchPlaceResponseModel(
     val id : Int,
     val name:String,
     val isLiked: Boolean,
-    val thumbnail:String
+    val thumbnail:String?
 )

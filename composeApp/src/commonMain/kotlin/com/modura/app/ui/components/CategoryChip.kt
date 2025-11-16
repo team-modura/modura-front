@@ -39,8 +39,8 @@ fun CategoryChip(
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isSelected) Main500 else White
-    val textColor = if (isSelected) White else Gray800
+    val backgroundColor = if (isSelected) Main500 else MaterialTheme.colorScheme.surface
+    val textColor = if (isSelected) White else MaterialTheme.colorScheme.onBackground
 
     Box(modifier = modifier) {
         Box(modifier = Modifier
@@ -61,7 +61,7 @@ fun CategoryChip(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(category.emoji, fontSize = 16.sp)
+            Text(category.emoji, fontSize = 16.sp, color = backgroundColor)
             Spacer(modifier = Modifier.width(4.dp))
             Text(category.categoryKor, style = MaterialTheme.typography.bodyMedium, color = textColor)
         }

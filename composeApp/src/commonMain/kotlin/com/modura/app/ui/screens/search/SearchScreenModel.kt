@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 data class SearchUiState(
     val inProgress: Boolean = false,
+    val keywords: List<String> = emptyList(),
     val contents: List<SearchContentResponseModel> = emptyList(),
     val places: List<SearchPlaceResponseModel> = emptyList(),
     val errorMessage: String? = null
@@ -24,6 +25,19 @@ class SearchScreenModel(
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState = _uiState.asStateFlow()
+
+    fun searchPopular() {
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.searchPopular().onSuccess {
+                val keywords = it.keywords
+                if (keywords.isNotEmpty()) { _uiState.update { uiState -> uiState.copy(inProgress = false, keywords = keywords) }
+                } else { _uiState.update { it.copy(inProgress = false, keywords = emptyList(),errorMessage = "검색 결과가 없습니다.") } }
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
 
     fun searchContents(query: String) {
         screenModelScope.launch {

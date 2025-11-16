@@ -8,7 +8,9 @@ data class LoginResponseDto(
     val id: Int,
     val accessToken: String,
     val refreshToken: String,
-    val isNewUser: Boolean
+    val isNewUser: Boolean,
+    val username: String,
+    val isInactive: Boolean
 ){
-    fun toLoginResponseModel()= LoginResponseModel(id, accessToken, refreshToken,isNewUser)
+    fun toLoginResponseModel()= LoginResponseModel(id, accessToken, refreshToken,isNewUser,username,isInactive)
 }

@@ -9,7 +9,7 @@ data class SearchPlaceResponseDto(
     val id : Int,
     val name:String,
     val isLiked: Boolean,
-    val thumbnail:String
+    val thumbnail:String?
 ){
     fun toSearchPlaceResponseModel()= SearchPlaceResponseModel(id, name, isLiked, thumbnail)
 }

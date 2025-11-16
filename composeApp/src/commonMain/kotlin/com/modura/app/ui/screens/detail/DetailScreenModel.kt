@@ -215,6 +215,43 @@ class DetailScreenModel(
         }
     }
 
+    fun reviewEdit(type: String, typeId: Int, reviewId: Int,rating: Int,comment: String) {
+        screenModelScope.launch {
+            val request = ContentReviewRequestModel(rating, comment)
+            if(type == "place"){
+                repository.placeReviewEdit(typeId, reviewId, request).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }else{
+                repository.contentReviewEdit(typeId, reviewId, request).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun reviewDelete(type: String, typeId: Int, reviewId: Int) {
+        screenModelScope.launch {
+            if (type == "place") {
+                repository.placeReviewDelete(typeId, reviewId).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            } else {
+                repository.contentReviewDelete(typeId, reviewId).onSuccess {
+                    println(it)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
+        }
+    }
+
     fun getStillcut(placeId: Int){
         screenModelScope.launch {
             repository.stillcut(placeId).onSuccess {
@@ -263,11 +300,11 @@ class DetailScreenModel(
 
             val request = StillcutRequestModel(
                 imageUrl = response.key,
-                similarity = totalScore!!.toInt(),
-                angle = structureScore!!.toInt(),
-                clarity = clarityScore!!.toInt(),
-                color = toneScore!!.toInt(),
-                palette = paletteScore!!.toInt()
+                similarity = (totalScore ?: 0.0).toInt(),
+                angle = (structureScore ?: 0.0).toInt(),
+                clarity = (clarityScore ?: 0.0).toInt(),
+                color = (toneScore ?: 0.0).toInt(),
+                palette = (paletteScore ?: 0.0).toInt()
             )
             repository.stillcutSave(placeId, stillcutId, request).onSuccess {
                 println("✅ 서버에 스틸컷 정보 저장 성공: $it")

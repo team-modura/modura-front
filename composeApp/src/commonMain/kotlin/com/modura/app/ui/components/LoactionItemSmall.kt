@@ -20,16 +20,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.BlackTransparent
+import com.modura.app.ui.theme.White
 import com.modura.app.ui.theme.light8
+import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -37,8 +45,9 @@ import kotlin.math.sqrt
 
 @Composable
 fun LocationItemSmall(
+    id: Int,
     bookmark: Boolean = false,
-    rank: String = "0",
+    rank: Int = 0,
     title: String = "제목",
     region: String = "지역",
     location: String = "장소",
@@ -49,6 +58,21 @@ fun LocationItemSmall(
     } else { painterResource(Res.drawable.img_example) }*/
     val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    rememberImageBitmapFromUrl(
+        url = image,
+        onSuccess = { loadedBitmap ->
+            imageBitmap = loadedBitmap
+            isLoading = false
+        },
+        onFailure = { errorMessage ->
+            println("이미지 로드 실패: $errorMessage")
+            isLoading = false
+        }
+    )
+
     Box(
         modifier = Modifier
             .width(150.dp)
@@ -56,12 +80,28 @@ fun LocationItemSmall(
             .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
     ){
-        Image(
-            painter = painterResource(Res.drawable.img_example), //추후 api 내부에 있는 이미지로 수정
-            contentDescription = "이미지",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+            }
+            imageBitmap != null -> {
+                Image(
+                    bitmap = imageBitmap!!,
+                    contentDescription = title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            else -> {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Gray)) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_x),
+                        contentDescription = "로드 실패",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,7 +109,7 @@ fun LocationItemSmall(
                 .align(Alignment.BottomCenter)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(BlackTransparent, Black),
+                        colors = listOf( BlackTransparent, Black),
                         endY = Float.POSITIVE_INFINITY
                     )
                 )
@@ -90,45 +130,43 @@ fun LocationItemSmall(
                 )
             }
             Box(modifier = Modifier.weight(1f))
-            Row(modifier = Modifier.padding(5.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)){
-                Text(
-                    text = rank,
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Column {
+            Row(modifier = Modifier.padding(5.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.Bottom){
+                if(rank!=0){
                     Text(
-                        text = title,
-                        color = Color.White,
-                        style = MaterialTheme.typography.light8
+                        text = rank.toString(),
+                        color = White,
+                        style = MaterialTheme.typography.titleMedium
                     )
+                }
+                Column {
+                    if(title!="제목"){
+                        Text(
+                            text = title,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = White,
+                            style = MaterialTheme.typography.light8
+                        )
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ){
                         Text(
                             text = location,
-                            color = Color.White,
+                            color = White,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Box(modifier = Modifier.weight(1f))
-                        Text(
-                            text = region,
-                            color = Color.White,
-                            style = MaterialTheme.typography.light8
-                        )
+                        if(region!="지역"){
+                            Text(
+                                text = region,
+                                color = White,
+                                style = MaterialTheme.typography.light8
+                            )
+                        }
                     }
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun Preview(){
-    LocationItemSmall(
-        bookmark = false,
-        image = "",
-        title = "기묘한 이야기",
-    )
 }

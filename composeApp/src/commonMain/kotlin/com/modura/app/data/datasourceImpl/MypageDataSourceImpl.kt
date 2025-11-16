@@ -6,7 +6,9 @@ import com.modura.app.data.dto.BaseResponse
 import com.modura.app.data.dto.request.login.LoginRequestDto
 import com.modura.app.data.dto.request.login.UserRequestDto
 import com.modura.app.data.dto.response.login.LoginResponseDto
+import com.modura.app.data.dto.response.mypage.ContentReviewsMypageResponseDto
 import com.modura.app.data.dto.response.mypage.ContentsLikedResponseDto
+import com.modura.app.data.dto.response.mypage.PlaceReviewsMypageResponseDto
 import com.modura.app.data.dto.response.mypage.PlacesLikedResponseDto
 import com.modura.app.data.dto.response.mypage.StillcutDetailResponseDto
 import com.modura.app.data.dto.response.mypage.StillcutsResponseDto
@@ -33,4 +35,15 @@ class MypageDataSourceImpl(
     override suspend fun stillcutDetail(stillcutId: Int): BaseResponse<StillcutDetailResponseDto>
         = httpClient.get("/users/stillcuts/$stillcutId").body()
 
+    override suspend fun contentReviewsMypage(type: String): BaseResponse<ContentReviewsMypageResponseDto>
+        = httpClient.get("/users/reviews?type=$type").body()
+
+    override suspend fun placeReviewsMypage(type: String): BaseResponse<PlaceReviewsMypageResponseDto>
+        = httpClient.get("/users/reviews?type=$type").body()
+
+    override suspend fun logout(): BaseResponse<Unit>
+        = httpClient.post("/auth/logout").body()
+
+    override suspend fun withdraw(): BaseResponse<Unit>
+        = httpClient.patch("/auth/withdrawal").body()
 }

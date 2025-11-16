@@ -25,19 +25,18 @@ import com.modura.app.ui.theme.Main500
 
 @Composable
 fun SceneScoreBar(progress: Float, modifier: Modifier = Modifier) {
-    val yellowColor = Main500 // 노란색
     Box(
         modifier = modifier
             .height(12.dp)
             .clip(RoundedCornerShape(6.dp))
-            .background(Gray100)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(fraction = progress) // 점수에 따라 너비 조절
                 .fillMaxHeight()
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
-                .background(yellowColor)
+                .background(Main500)
         )
     }
 }

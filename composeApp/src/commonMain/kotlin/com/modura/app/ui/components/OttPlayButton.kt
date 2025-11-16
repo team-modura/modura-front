@@ -68,7 +68,7 @@ fun OttPlayButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .background(White),
+                .background(MaterialTheme.colorScheme.surface),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(Modifier.padding(10.dp,5.dp),verticalAlignment = Alignment.CenterVertically ){
@@ -82,7 +82,7 @@ fun OttPlayButton(
 
                 Text(
                     text = textResource,
-                    color = Color.Black,
+                    color =MaterialTheme.colorScheme.surfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -91,7 +91,8 @@ fun OttPlayButton(
             Icon(
                 painter = painterResource(Res.drawable.ic_play),
                 contentDescription = "재생",
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.surfaceVariant
             )
             Spacer(Modifier.width(10.dp))
         }

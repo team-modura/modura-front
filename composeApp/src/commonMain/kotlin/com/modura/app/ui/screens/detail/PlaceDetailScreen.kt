@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -32,8 +34,8 @@ import com.modura.app.ui.screens.camera.StillcutScreen
 import com.modura.app.ui.theme.*
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-
 
 data class PlaceDetailScreen(val id: Int) : Screen {
     override val key: String = "ContentDetailScreen_$id"
@@ -54,7 +56,7 @@ data class PlaceDetailScreen(val id: Int) : Screen {
         }
         if (detailUiState.inProgress) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Gray100),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -62,12 +64,12 @@ data class PlaceDetailScreen(val id: Int) : Screen {
         }
         if (detailUiState.errorMessage != null) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Gray100),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = detailUiState.errorMessage ?: "오류가 발생했습니다.",
-                    color = Gray700,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -96,7 +98,7 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                 )
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize().background(Gray100)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 item {
                     Column(
@@ -110,7 +112,8 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                                 modifier = Modifier.size(24.dp)
                                     .clickable {
                                         rootNavigator?.pop()
-                                    }
+                                    },
+                                tint = MaterialTheme.colorScheme.onBackground
                             )
                             Spacer(Modifier.weight(1f))
                             Icon(
@@ -118,13 +121,14 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                                 contentDescription = "카메라",
                                 modifier = Modifier.size(24.dp).clickable {
                                     rootNavigator?.push(StillcutScreen(id))
-                                }
+                                },
+                                tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text(placeData.name, style = MaterialTheme.typography.headlineLarge)
+                        Text(placeData.name, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground)
                         Spacer(Modifier.height(4.dp))
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -143,35 +147,45 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                             Spacer(Modifier.width(4.dp))
                             Text(
                                 text = "(${placeData.reviewCount.toString()})",
-                                style = MaterialTheme.typography.light8
+                                style = MaterialTheme.typography.light8, color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                         Spacer(Modifier.height(4.dp))
-                        Text("경기도", style = MaterialTheme.typography.labelSmall)
+                        Text("경기도", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
                         Spacer(Modifier.height(16.dp))
-                        imageBitmap?.let { bitmap ->
-                            Image(
-                                bitmap = bitmap,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(16f / 9f)
-                                    .shadow(
-                                        elevation = 2.dp,
-                                        shape = RoundedCornerShape(8.dp),
-                                        clip = false
-                                    )
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(
-                                        width = 0.5.dp,
-                                        color = Color.White.copy(alpha = 0.3f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ),
-                                contentScale = ContentScale.Crop
-                            )
+                            if (imageBitmap != null) {
+                                Image(
+                                    bitmap = imageBitmap!!,
+                                    contentDescription = placeData.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                        .shadow(
+                                            elevation = 2.dp,
+                                            shape = RoundedCornerShape(8.dp),
+                                            clip = false
+                                        )
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(
+                                            width = 0.5.dp,
+                                            color = Color.White.copy(alpha = 0.3f),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(Res.drawable.img_not_found),
+                                    contentDescription = "기본 이미지",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
-                }
                 item {
                     Column {
                         Spacer(Modifier.height(20.dp))
@@ -180,22 +194,25 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                                 .padding(horizontal = 20.dp),
                             text = "${placeData.name}에서 촬영한 콘텐츠",
                             style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.height(4.dp))
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 20.dp)
                         ) {
-                            items(5) { index ->
-                                LocationItemSmall(
-                                    /*bookmark = item.bookmark,
-                                image = item.image,
-                                title = item.title,
-                                rank = item.rank,*/
-                                    onClick = {
-                                        println("ㅇㅇ 클릭됨")
-                                    }
-                                )
+                            items(placeData.contentList) { content ->
+                                content?.let {
+                                    ContentItemMiddle(
+                                        id = it.contentId,
+                                        bookmark = it.isLiked,
+                                        image = it.thumbnail,
+                                        title = it.title,
+                                        onClick = {
+                                            rootNavigator?.push(ContentDetailScreen(it.contentId))
+                                        }
+                                    )
+                                }
                             }
                         }
                         Spacer(Modifier.height(20.dp))
@@ -203,14 +220,14 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                 }
                 item {
                     Column(
-                        Modifier.background(White).fillMaxWidth(),
+                        Modifier.background(MaterialTheme.colorScheme.surface).fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
                             "방문 후기를 남겨주세요!",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Gray700,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.padding(top = 12.dp)
                         )
                         var userRating by remember { mutableStateOf(0) }
@@ -220,7 +237,7 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                                 userRating = newRating
                                 rootNavigator?.push(
                                     ReviewScreen(
-                                        1,
+                                        id,
                                         "장소",
                                         placeData.name,
                                         newRating
@@ -236,7 +253,7 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                 }
                 item {
                     Column(
-                        modifier = Modifier.background(White).fillMaxWidth(),
+                        modifier = Modifier.background( MaterialTheme.colorScheme.surface).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         placeReviews.take(2).forEach { review ->

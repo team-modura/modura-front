@@ -45,10 +45,10 @@ fun TextField(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(White)
+            .background(MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
-                color = White,
+                color = MaterialTheme.colorScheme.surface,
                 shape = shape
             )
             .padding(horizontal = 10.dp, vertical = 10.dp)
@@ -77,7 +77,7 @@ fun TextField(
                 onValueChange = { onValueChange(it.replace(" ", "")) },
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.titleLarge.copy(
-                    color = Gray800
+                    color = MaterialTheme.colorScheme.onBackground
                 ),
                 singleLine = true,
                 readOnly = readOnly,

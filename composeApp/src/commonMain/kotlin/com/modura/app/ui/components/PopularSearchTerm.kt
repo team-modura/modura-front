@@ -27,11 +27,13 @@ fun PopularSearchTerm(
         Text(
             text = "$rank",
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(end = 8.dp)
         )
         Text(
             text = term,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

@@ -10,4 +10,5 @@ val repositoryModule = module {
     single<DetailRepository> { DetailRepositoryImpl(get()) }
     single<SearchRepository> { SearchRepositoryImpl(get()) }
     single<MypageRepository>{ MypageRepositoryImpl(get()) }
+    single<MapRepository>{ MapRepositoryImpl(get())}
 }

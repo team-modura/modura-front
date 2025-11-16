@@ -31,6 +31,7 @@ fun RecentSearch(
         Text(
             text = term,
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Icon(
             painterResource(Res.drawable.ic_x),

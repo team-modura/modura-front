@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,79 +25,52 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.PlaceInfo
+import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun PlaceListBlock(
     modifier: Modifier = Modifier,
-    places: List<PlaceInfo>,
-    onPlaceClick: (String) -> Unit,
-    onHandleClick: () -> Unit,
-    //onDragDown: () -> Unit,
-    //onDragUp: () -> Unit,
-    isExpanded: Boolean
+    places: List<PlaceResponseModel>,
+    onPlaceClick: (Int) -> Unit,
+    onCenterItemChanged: (PlaceResponseModel) -> Unit
 ) {
-    //var translationY by remember { mutableFloatStateOf(0f) }
     val listState = rememberLazyListState()
-    val navigator = LocalRootNavigator.current!!
+    LaunchedEffect(listState, places) {
+        if (places.isEmpty()) return@LaunchedEffect
 
-/*    LaunchedEffect(isExpanded) { if (isExpanded) { listState.animateScrollToItem(0) } }
-
-    val draggableState = rememberDraggableState { delta ->
-        if (isExpanded && listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
-            if (delta > 0) translationY += delta
-        } else if (!isExpanded) {
-            if (delta < 0) translationY += delta
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            if (visibleItemsInfo.isEmpty()) {
+                null
+            } else {
+                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
+                val centerMostItem = visibleItemsInfo.minByOrNull {
+                    kotlin.math.abs((it.offset + it.size / 2) - viewportCenter)
+                }
+                centerMostItem?.index
+            }
         }
-    }*/
+            .distinctUntilChanged()
+            .collect { centerIndex ->
+                if (centerIndex != null && centerIndex in places.indices) {
+                    onCenterItemChanged(places[centerIndex])
+                }
+            }
+    }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            /*.graphicsLayer {
-                this.translationY = translationY
-            }
-            .draggable(
-                state = draggableState,
-                orientation = Orientation.Vertical,
-                onDragStopped = {
-                    if (translationY > 150) {
-                        onDragDown()
-                    } else if (translationY < -150) {
-                        onDragUp()
-                    }
-                    translationY = 0f
-                }
-            )*/
+        modifier = modifier.fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        Box(
-            modifier = Modifier.clickable { onHandleClick() }
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(Color.Gray)
-                )
-            }
-        }
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            userScrollEnabled = isExpanded,
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp), // 하단 여백 추가
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(
                 items = places,
@@ -103,8 +78,7 @@ fun PlaceListBlock(
             ) { place ->
                 ListMapItem(
                     place = place,
-                    onClick = { onPlaceClick(place.id.toString())
-                        navigator?.push(PlaceDetailScreen(place.id))}
+                    onClick = { onPlaceClick(place.id) }
                 )
             }
         }

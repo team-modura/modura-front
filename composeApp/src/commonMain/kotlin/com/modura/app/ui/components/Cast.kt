@@ -42,9 +42,11 @@ fun Cast(
             modifier = Modifier.width(100.dp).height(100.dp).clip(RoundedCornerShape(999.dp))
         )
         Spacer(Modifier.height(4.dp))
-        Text(name, style = MaterialTheme.typography.labelLarge)
+        Text(name, style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onBackground)
         Spacer(Modifier.height(2.dp))
-        Text(role, style = MaterialTheme.typography.labelSmall)
+        Text(role, style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onBackground)
     }
 }
 /*
