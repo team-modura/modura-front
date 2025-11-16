@@ -77,7 +77,7 @@ class MypageScreenModel(
                 .onSuccess { responseModel ->
                     when (type) {
                         "series" -> _likedSeries.value = responseModel.contentList
-                        "movies" -> _likedMovies.value = responseModel.contentList
+                        "movie" -> _likedMovies.value = responseModel.contentList
                     }
                     _uiState.update { it.copy(inProgress = false, success = true) }
                 }

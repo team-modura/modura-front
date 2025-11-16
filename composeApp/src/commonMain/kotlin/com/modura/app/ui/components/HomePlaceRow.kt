@@ -24,7 +24,7 @@ import com.modura.app.ui.screens.detail.PlaceDetailScreen
             LocationItemSmall(
                 id = item.id,
                 image = item.thumbnail?:"",
-                title = item.name,
+                location = item.name,
                 rank = index + 1,
                 onClick = {
                     navigator?.push(PlaceDetailScreen(item.id))

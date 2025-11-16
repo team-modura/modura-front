@@ -247,7 +247,8 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                                 id = place.id,
                                                 bookmark = place.isLiked,
                                                 image = place.thumbnail,
-                                                title = place.name,
+                                                title = contentData.titleKr,
+                                                location = place.name,
                                                 onClick = {
                                                     println("${place.name}(id: ${place.id}) 클릭됨")
                                                     rootNavigator?.push(PlaceDetailScreen(place.id))

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -32,8 +34,8 @@ import com.modura.app.ui.screens.camera.StillcutScreen
 import com.modura.app.ui.theme.*
 import com.modura.app.util.platform.rememberImageBitmapFromUrl
 import modura.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-
 
 data class PlaceDetailScreen(val id: Int) : Screen {
     override val key: String = "ContentDetailScreen_$id"
@@ -149,29 +151,39 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                         Spacer(Modifier.height(4.dp))
                         Text("경기도", style = MaterialTheme.typography.labelSmall)
                         Spacer(Modifier.height(16.dp))
-                        imageBitmap?.let { bitmap ->
-                            Image(
-                                bitmap = bitmap,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(16f / 9f)
-                                    .shadow(
-                                        elevation = 2.dp,
-                                        shape = RoundedCornerShape(8.dp),
-                                        clip = false
-                                    )
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(
-                                        width = 0.5.dp,
-                                        color = Color.White.copy(alpha = 0.3f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ),
-                                contentScale = ContentScale.Crop
-                            )
+                            if (imageBitmap != null) {
+                                Image(
+                                    bitmap = imageBitmap!!,
+                                    contentDescription = placeData.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                        .shadow(
+                                            elevation = 2.dp,
+                                            shape = RoundedCornerShape(8.dp),
+                                            clip = false
+                                        )
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(
+                                            width = 0.5.dp,
+                                            color = Color.White.copy(alpha = 0.3f),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(Res.drawable.img_not_found),
+                                    contentDescription = "기본 이미지",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(16f / 9f)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
-                }
                 item {
                     Column {
                         Spacer(Modifier.height(20.dp))
@@ -186,15 +198,18 @@ data class PlaceDetailScreen(val id: Int) : Screen {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(horizontal = 20.dp)
                         ) {
-                            items(5) { index ->
-                                LocationItemSmall(
-                                    id = placeData.placeId,
-                                    bookmark = placeData.isLiked,
-                                    image = placeData.placeImageUrl,
-                                    onClick = {
-                                        rootNavigator?.push(PlaceDetailScreen(placeData.placeId))
-                                    }
-                                )
+                            items(placeData.contentList) { content ->
+                                content?.let {
+                                    ContentItemMiddle(
+                                        id = it.contentId,
+                                        bookmark = it.isLiked,
+                                        image = it.thumbnail,
+                                        title = it.title,
+                                        onClick = {
+                                            rootNavigator?.push(ContentDetailScreen(it.contentId))
+                                        }
+                                    )
+                                }
                             }
                         }
                         Spacer(Modifier.height(20.dp))

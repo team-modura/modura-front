@@ -40,6 +40,7 @@ import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_bookmark_big_selected
 import modura.composeapp.generated.resources.img_bookmark_big_unselected
 import modura.composeapp.generated.resources.img_example
+import modura.composeapp.generated.resources.img_not_found
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -70,13 +71,15 @@ fun ListMapItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (isLoading || imageBitmap == null) {
-            Spacer(
+            Image(
                 modifier = Modifier
                     .height(80.dp)
                     .width(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Gray100) // 또는 다른 회색
-            )
+                    .clip(RoundedCornerShape(8.dp)),
+                painter = painterResource(Res.drawable.img_not_found),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+                )
         } else {
             Image(
                 bitmap = imageBitmap!!,
