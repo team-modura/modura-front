@@ -1,6 +1,8 @@
 package com.modura.app.ui.screens.map
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -44,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -95,6 +98,7 @@ object MapScreen : Screen {
 
             val animatedSheetHeight by animateDpAsState(
                 targetValue = targetSheetHeight,
+                animationSpec = tween(durationMillis = 1, easing = FastOutSlowInEasing),
                 label = "SheetHeightAnimation"
             )
 
@@ -176,13 +180,21 @@ object MapScreen : Screen {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(animatedSheetHeight)
+                            .clipToBounds(),
+                        contentAlignment = Alignment.BottomStart
                     ) {
-                        PlaceListBlock(
-                            modifier = Modifier.fillMaxSize(),
-                            places = uiState.places,
-                            onCenterItemChanged = { place -> screenModel.setFocusedPlace(place) },
-                            onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) }
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(fullHeight) // ★ 중요: 항상 최대 높이 유지
+                        ) {
+                            PlaceListBlock(
+                                modifier = Modifier.fillMaxSize(),
+                                places = uiState.places,
+                                onCenterItemChanged = { place -> screenModel.setFocusedPlace(place) },
+                                onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) }
+                            )
+                        }
                     }
                 }
             ) {
