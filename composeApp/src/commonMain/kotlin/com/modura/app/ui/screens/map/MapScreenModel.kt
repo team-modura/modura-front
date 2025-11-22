@@ -35,6 +35,9 @@ class MapScreenModel(
     private val _cameraEvent = MutableStateFlow<CameraEvent?>(null)
     val cameraEvent: StateFlow<CameraEvent?> = _cameraEvent.asStateFlow()
 
+    private val _focusedPlaceId = MutableStateFlow<Int?>(null)
+    val focusedPlaceId = _focusedPlaceId.asStateFlow()
+
     init {
         getPlacesByDistance()
     }
@@ -74,11 +77,6 @@ class MapScreenModel(
             }
         }
     }
-    fun setFocusedPlace(place: PlaceResponseModel?) {
-        _uiState.update {
-            it.copy(focusedPlace = place)
-        }
-    }
 
     fun moveToCurrentLocation() {
         _uiState.value.currentLocation?.let {
@@ -86,7 +84,22 @@ class MapScreenModel(
             _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.longitude, it.latitude)) }
         }
     }
+    fun setFocusedPlace(place: PlaceResponseModel) {
+        if (_focusedPlaceId.value == place.id) return
 
+        screenModelScope.launch {
+            _focusedPlaceId.value = place.id
+
+            _uiState.update {
+                it.copy(
+                    cameraEvent = CameraEvent.MoveTo(
+                        lat = place.longitude,
+                        lon = place.latitude
+                    )
+                )
+            }
+        }
+    }
     fun consumeCameraEvent() {
         _cameraEvent.value = null
         _uiState.update { state -> state.copy(cameraEvent = null) }

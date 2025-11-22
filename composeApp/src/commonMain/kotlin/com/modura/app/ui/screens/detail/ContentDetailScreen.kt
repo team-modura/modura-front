@@ -393,11 +393,10 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                             MaterialTheme.colorScheme.onSurface,
                                             MaterialTheme.colorScheme.surface
                                         ),
-                                        startY = currentImageHeightPx / 2
+                                        startY = currentImageHeightPx * (0.5f * ((currentImageHeightPx - minImageHeightPx) / minImageHeightPx).coerceIn(0f, 1f))
                                     )
                                 )
                         )
-
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

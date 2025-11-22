@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
@@ -27,6 +28,7 @@ import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.PlaceInfo
 import com.modura.app.domain.model.response.map.PlaceResponseModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.theme.Gray500
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
@@ -34,52 +36,80 @@ fun PlaceListBlock(
     modifier: Modifier = Modifier,
     places: List<PlaceResponseModel>,
     onPlaceClick: (Int) -> Unit,
+    focusedPlaceId: Int?,
     onCenterItemChanged: (PlaceResponseModel) -> Unit
 ) {
     val listState = rememberLazyListState()
+
     LaunchedEffect(listState, places) {
         if (places.isEmpty()) return@LaunchedEffect
 
         snapshotFlow {
             val layoutInfo = listState.layoutInfo
-            val visibleItemsInfo = layoutInfo.visibleItemsInfo
-            if (visibleItemsInfo.isEmpty()) {
-                null
-            } else {
-                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
-                val centerMostItem = visibleItemsInfo.minByOrNull {
-                    kotlin.math.abs((it.offset + it.size / 2) - viewportCenter)
-                }
-                centerMostItem?.index
+            val visibleItems = layoutInfo.visibleItemsInfo
+
+            if (visibleItems.isEmpty()) return@snapshotFlow null
+
+           val focusPoint = layoutInfo.viewportStartOffset + 200
+
+            val focusedItem = visibleItems.find { item ->
+                item.offset <= focusPoint && (item.offset + item.size) >= focusPoint
             }
+
+            focusedItem?.index ?: listState.firstVisibleItemIndex
         }
             .distinctUntilChanged()
-            .collect { centerIndex ->
-                if (centerIndex != null && centerIndex in places.indices) {
-                    onCenterItemChanged(places[centerIndex])
+            .collect { index ->
+                if (index != null && index in places.indices) {
+                    onCenterItemChanged(places[index])
                 }
             }
     }
 
+    LaunchedEffect(focusedPlaceId) {
+        if (focusedPlaceId != null) {
+            val index = places.indexOfFirst { it.id == focusedPlaceId }
+            // 현재 스크롤 위치와 다를 때만 이동 (무한 루프 방지)
+            if (index != -1 && listState.firstVisibleItemIndex != index) {
+                // listState.animateScrollToItem(index) // 필요하다면 주석 해제
+            }
+        }
+    }
+
+
     Column(
         modifier = modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp), // 하단 여백 추가
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(
-                items = places,
-                key = { it.id }
-            ) { place ->
-                ListMapItem(
-                    place = place,
-                    onClick = { onPlaceClick(place.id) }
+        if (places.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "검색 결과가 없습니다.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Gray500
                 )
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(bottom = 20.dp)
+            ) {
+                items(
+                    items = places,
+                    key = { it.id }
+                ) { place ->
+                    ListMapItem(
+                        place = place,
+                        isFocused = place.id == focusedPlaceId,
+                        onClick = { onPlaceClick(place.id) }
+                    )
+                }
             }
         }
     }

@@ -62,17 +62,24 @@ class LoginScreen : Screen {
 
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.current
         val rootNavigator = LocalRootNavigator.current
-
         val screenModel = getScreenModel<LoginScreenModel>()
-
+        val isAutoLoginSuccess by screenModel.isAutoLoginSuccess.collectAsState()
         val coroutineScope = rememberCoroutineScope()
         val uiState by screenModel.uiState.collectAsState()
         val isNewUser by screenModel.isNewUser.collectAsState()
 
         var startAnimation by remember { mutableStateOf(false) }
         var showBottomSheet by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            screenModel.checkAutoLogin()
+        }
+
+        LaunchedEffect(isAutoLoginSuccess) {
+            if (isAutoLoginSuccess) {
+                rootNavigator?.replaceAll(MainScreen)
+            }
+        }
 
         LaunchedEffect(uiState.success) {
             if (uiState.success) {

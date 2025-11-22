@@ -1,11 +1,13 @@
 package com.modura.app.di
 
+import com.modura.app.data.datasource.AiDataSource
 import com.modura.app.data.datasource.ListDataSource
 import com.modura.app.data.datasource.LoginDataSource
 import com.modura.app.data.datasource.DetailDataSource
 import com.modura.app.data.datasource.MapDataSource
 import com.modura.app.data.datasource.MypageDataSource
 import com.modura.app.data.datasource.SearchDataSource
+import com.modura.app.data.datasourceImpl.AiDataSourceImpl
 import com.modura.app.data.datasourceImpl.ListDataSourceImpl
 import com.modura.app.data.datasourceImpl.LoginDataSourceImpl
 import com.modura.app.data.datasourceImpl.DetailDataSourceImpl
@@ -31,4 +33,5 @@ val dataSourceModule = module {
     single<SearchDataSource> { SearchDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
     single<MypageDataSource> { MypageDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
     single<MapDataSource>{ MapDataSourceImpl(get(named(NetworkQualifiers.AUTH_HTTP_CLIENT))) }
+    single<AiDataSource> { AiDataSourceImpl(get(named(NetworkQualifiers.AI_HTTP_CLIENT))) }
 }

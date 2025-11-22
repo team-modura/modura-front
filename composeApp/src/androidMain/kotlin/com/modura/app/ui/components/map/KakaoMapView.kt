@@ -47,9 +47,11 @@ import org.koin.compose.koinInject
 actual fun KakaoMapView(
     modifier: Modifier,
     places: List<PlaceResponseModel>,
+    focusedPlaceId: Int?,
     currentLocation: Location?,
     cameraEvent: MapScreenModel.CameraEvent?,
     onCameraEventConsumed: () -> Unit,
+    onMarkerClick: (PlaceResponseModel) -> Unit
 ) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
@@ -79,27 +81,38 @@ actual fun KakaoMapView(
             Text("지도를 표시하려면 위치 권한이 필요합니다.", modifier = Modifier.align(Alignment.Center))
         }
     }
-    LaunchedEffect(places, kakaoMap) {
+    LaunchedEffect(places, kakaoMap, focusedPlaceId) {
         val map = kakaoMap ?: return@LaunchedEffect
         val layer = labelLayer ?: map.labelManager?.layer ?: return@LaunchedEffect
 
         layer.removeAll()
 
         places.forEach { place ->
+            val isFocused = place.id == focusedPlaceId
             val position = KakaoLatLng.from(place.longitude, place.latitude)
-            Log.d("pin", "정상 핀 위치: $position")
+
+            val drawableRes = if (isFocused) R.drawable.img_pin else R.drawable.img_pin
+
+            val style = LabelStyle.from(drawableRes).apply {
+                if (isFocused) {
+                }
+            }
+
             val options = LabelOptions.from(position)
-                .setStyles(LabelStyles.from(LabelStyle.from(R.drawable.img_pin)))
+                .setStyles(LabelStyles.from(style))
+                .setTag(place.id)
+                .setRank(if (isFocused) 1000 else 0)
+
             layer.addLabel(options)
         }
-
+/*
         places.firstOrNull()?.let { firstPlace ->
             val position = KakaoLatLng.from(firstPlace.longitude, firstPlace.latitude)
             map.moveCamera(
                 com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position, 15)
             )
             Log.d("KakaoMapView", "핀 목록 업데이트됨. 첫 번째 핀 위치로 카메라 이동: $position")
-        }
+        }*/
     }
     LaunchedEffect(cameraEvent, kakaoMap) {
         val map = kakaoMap ?: return@LaunchedEffect
@@ -112,9 +125,7 @@ actual fun KakaoMapView(
                 Log.d("KakaoMapView", "카메라 이벤트 수신: 내 위치로 이동 -> $position")
                 onCameraEventConsumed() // 이벤트 소비 완료 알림
             }
-            null -> {
-                // 이벤트가 없으면 아무것도 하지 않음
-            }
+            null -> {}
         }
     }
 
@@ -131,7 +142,19 @@ actual fun KakaoMapView(
 
                             kakaoMap = map
                             labelLayer = map.labelManager?.layer
-                            Log.d("KakaoMapView", "onMapReady: kakaoMap 상태 업데이트됨. 핀 찍기 준비 완료.")
+
+                            map.setOnLabelClickListener { _, _, label ->
+                                val placeId = label.tag as? Int
+                                if (placeId != null) {
+                                    val clickedPlace = places.find { it.id == placeId }
+                                    if (clickedPlace != null) {
+                                        onMarkerClick(clickedPlace) // 부모(MapScreen)로 이벤트 전달
+                                    }
+                                }
+                                true // 이벤트 소비 여부 (true면 지도 클릭 이벤트로 전파되지 않음)
+                            }
+
+                           Log.d("KakaoMapView", "onMapReady: kakaoMap 상태 업데이트됨. 핀 찍기 준비 완료.")
 
                             if (isMapInitialized) return
 

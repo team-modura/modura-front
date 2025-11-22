@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -44,6 +45,7 @@ fun SearchField(
             .fillMaxWidth()
             .background(if(white)White else MaterialTheme.colorScheme.surface)
             .clip(RoundedCornerShape(8.dp))
+            .height(50.dp)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         contentAlignment = Alignment.CenterStart
     ) {
@@ -52,7 +54,7 @@ fun SearchField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = if(white)White else MaterialTheme.colorScheme.onBackground
+                color = if(white)MaterialTheme.colorScheme.onBackground else White
             ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
