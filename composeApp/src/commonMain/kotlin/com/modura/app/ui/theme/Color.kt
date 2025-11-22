@@ -19,7 +19,8 @@ val Gray900 = Color(0xFF0C0C0C)
 val Blue500 = Color(0xff5376CE)
 val Green700 = Color(0xff8EC28E)
 val Main500 = Color(0xff36A7A7)
-
+val Main100 = Color(0xffC7DDDD)
+val Main900 = Color(0xff003B3B)
 
 
 
@@ -31,7 +32,8 @@ val LightColorScheme = lightColorScheme(
     surface = White,
     surfaceVariant = Gray300,
     onSurfaceVariant = Gray700,
-    onSurface = WhiteTransparent
+    onSurface = WhiteTransparent,
+    onPrimary = Main100
 )
 
 val DarkColorScheme = darkColorScheme(
@@ -41,5 +43,6 @@ val DarkColorScheme = darkColorScheme(
     surface = Black,
     surfaceVariant = Gray700,
     onSurfaceVariant = Gray300,
-    onSurface = BlackTransparent
+    onSurface = BlackTransparent,
+    onPrimary = Main900
 )

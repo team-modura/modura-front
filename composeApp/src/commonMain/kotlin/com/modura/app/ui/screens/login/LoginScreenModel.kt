@@ -99,10 +99,17 @@ class LoginScreenModel(
 
     fun checkAutoLogin() {
         appScope.launch {
-            val token = tokenRepository.getAccessToken()
-            if (!token.isNullOrBlank()) {
-                println("자동 로그인 성공: 토큰이 존재합니다.")
+            val accessToken = tokenRepository.getAccessToken()
+
+            if (accessToken.isNullOrBlank()) {
+                return@launch
+            }
+            val refreshToken = tokenRepository.getRefreshToken()
+            if (!refreshToken.isNullOrBlank()) {
+                println("자동 로그인 성공: 유효한 토큰이 존재합니다.")
                 _isAutoLoginSuccess.value = true
+            } else {
+                tokenRepository.clearTokens()
             }
         }
     }

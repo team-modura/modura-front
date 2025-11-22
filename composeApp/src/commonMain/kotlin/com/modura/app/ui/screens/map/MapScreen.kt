@@ -80,12 +80,13 @@ object MapScreen : Screen {
         val navigator = LocalRootNavigator.current!!
         val screenModel = getScreenModel<MapScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
+        val focusedPlaceId by screenModel.focusedPlaceId.collectAsState()
         val coroutineScope = rememberCoroutineScope()
 
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val screenHeight = maxHeight
 
-            val peekHeight = 140.dp
+            val peekHeight = 152.dp
             val middleHeight = 280.dp
             val fullHeight = screenHeight - 180.dp
 
@@ -215,6 +216,7 @@ object MapScreen : Screen {
                             PlaceListBlock(
                                 modifier = Modifier.fillMaxSize(),
                                 places = uiState.places,
+                                focusedPlaceId = focusedPlaceId,
                                 onCenterItemChanged = { place -> screenModel.setFocusedPlace(place) },
                                 onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) }
                             )
@@ -244,9 +246,14 @@ object MapScreen : Screen {
                                 }
                             },
                             places = uiState.places,
+                            focusedPlaceId = focusedPlaceId,
                             currentLocation = uiState.currentLocation,
                             cameraEvent = uiState.cameraEvent,
-                            onCameraEventConsumed = { screenModel.consumeCameraEvent() }
+                            onCameraEventConsumed = { screenModel.consumeCameraEvent() },
+                            onMarkerClick = { place ->
+                                screenModel.setFocusedPlace(place)
+                                if(currentStep == SheetStep.PEEK) currentStep = SheetStep.MIDDLE
+                            }
                         )
                     }
                     // 검색창 및 상단 버튼들 (기존 코드 유지)
