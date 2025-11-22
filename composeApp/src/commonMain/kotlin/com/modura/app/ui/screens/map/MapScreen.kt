@@ -62,6 +62,7 @@ import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.theme.Gray900
 import com.modura.app.ui.theme.White
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import modura.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
@@ -89,8 +90,8 @@ object MapScreen : Screen {
             val fullHeight = screenHeight - 180.dp
 
             var currentStep by remember { mutableStateOf(SheetStep.MIDDLE) }
-
-            val targetSheetHeight = when (currentStep) {
+            var visualStep by remember { mutableStateOf(SheetStep.MIDDLE) }
+            val targetSheetHeight = when (visualStep) {
                 SheetStep.PEEK -> peekHeight
                 SheetStep.MIDDLE -> middleHeight
                 SheetStep.FULL -> fullHeight
@@ -98,7 +99,7 @@ object MapScreen : Screen {
 
             val animatedSheetHeight by animateDpAsState(
                 targetValue = targetSheetHeight,
-                animationSpec = tween(durationMillis = 1, easing = FastOutSlowInEasing),
+                animationSpec = tween(durationMillis =100, easing = FastOutSlowInEasing),
                 label = "SheetHeightAnimation"
             )
 
@@ -108,6 +109,24 @@ object MapScreen : Screen {
                     skipHiddenState = true
                 )
             )
+            LaunchedEffect(currentStep) {
+                when (currentStep) {
+                    SheetStep.PEEK -> {
+                        scaffoldState.bottomSheetState.partialExpand()
+                        delay(100)
+                        visualStep = SheetStep.PEEK
+                    }
+                    SheetStep.MIDDLE -> {
+                        scaffoldState.bottomSheetState.expand()
+                        delay(100)
+                        visualStep = SheetStep.MIDDLE
+                    }
+                    SheetStep.FULL -> {
+                        visualStep = SheetStep.FULL
+                        scaffoldState.bottomSheetState.expand()
+                    }
+                }
+            }
 
             var searchValue by remember { mutableStateOf("") }
             val localRepository: LocalRepository = remember { LocalRepositoryImpl(Settings()) }
@@ -186,7 +205,7 @@ object MapScreen : Screen {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(fullHeight) // ★ 중요: 항상 최대 높이 유지
+                                .height(fullHeight)
                         ) {
                             PlaceListBlock(
                                 modifier = Modifier.fillMaxSize(),

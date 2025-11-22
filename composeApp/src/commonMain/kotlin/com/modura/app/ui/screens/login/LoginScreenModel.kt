@@ -45,6 +45,9 @@ class LoginScreenModel(
     private val _userRegistrationSuccess = MutableStateFlow(false)
     val userRegistrationSuccess = _userRegistrationSuccess.asStateFlow()
 
+    private val _isAutoLoginSuccess = MutableStateFlow(false)
+    val isAutoLoginSuccess: StateFlow<Boolean> = _isAutoLoginSuccess.asStateFlow()
+
     fun login(authCode: String) {
         if (_uiState.value.inProgress) return
         _uiState.update { it.copy(inProgress = true, errorMessage = null) }
@@ -93,4 +96,16 @@ class LoginScreenModel(
             }
         }
     }
+
+    fun checkAutoLogin() {
+        appScope.launch {
+            val token = tokenRepository.getAccessToken()
+            if (!token.isNullOrBlank()) {
+                println("자동 로그인 성공: 토큰이 존재합니다.")
+                _isAutoLoginSuccess.value = true
+            }
+        }
+    }
+
+
 }
