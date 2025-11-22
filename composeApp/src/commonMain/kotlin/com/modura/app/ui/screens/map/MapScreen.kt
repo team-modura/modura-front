@@ -59,6 +59,7 @@ import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.screens.home.HomeScreenModel
 import com.modura.app.ui.theme.Gray900
 import com.modura.app.ui.theme.White
 import com.russhwolf.settings.Settings
@@ -79,6 +80,7 @@ object MapScreen : Screen {
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
         val screenModel = getScreenModel<MapScreenModel>()
+        val homeScreenModel = getScreenModel<HomeScreenModel>()
         val uiState by screenModel.uiState.collectAsState()
         val focusedPlaceId by screenModel.focusedPlaceId.collectAsState()
         val coroutineScope = rememberCoroutineScope()
@@ -142,7 +144,7 @@ object MapScreen : Screen {
                 sheetContentColor = MaterialTheme.colorScheme.surface,
                 sheetContainerColor = MaterialTheme.colorScheme.surface,
                 sheetPeekHeight = peekHeight,
-                sheetShadowElevation = 10.dp,
+                sheetShadowElevation = 0.dp,
                 sheetSwipeEnabled = false,
                 sheetDragHandle = {
                     Box(
@@ -229,14 +231,14 @@ object MapScreen : Screen {
                 ) {
                     if (uiState.inProgress && uiState.places.isEmpty()) {
                         Box(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
                         }
                     } else {
                         KakaoMapView(
-                            modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).pointerInput(Unit) {
                                 detectTapGestures {
                                     coroutineScope.launch {
                                         if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
@@ -256,14 +258,12 @@ object MapScreen : Screen {
                             }
                         )
                     }
-                    // 검색창 및 상단 버튼들 (기존 코드 유지)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.TopCenter)
                             .padding(top = 20.dp, start = 20.dp, end = 20.dp)
                     ) {
-                        // ... (SearchField 및 버튼들 내용 유지) ...
                         SearchField(
                             value = searchValue,
                             onValueChange = { searchValue = it },
@@ -332,10 +332,8 @@ object MapScreen : Screen {
                     }
                 }
 
-                // 장소 검색 결과가 있으면 시트를 살짝 올림
                 LaunchedEffect(uiState.places) {
                     if (uiState.places.isNotEmpty()) {
-                        // 이미 확장된 상태가 아니라면 부분 확장
                         if (scaffoldState.bottomSheetState.currentValue == SheetValue.Hidden) {
                             scaffoldState.bottomSheetState.partialExpand()
                         }
