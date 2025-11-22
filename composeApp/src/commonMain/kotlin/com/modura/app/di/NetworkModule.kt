@@ -3,6 +3,7 @@ package com.modura.app.di
 import com.modura.app.data.dto.BaseResponse
 import com.modura.app.domain.model.response.login.ReissueTokenResult
 import com.modura.app.domain.repository.TokenRepository
+import com.modura.app.util.platform.AI_BASE_URL
 import com.modura.app.util.platform.BASE_URL
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -33,6 +34,7 @@ object NetworkQualifiers {
     const val NO_AUTH_HTTP_CLIENT = "NoAuthHttpClient"
     const val TOKEN_REFRESH_HTTP_CLIENT = "TokenRefreshHttpClient"
     const val YOUTUBE_HTTP_CLIENT = "YoutubeHttpClient"
+    const val AI_HTTP_CLIENT = "AiHttpClient"
 }
 
 val networkModule = module {
@@ -154,6 +156,48 @@ val networkModule = module {
                 level = LogLevel.ALL
                 logger = object : Logger { override fun log(message: String) { println("Token Refresher Log: $message") } }
             }
+        }
+    }
+    single(named(NetworkQualifiers.AI_HTTP_CLIENT)) {
+        val tokenRepository: TokenRepository = get()
+
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
+            install(Logging) { level = LogLevel.ALL }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 60000L
+                connectTimeoutMillis = 60000L
+                socketTimeoutMillis = 60000L
+            }
+
+            defaultRequest {
+                url(AI_BASE_URL)
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        runBlocking {
+                            val accessToken = tokenRepository.getAccessToken()
+                            val refreshToken = tokenRepository.getRefreshToken()
+                            if (accessToken.isNotBlank()) {
+                                BearerTokens(accessToken, refreshToken)
+                            } else {
+                                null
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

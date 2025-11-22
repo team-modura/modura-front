@@ -1,5 +1,6 @@
 package com.modura.app.di
 
+import com.modura.app.ui.screens.ai.AIScreenModel
 import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.home.HomeScreenModel
 import com.modura.app.ui.screens.login.LoginScreenModel
@@ -16,4 +17,5 @@ val screenModelModule = module {
     factoryOf(::LoginScreenModel)
     factoryOf(::SearchScreenModel)
     factoryOf(::MypageScreenModel)
+    factoryOf(::AIScreenModel)
 }
