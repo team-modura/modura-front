@@ -8,8 +8,10 @@ import com.modura.app.domain.repository.MapRepository
 import com.modura.app.util.location.LocationHelper
 import com.modura.app.util.location.calculateDistance
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,6 +30,8 @@ class MapScreenModel(
     private val repository: MapRepository,
     private val locationHelper: LocationHelper
 ) : ScreenModel {
+    private val _scrollToTopEvent = MutableSharedFlow<Unit>()
+    val scrollToTopEvent = _scrollToTopEvent.asSharedFlow()
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
@@ -45,10 +49,39 @@ class MapScreenModel(
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.getPlaces(query).onSuccess { response -> _uiState.update { it.copy(inProgress = false, success = true, places = response.placeList) }
+                _scrollToTopEvent.emit(Unit)
             }.onFailure { exception -> _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
             }
         }
     }
+
+    fun getPlacesByPopularity() {
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+
+            repository.getPlaces(null).onSuccess { response ->
+                val sortedList = response.placeList.sortedByDescending { it.reviewCount }
+
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        success = true,
+                        places = sortedList
+                    )
+                }
+                _scrollToTopEvent.emit(Unit)
+            }.onFailure { exception ->
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        success = false,
+                        errorMessage = exception.message
+                    )
+                }
+            }
+        }
+    }
+
 
     fun getPlacesByDistance() {
         screenModelScope.launch {
@@ -69,6 +102,7 @@ class MapScreenModel(
                         distance
                     }
                     _uiState.update { it.copy(inProgress = false, success = true, places = sortedList, currentLocation = fetchedLocation ) }
+                    _scrollToTopEvent.emit(Unit)
                 }.onFailure { exception ->
                     _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
                 }

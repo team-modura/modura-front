@@ -37,9 +37,15 @@ fun PlaceListBlock(
     places: List<PlaceResponseModel>,
     onPlaceClick: (Int) -> Unit,
     focusedPlaceId: Int?,
-    onCenterItemChanged: (PlaceResponseModel) -> Unit
+    onCenterItemChanged: (PlaceResponseModel) -> Unit,
+    scrollToTopTrigger: Any? = null
 ) {
     val listState = rememberLazyListState()
+    LaunchedEffect(scrollToTopTrigger) {
+        if (scrollToTopTrigger != null) {
+            listState.scrollToItem(0)
+        }
+    }
 
     LaunchedEffect(listState, places) {
         if (places.isEmpty()) return@LaunchedEffect

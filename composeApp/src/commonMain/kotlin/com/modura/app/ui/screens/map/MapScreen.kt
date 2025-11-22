@@ -84,6 +84,13 @@ object MapScreen : Screen {
         val uiState by screenModel.uiState.collectAsState()
         val focusedPlaceId by screenModel.focusedPlaceId.collectAsState()
         val coroutineScope = rememberCoroutineScope()
+        var scrollToTopTrigger by remember { mutableStateOf<Any?>(null) }
+
+        LaunchedEffect(Unit) {
+            screenModel.scrollToTopEvent.collect {
+                scrollToTopTrigger = Any()
+            }
+        }
 
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val screenHeight = maxHeight
@@ -220,7 +227,8 @@ object MapScreen : Screen {
                                 places = uiState.places,
                                 focusedPlaceId = focusedPlaceId,
                                 onCenterItemChanged = { place -> screenModel.setFocusedPlace(place) },
-                                onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) }
+                                onPlaceClick = { placeId -> navigator.push(PlaceDetailScreen(placeId)) },
+                                scrollToTopTrigger = scrollToTopTrigger
                             )
                         }
                     }
@@ -291,14 +299,18 @@ object MapScreen : Screen {
                                     .background(White)
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             )
-                            // ... 나머지 버튼들 ...
                             Text(
                                 text = "인기 촬영지",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Gray900,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(20.dp))
-                                    .clickable { println("인기 촬영지 클릭됨") }
+                                    .clickable {
+                                        coroutineScope.launch {
+                                            screenModel.getPlacesByPopularity()
+                                            currentStep = SheetStep.MIDDLE
+                                            scaffoldState.bottomSheetState.expand()                                        }
+                                    }
                                     .background(White)
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             )
