@@ -99,7 +99,7 @@ object MapScreen : Screen {
 
             val animatedSheetHeight by animateDpAsState(
                 targetValue = targetSheetHeight,
-                animationSpec = tween(durationMillis =100, easing = FastOutSlowInEasing),
+                animationSpec = tween(durationMillis =300, easing = FastOutSlowInEasing),
                 label = "SheetHeightAnimation"
             )
 
@@ -113,13 +113,18 @@ object MapScreen : Screen {
                 when (currentStep) {
                     SheetStep.PEEK -> {
                         scaffoldState.bottomSheetState.partialExpand()
-                        delay(100)
+                        delay(150)
                         visualStep = SheetStep.PEEK
                     }
                     SheetStep.MIDDLE -> {
-                        scaffoldState.bottomSheetState.expand()
-                        delay(100)
-                        visualStep = SheetStep.MIDDLE
+                        if (visualStep == SheetStep.PEEK) {
+                            visualStep = SheetStep.MIDDLE
+                            delay(50)
+                            scaffoldState.bottomSheetState.expand()
+                        } else {
+                            scaffoldState.bottomSheetState.expand()
+                            visualStep = SheetStep.MIDDLE
+                        }
                     }
                     SheetStep.FULL -> {
                         visualStep = SheetStep.FULL
