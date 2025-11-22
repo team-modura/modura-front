@@ -5,12 +5,15 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.copy
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapTo
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,8 +47,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import coil3.compose.AsyncImage
 import com.modura.app.LocalRootNavigator
+import com.modura.app.data.dev.DummyProvider.stillcut
 import com.modura.app.ui.theme.Gray500
 import com.modura.app.ui.theme.White
+import com.modura.app.util.extension.shimmerEffect
 
 
 class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
@@ -61,13 +66,19 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
 
         val stillcutList by screenModel.stillcuts.collectAsState()
         val currentStillcutDetail by screenModel.stillcutDetail.collectAsState()
+
+        var cachedStillcut by remember { mutableStateOf(currentStillcutDetail) }
+
+        if (currentStillcutDetail != null) {
+            cachedStillcut = currentStillcutDetail
+        }
+
         var currentIndex by remember { mutableStateOf(0) }
 
         LaunchedEffect(stillcutList) {
             if (stillcutList.isNotEmpty()) {
                 val index = stillcutList.indexOfFirst { it.id == startStillcutId }
                 currentIndex = if (index != -1) index else 0
-
                 screenModel.getStillcutDetail(stillcutList[currentIndex].id)
             }
         }
@@ -79,6 +90,7 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
         }
 
         val progress = remember { Animatable(0f) }
+
         LaunchedEffect(currentStillcutDetail) {
             val currentId = stillcutList.getOrNull(currentIndex)?.id
 
@@ -96,17 +108,37 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
                 }
             }
         }
-        if (stillcutList.isEmpty() || currentStillcutDetail == null) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+        if (stillcutList.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(color = White)
             }
             return
         }
-        val stillcut = currentStillcutDetail!!
+
+        val displayStillcut = currentStillcutDetail ?: cachedStillcut
+
+        if (displayStillcut == null) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = White)
+            }
+            return
+        }
+
+        val isLoading =
+            currentStillcutDetail == null || currentStillcutDetail?.id != stillcutList.getOrNull(
+                currentIndex
+            )?.id
+
 
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
-                model = stillcut.imageUrl,
+                model = displayStillcut.imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -123,6 +155,36 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
                     )
             )
 
+            Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            if (currentIndex > 0) {
+                                currentIndex--
+                            }
+                        }
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            if (currentIndex < stillcutList.lastIndex) {
+                                currentIndex++
+                            } else {
+                                navigator.pop()
+                            }
+                        }
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,7 +209,6 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
                     )
                 }
             }
-
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -157,41 +218,79 @@ class StillcutDetailScreen(private val startStillcutId: Int) : Screen {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AsyncImage(
-                        model = stillcut.stillcut,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Gray500)
-                    )
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .shimmerEffect()
+                        )
+                    } else {
+                        AsyncImage(
+                            model = displayStillcut.stillcut,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Gray500)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column {
-                        Text(
-                            text = stillcut.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stillcut.name,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = White.copy(alpha = 0.8f)
-                        )
+                        if (isLoading) {
+                            Box(
+                                modifier = Modifier
+                                    .height(20.dp)
+                                    .width(120.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .shimmerEffect()
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .height(14.dp)
+                                    .width(80.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .shimmerEffect()
+                            )
+                        } else {
+                            Text(
+                                text = displayStillcut.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = displayStillcut.name,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = White.copy(alpha = 0.8f)
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = stillcut.date,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Gray500,
-                    fontSize = 12.sp
-                )
+                // [수정] 날짜 부분도 스켈레톤 처리
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .height(12.dp)
+                            .width(60.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .shimmerEffect()
+                    )
+                } else {
+                    Text(
+                        text = displayStillcut.date,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Gray500,
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
     }
