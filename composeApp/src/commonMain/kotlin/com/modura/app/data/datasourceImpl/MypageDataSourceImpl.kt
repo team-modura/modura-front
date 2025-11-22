@@ -15,6 +15,7 @@ import com.modura.app.data.dto.response.mypage.StillcutsResponseDto
 import com.modura.app.domain.repository.LoginRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -31,6 +32,10 @@ class MypageDataSourceImpl(
 
     override suspend fun stillcuts(): BaseResponse<StillcutsResponseDto>
         = httpClient.get("/users/stillcuts").body()
+
+    override suspend fun stillcutDelete(stillcutId: Int): BaseResponse<Unit>
+    = httpClient.delete("/users/stillcuts/$stillcutId").body()
+
 
     override suspend fun stillcutDetail(stillcutId: Int): BaseResponse<StillcutDetailResponseDto>
         = httpClient.get("/users/stillcuts/$stillcutId").body()

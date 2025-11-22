@@ -280,6 +280,7 @@ object MyPageScreen : Screen {
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .clickable {
+                                        navigator.push(StillcutDetailScreen(stillcut.id))
                                         println("스틸컷 ${stillcut.id} 클릭됨")
                                     },
                                 contentScale = ContentScale.Crop

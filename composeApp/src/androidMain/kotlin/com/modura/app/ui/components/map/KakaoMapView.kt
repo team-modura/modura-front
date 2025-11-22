@@ -89,7 +89,7 @@ actual fun KakaoMapView(
 
         places.forEach { place ->
             val isFocused = place.id == focusedPlaceId
-            val position = KakaoLatLng.from(place.longitude, place.latitude)
+            val position = KakaoLatLng.from(place.latitude, place.longitude)
 
             val drawableRes = if (isFocused) R.drawable.img_pin else R.drawable.img_pin
 

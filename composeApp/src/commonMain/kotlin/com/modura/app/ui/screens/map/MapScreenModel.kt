@@ -114,8 +114,8 @@ class MapScreenModel(
 
     fun moveToCurrentLocation() {
         _uiState.value.currentLocation?.let {
-            _cameraEvent.value = CameraEvent.MoveTo(it.longitude, it.latitude)
-            _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.longitude, it.latitude)) }
+            _cameraEvent.value = CameraEvent.MoveTo(it.latitude, it.longitude)
+            _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.latitude, it.longitude)) }
         }
     }
     fun setFocusedPlace(place: PlaceResponseModel) {
@@ -127,8 +127,8 @@ class MapScreenModel(
             _uiState.update {
                 it.copy(
                     cameraEvent = CameraEvent.MoveTo(
-                        lat = place.longitude,
-                        lon = place.latitude
+                        lat = place.latitude,
+                        lon = place.longitude
                     )
                 )
             }
@@ -139,6 +139,6 @@ class MapScreenModel(
         _uiState.update { state -> state.copy(cameraEvent = null) }
     }
     sealed class CameraEvent {
-        data class MoveTo(val lon: Double, val lat: Double) : CameraEvent()
+        data class MoveTo(val lat: Double, val lon: Double) : CameraEvent()
     }
 }

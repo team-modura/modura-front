@@ -10,6 +10,7 @@ import com.modura.app.domain.model.request.login.UserRequestModel
 import com.modura.app.domain.model.response.mypage.ContentLikedResponseModel
 import com.modura.app.domain.model.response.mypage.ContentsLikedResponseModel
 import com.modura.app.domain.model.response.mypage.PlaceLikedResponseModel
+import com.modura.app.domain.model.response.mypage.StillcutDetailResponseModel
 import com.modura.app.domain.model.response.mypage.StillcutResponseModel
 import com.modura.app.domain.model.response.mypage.StillcutsResponseModel
 import com.modura.app.domain.repository.LoginRepository
@@ -67,6 +68,9 @@ class MypageScreenModel(
     private val _stillcuts = MutableStateFlow<List<StillcutResponseModel>>(emptyList())
     val stillcuts: StateFlow<List<StillcutResponseModel>> = _stillcuts.asStateFlow()
 
+    private val _stillcutDetail = MutableStateFlow<StillcutDetailResponseModel?>(null)
+    val stillcutDetail: StateFlow<StillcutDetailResponseModel?> = _stillcutDetail
+
     private val _reviews = MutableStateFlow<List<MypageReview>>(emptyList())
     val reviews = _reviews.asStateFlow()
 
@@ -82,43 +86,60 @@ class MypageScreenModel(
                     _uiState.update { it.copy(inProgress = false, success = true) }
                 }
                 .onFailure { error ->
-                    _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.") }
+                    _uiState.update {
+                        it.copy(
+                            inProgress = false,
+                            errorMessage = "목록을 불러오지 못했습니다."
+                        )
+                    }
                     error.printStackTrace()
                 }
         }
     }
 
-    fun getLikedPlaces(){
+    fun getLikedPlaces() {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.placesLikes().onSuccess {
                 _likedPlaces.value = it.placeList
                 _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {
-                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.") }
                 it.printStackTrace()
             }
         }
     }
 
-    fun getStillcuts(){
+    fun getStillcuts() {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.stillcuts().onSuccess {
                 _stillcuts.value = it.stillcutList
                 _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {
-                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.") }
                 it.printStackTrace()
             }
         }
     }
 
-    fun getContentReviewsMypage(type: String){
+    fun getStillcutDetail(stillcutId: Int) {
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.stillcutDetail(stillcutId).onSuccess {
+                _stillcutDetail.value = it
+                _uiState.update { it.copy(inProgress = false, success = true) }
+            }.onFailure {
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.") }
+            }
+        }
+    }
+
+    fun getContentReviewsMypage(type: String) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.contentReviewsMypage(type).onSuccess {
-                val newReiviews = it.contentReviewList.map{
+                val newReiviews = it.contentReviewList.map {
                     MypageReview(
                         id = it.id,
                         contentId = it.contentId,
@@ -136,16 +157,21 @@ class MypageScreenModel(
                 _reviews.value = newReiviews
                 _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {
-                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        errorMessage = "목록을 불러오지 못했습니다."
+                    )
+                }
             }
         }
     }
 
-    fun getPlaceReviewsMypage(type: String){
+    fun getPlaceReviewsMypage(type: String) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.placeReviewsMypage(type).onSuccess {
-                val newReiviews = it.placeReviewList.map{
+                val newReiviews = it.placeReviewList.map {
                     MypageReview(
                         id = it.id,
                         contentId = null,
@@ -163,7 +189,12 @@ class MypageScreenModel(
                 _reviews.value = newReiviews
                 _uiState.update { it.copy(inProgress = false, success = true) }
             }.onFailure {
-                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.")}
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        errorMessage = "목록을 불러오지 못했습니다."
+                    )
+                }
             }
         }
     }
@@ -190,6 +221,7 @@ class MypageScreenModel(
             false
         }
     }
+
     fun clearReviews() {
         _reviews.value = emptyList()
     }

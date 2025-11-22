@@ -29,6 +29,9 @@ class MypageRepositoryImpl(
     override suspend fun stillcuts(): Result<StillcutsResponseModel> =
         runCatching { dataSource.stillcuts().result!!.toStillcutsResponseModel() }
 
+    override suspend fun stillcutDelete(stillcutId: Int): Result<Unit> =
+        runCatching { dataSource.stillcutDelete(stillcutId) }
+
     override suspend fun stillcutDetail(stillcutId: Int): Result<StillcutDetailResponseModel> =
         runCatching { dataSource.stillcutDetail(stillcutId).result!!.toStillcutDetailResponseModel() }
 

@@ -15,6 +15,7 @@ interface MypageRepository {
     suspend fun contentsLikes(type: String): Result<ContentsLikedResponseModel>
     suspend fun placesLikes(): Result<PlacesLikedResponseModel>
     suspend fun stillcuts(): Result<StillcutsResponseModel>
+    suspend fun stillcutDelete(stillcutId: Int): Result<Unit>
     suspend fun stillcutDetail(stillcutId: Int): Result<StillcutDetailResponseModel>
     suspend fun contentReviewsMypage(type: String): Result<ContentReviewsMypageResponseModel>
     suspend fun placeReviewsMypage(type: String): Result<PlaceReviewsMypageResponseModel>
