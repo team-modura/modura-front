@@ -3,6 +3,7 @@ package com.modura.app.ui.screens.mypage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +20,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,13 +72,36 @@ object MyPageScreen : Screen {
         val likedMovies by screenModel.likedMovies.collectAsState()
         val likedPlaces by screenModel.likedPlaces.collectAsState()
         val stillcuts by screenModel.stillcuts.collectAsState()
-
+        var showDeleteDialog by remember { mutableStateOf(false) }
+        var deleteTargetId by remember { mutableStateOf<Int?>(null) }
         var showBottomSheet by remember { mutableStateOf(false) }
         var selectedReview by remember { mutableStateOf<MypageReview?>(null) }
         val bottomSheetItems = listOf("상세보기", /*"수정",*/ "삭제")
 
 
         var selectedTab by remember { mutableStateOf("찜") }
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = { Text("스틸컷 삭제") },
+                text = { Text("정말로 이 스틸컷을 삭제하시겠습니까?", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            deleteTargetId?.let { id ->
+                                screenModel.deleteStillcut(id)
+                                println("스틸컷 $id 삭제 요청됨")
+                            }
+                            showDeleteDialog = false
+                        }
+                    ) { Text("삭제", color = Color.Red, style = MaterialTheme.typography.bodyMedium) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) { Text("취소", style = MaterialTheme.typography.bodyMedium) }
+                }
+            )
+        }
 
         LaunchedEffect(selectedTab) {
             if (selectedTab == "찜") {
@@ -279,10 +305,16 @@ object MyPageScreen : Screen {
                                 contentDescription = "스틸컷 이미지 ${stillcut.id}",
                                 modifier = Modifier
                                     .aspectRatio(1f)
-                                    .clickable {
-                                        navigator.push(StillcutDetailScreen(stillcut.id))
-                                        println("스틸컷 ${stillcut.id} 클릭됨")
-                                    },
+                                    .combinedClickable(
+                                        onClick = {
+                                            navigator.push(StillcutDetailScreen(stillcut.id))
+                                            println("스틸컷 ${stillcut.id} 클릭됨")
+                                        },
+                                        onLongClick = {
+                                            deleteTargetId = stillcut.id
+                                            showDeleteDialog = true
+                                        }
+                                    ),
                                 contentScale = ContentScale.Crop
                             )
                         }

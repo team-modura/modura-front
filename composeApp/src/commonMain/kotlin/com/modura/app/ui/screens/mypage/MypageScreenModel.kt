@@ -135,6 +135,17 @@ class MypageScreenModel(
         }
     }
 
+    fun deleteStillcut(stillcutId: Int){
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+            repository.stillcutDelete(stillcutId).onSuccess {
+                _uiState.update { it.copy(inProgress = false, success = true) }
+            }.onFailure {
+                _uiState.update { it.copy(inProgress = false, errorMessage = "목록을 불러오지 못했습니다.") }
+            }
+        }
+    }
+
     fun getContentReviewsMypage(type: String) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
