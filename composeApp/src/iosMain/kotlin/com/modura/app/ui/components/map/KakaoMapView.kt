@@ -21,8 +21,15 @@ import platform.KakaoMapsSDK.KakaoMapObserver
 import platform.KakaoMapsSDK.MapPoint*/
 
 @Composable
-actual fun KakaoMapView(modifier: Modifier, places: List<PlaceResponseModel>, currentLocation: Location?,
-                        cameraEvent: MapScreenModel.CameraEvent?,
-                        onCameraEventConsumed: () -> Unit,) {
+actual fun KakaoMapView(
+    modifier: Modifier,
+    places: List<PlaceResponseModel>,
+    focusedPlaceId: Int?,
+    currentLocation: Location?,
+    cameraEvent: MapScreenModel.CameraEvent?,
+    onCameraEventConsumed: () -> Unit,
+    onMarkerClick: (PlaceResponseModel) -> Unit,
+    onLocationFound: (Location) -> Unit
+) {
 
 }

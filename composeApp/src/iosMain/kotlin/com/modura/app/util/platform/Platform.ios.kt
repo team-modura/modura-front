@@ -7,3 +7,4 @@ class IOSPlatform: Platform {
 
 actual fun getPlatform(): Platform = IOSPlatform()
 actual val BASE_URL: String = " "  //Xcode 실행 후 Info.plist에 BaseURL 추가
+actual val AI_BASE_URL: String = " "  //Xcode 실행 후 Info.plist에 BaseURL 추가

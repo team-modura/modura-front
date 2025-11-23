@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,6 +54,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun ListMapItem(
     place: PlaceResponseModel,
+    isFocused: Boolean,
     onClick: (Int) -> Unit
 ) {
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -72,101 +74,127 @@ fun ListMapItem(
 
     val isDarkTheme = isSystemInDarkTheme()
     val backgroudColor = remember(isDarkTheme) {
-        if (isDarkTheme) { Gray800 } else {Gray100}
+        if (isDarkTheme) {
+            Gray800
+        } else {
+            Gray100
+        }
     }
-    val textColor = remember(isDarkTheme){
-        if(isDarkTheme){ Gray300 } else {Gray700}
+    val textColor = remember(isDarkTheme) {
+        if (isDarkTheme) {
+            Gray300
+        } else {
+            Gray700
+        }
+    }
+    val itemBackgroundColor = if (isFocused) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        Color.Transparent
     }
 
-
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(place.id) },
-        verticalAlignment = Alignment.CenterVertically
+            .background(itemBackgroundColor)
     ) {
-        if (isLoading || imageBitmap == null) {
-            Image(
-                modifier = Modifier
-                    .height(80.dp)
-                    .width(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                painter = painterResource(Res.drawable.img_not_found),
-                contentDescription = null,
-                contentScale = ContentScale.Crop
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .clickable { onClick(place.id) },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isLoading || imageBitmap == null) {
+                Image(
+                    modifier = Modifier
+                        .height(80.dp)
+                        .width(80.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    painter = painterResource(Res.drawable.img_not_found),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop
                 )
-        } else {
-            Image(
-                bitmap = imageBitmap!!,
-                contentDescription = null,
-                modifier = Modifier.height(80.dp).width(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-        }
-        Spacer(Modifier.width(8.dp))
-        Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (place.isLiked) {
-                    Icon(
-                        painter = painterResource(Res.drawable.img_bookmark_big_selected),
-                        contentDescription = "북마크",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .width(7.dp)
-                            .height(12.dp)
-                            .clickable {}
+            } else {
+                Image(
+                    bitmap = imageBitmap!!,
+                    contentDescription = null,
+                    modifier = Modifier.height(80.dp).width(80.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (place.isLiked) {
+                        Icon(
+                            painter = painterResource(Res.drawable.img_bookmark_big_selected),
+                            contentDescription = "북마크",
+                            tint = Color.Unspecified,
+                            modifier = Modifier
+                                .width(7.dp)
+                                .height(12.dp)
+                                .clickable {}
+                        )
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text(
+                        place.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        place.rating.toString(),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(Modifier.width(4.dp))
-                }
-                Text(place.name, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
-            }
-            Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(place.rating.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
-                Spacer(Modifier.width(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row {
-                        for (i in 1..5) {
-                            val fraction = when {
-                                place.rating >= i -> 1f
-                                place.rating > i - 1 -> place.rating - (i - 1)
-                                else -> 0f
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row {
+                            for (i in 1..5) {
+                                val fraction = when {
+                                    place.rating >= i -> 1f
+                                    place.rating > i - 1 -> place.rating - (i - 1)
+                                    else -> 0f
+                                }
+                                ReviewStar(fraction.toFloat())
                             }
-                            ReviewStar(fraction.toFloat())
                         }
                     }
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = "(${place.reviewCount.toString()})",
+                        style = MaterialTheme.typography.light8,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "(${place.reviewCount.toString()})",
-                    style = MaterialTheme.typography.light8,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            /*Row{
+                Spacer(modifier = Modifier.height(4.dp))
+                /*Row{
                     Text(distanceText, style = MaterialTheme.typography.labelSmall)
                     Spacer(Modifier.width(12.dp))
                     Text(text = place.address, style = MaterialTheme.typography.bodySmall)
                 }*/
-            Spacer(modifier = Modifier.height(12.dp))
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(place.content.size) {
-                    Text(
-                        text = place.content[it],
-                        style = MaterialTheme.typography.titleSmall,
-                        color = textColor,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(backgroudColor)
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
+                Spacer(modifier = Modifier.height(12.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(place.content.size) {
+                        Text(
+                            text = place.content[it],
+                            style = MaterialTheme.typography.titleSmall,
+                            color = textColor,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(backgroudColor)
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
         }

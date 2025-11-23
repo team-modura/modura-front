@@ -117,10 +117,12 @@ android {
         properties.load(FileInputStream(localPropertiesFile))
     }
 
-    val debugBaseUrl = properties.getProperty("BASE_URL") ?: "LOCAL_PROPERTIES_에서_못찾음"
-    println(">>> build.gradle.kts: BASE_URL from local.properties = '$debugBaseUrl'")
+    val baseUrl = properties.getProperty("BASE_URL") ?: "LOCAL_PROPERTIES_에서_못찾음"
+    println(">>> build.gradle.kts: BASE_URL from local.properties = '$baseUrl'")
 
-    // 3. composeResources 경로 설정 추가
+    val aiBaseUrl = properties.getProperty("AI_BASE_URL") ?: "LOCAL_PROPERTIES_에서_못찾음"
+    println(">>> build.gradle.kts: AI_BASE_URL from local.properties = '$aiBaseUrl'")
+
     sourceSets["main"].apply {
         resources.srcDirs("src/commonMain/composeResources")
     }
@@ -159,6 +161,11 @@ android {
                 "BASE_URL",
                 "\"${properties.getProperty("BASE_URL") ?: ""}\""
             )
+            buildConfigField(
+                "String",
+                "AI_BASE_URL",
+                "\"${properties.getProperty("AI_BASE_URL") ?: ""}\""
+            )
         }
         release {
             isMinifyEnabled = false
@@ -171,6 +178,11 @@ android {
                 "String",
                 "BASE_URL",
                 "\"${properties.getProperty("BASE_URL") ?: ""}\""
+            )
+            buildConfigField(
+                "String",
+                "AI_BASE_URL",
+                "\"${properties.getProperty("AI_BASE_URL") ?: ""}\""
             )
         }
     }

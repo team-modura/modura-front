@@ -11,6 +11,8 @@ class TokenRepository(
     companion object {
         private const val ACCESS_TOKEN_KEY = "access_token"
         private const val REFRESH_TOKEN_KEY = "refresh_token"
+        private const val USER_ID_KEY = "user_id"
+        private const val USERNAME_KEY = "username"
     }
 
     suspend fun saveTokens(accessToken: String, refreshToken: String) {
@@ -30,5 +32,15 @@ class TokenRepository(
     suspend fun  clearTokens() {
         settings.remove(ACCESS_TOKEN_KEY)
         settings.remove(REFRESH_TOKEN_KEY)
+        settings.remove(USER_ID_KEY)
+        settings.remove(USERNAME_KEY)
     }
+
+    suspend fun saveUserInfo(id: Int, username: String) {
+        settings.putInt(USER_ID_KEY, id)
+        settings.putString(USERNAME_KEY, username)
+    }
+
+    suspend fun getUserId(): Int = settings.getInt(USER_ID_KEY, -1)
+    suspend fun getUsername(): String = settings.getString(USERNAME_KEY, "")
 }

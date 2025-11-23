@@ -11,4 +11,5 @@ val repositoryModule = module {
     single<SearchRepository> { SearchRepositoryImpl(get()) }
     single<MypageRepository>{ MypageRepositoryImpl(get()) }
     single<MapRepository>{ MapRepositoryImpl(get())}
+    single<AiRepository>{ AiRepositoryImpl(get())}
 }

@@ -11,7 +11,12 @@ data class StillcutDetailResponseDto(
     val stillcut: String,
     val title: String,
     val name: String,
-    val date: String
+    val date: String,
+    val similarity: Int,
+    val angle: Int,
+    val clarity: Int,
+    val color: Int,
+    val palette: Int
 ){
-    fun toStillcutDetailResponseModel() = StillcutDetailResponseModel(id, imageUrl, stillcut, title, name, date)
+    fun toStillcutDetailResponseModel() = StillcutDetailResponseModel(id, imageUrl, stillcut, title, name, date, similarity, angle, clarity, color, palette)
 }

@@ -39,11 +39,14 @@ import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.dev.DummyProvider
 import com.modura.app.ui.components.ContentItemSmall
+import com.modura.app.ui.components.HomeAIContentRow
 import com.modura.app.ui.components.HomeContentRow
 import com.modura.app.ui.components.HomePlaceRow
 import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.SectionTitle
+import com.modura.app.ui.screens.ai.AIScreenModel
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.theme.Gray100
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_diagnosis
@@ -56,17 +59,24 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val screenModel = getScreenModel<HomeScreenModel>()
+        val aiScreenModel = getScreenModel<AIScreenModel>()
+        val detailScreenModel = getScreenModel<DetailScreenModel>()
+        val userId by aiScreenModel.userId.collectAsState()
         val navigator = LocalRootNavigator.current!!
         val scrollState = rememberScrollState()
         val uiState by screenModel.uiStateFlow.collectAsState()
+        val aiContents by aiScreenModel.aiContents.collectAsState()
         val topSeries by screenModel.topSeries.collectAsState()
         val topMovie by screenModel.topMovie.collectAsState()
         val topPlaces by screenModel.topPlaces.collectAsState()
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(userId) {
             screenModel.topSeries()
             screenModel.topMovie()
             screenModel.topPlaces()
+            if (userId > 0L) {
+                aiScreenModel.getRecommendation(userId)
+            }
         }
 
         Box(
@@ -101,17 +111,48 @@ class HomeScreen : Screen {
                     contentDescription = "상단 배너",
                     contentScale = ContentScale.Crop
                 )
-                SectionTitle("TOP 10 Series")
-                HomeContentRow(topSeries, navigator)
+                SectionTitle("AI가 추천해주는 Contents")
+                HomeAIContentRow(aiContents, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    })
 
-                // --- TOP 10 촬영지 ---
                 SectionTitle("TOP 10 촬영지")
-                HomePlaceRow(topPlaces, navigator)
+                HomePlaceRow(topPlaces, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
 
-                // --- TOP 10 Movie ---
+                SectionTitle("TOP 10 Series")
+                HomeContentRow(topSeries, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
+
                 SectionTitle("TOP 10 Movie")
-                HomeContentRow(topMovie, navigator)
-
+                HomeContentRow(topMovie, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
                 Spacer(Modifier.height(20.dp))
             }
         }

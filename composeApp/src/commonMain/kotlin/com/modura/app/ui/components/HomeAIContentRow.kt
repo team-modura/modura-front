@@ -13,12 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
+import com.modura.app.domain.model.response.ai.RecommendationResponseModel
 import com.modura.app.domain.model.response.search.SearchContentResponseModel
 import com.modura.app.ui.screens.detail.ContentDetailScreen
 
 @Composable
- fun HomeContentRow(
-    items: List<SearchContentResponseModel>,
+ fun HomeAIContentRow(
+    items: List<RecommendationResponseModel>,
     navigator: Navigator?,
     onBookmarkClick: (Int, Boolean) -> Unit
 ) {
@@ -32,7 +33,7 @@ import com.modura.app.ui.screens.detail.ContentDetailScreen
                 bookmark = item.isLiked,
                // ott = item.ottList,
                 image = item.thumbnail?:"",
-                title = item.title,
+                title = item.name,
                 rank = index + 1,
                 onClick = {
                     navigator?.push(ContentDetailScreen(item.id))

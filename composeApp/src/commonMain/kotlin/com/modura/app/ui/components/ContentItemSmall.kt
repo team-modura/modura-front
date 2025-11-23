@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,12 +51,18 @@ fun ContentItemSmall(
     image: String = "",
     title: String = "제목",
     rank: Int = 0,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onBookmarkClick: (Int, Boolean) -> Unit = { _, _ -> }
 ){
-    val bookmark=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
+    val bookmarkIcon=if(bookmark) painterResource(Res.drawable.img_bookmark_big_selected) else painterResource(Res.drawable.img_bookmark_big_unselected)
 
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+
+    var isBookmarked by remember { mutableStateOf(bookmark) }
+    LaunchedEffect(bookmark) {
+        isBookmarked =bookmark
+    }
 
     rememberImageBitmapFromUrl(
         url = image,
@@ -113,14 +120,15 @@ fun ContentItemSmall(
         Column(modifier = Modifier.fillMaxSize()){
             Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)){
                 Icon(
-                    painter = bookmark,
+                    painter = bookmarkIcon,
                     contentDescription = "북마크",
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .width(20.dp)
                         .height(36.dp)
-                        .clickable{
-                            //클릭하면 북마크 되도록 수정
+                        .clickable {
+                            isBookmarked = !isBookmarked
+                            onBookmarkClick(id, isBookmarked)
                         }
                 )
                 Row(

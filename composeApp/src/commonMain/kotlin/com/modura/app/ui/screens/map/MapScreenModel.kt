@@ -8,8 +8,10 @@ import com.modura.app.domain.repository.MapRepository
 import com.modura.app.util.location.LocationHelper
 import com.modura.app.util.location.calculateDistance
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,6 +30,8 @@ class MapScreenModel(
     private val repository: MapRepository,
     private val locationHelper: LocationHelper
 ) : ScreenModel {
+    private val _scrollToTopEvent = MutableSharedFlow<Unit>()
+    val scrollToTopEvent = _scrollToTopEvent.asSharedFlow()
 
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
@@ -35,18 +39,60 @@ class MapScreenModel(
     private val _cameraEvent = MutableStateFlow<CameraEvent?>(null)
     val cameraEvent: StateFlow<CameraEvent?> = _cameraEvent.asStateFlow()
 
+    private val _focusedPlaceId = MutableStateFlow<Int?>(null)
+    val focusedPlaceId = _focusedPlaceId.asStateFlow()
+
     init {
         getPlacesByDistance()
     }
+
+    fun updatePlaces(newPlaces: List<PlaceResponseModel>) {
+        screenModelScope.launch {
+            _uiState.update { it.copy(places = newPlaces) }
+
+            if (newPlaces.isNotEmpty()) {
+                setFocusedPlace(newPlaces.first())
+            }
+            _scrollToTopEvent.emit(Unit)
+        }
+    }
+
     fun getPlaces(query: String?) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
             repository.getPlaces(query).onSuccess { response -> _uiState.update { it.copy(inProgress = false, success = true, places = response.placeList) }
+                _scrollToTopEvent.emit(Unit)
             }.onFailure { exception -> _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
             }
         }
     }
 
+    fun getPlacesByPopularity() {
+        screenModelScope.launch {
+            _uiState.update { it.copy(inProgress = true, errorMessage = null) }
+
+            repository.getPlaces(null).onSuccess { response ->
+                val sortedList = response.placeList.sortedByDescending { it.reviewCount }
+
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        success = true,
+                        places = sortedList
+                    )
+                }
+                _scrollToTopEvent.emit(Unit)
+            }.onFailure { exception ->
+                _uiState.update {
+                    it.copy(
+                        inProgress = false,
+                        success = false,
+                        errorMessage = exception.message
+                    )
+                }
+            }
+        }
+    }
     fun getPlacesByDistance() {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
@@ -66,6 +112,7 @@ class MapScreenModel(
                         distance
                     }
                     _uiState.update { it.copy(inProgress = false, success = true, places = sortedList, currentLocation = fetchedLocation ) }
+                    _scrollToTopEvent.emit(Unit)
                 }.onFailure { exception ->
                     _uiState.update { it.copy(inProgress = false, success = false, errorMessage = exception.message) }
                 }
@@ -74,24 +121,34 @@ class MapScreenModel(
             }
         }
     }
-    fun setFocusedPlace(place: PlaceResponseModel?) {
-        _uiState.update {
-            it.copy(focusedPlace = place)
-        }
-    }
 
     fun moveToCurrentLocation() {
         _uiState.value.currentLocation?.let {
-            _cameraEvent.value = CameraEvent.MoveTo(it.longitude, it.latitude)
-            _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.longitude, it.latitude)) }
+            _cameraEvent.value = CameraEvent.MoveTo(it.latitude, it.longitude)
+            _uiState.update { state -> state.copy(cameraEvent =  CameraEvent.MoveTo(it.latitude, it.longitude)) }
         }
     }
+    fun setFocusedPlace(place: PlaceResponseModel) {
+        if (_focusedPlaceId.value == place.id) return
 
+        screenModelScope.launch {
+            _focusedPlaceId.value = place.id
+
+            _uiState.update {
+                it.copy(
+                    cameraEvent = CameraEvent.MoveTo(
+                        lat = place.latitude,
+                        lon = place.longitude
+                    )
+                )
+            }
+        }
+    }
     fun consumeCameraEvent() {
         _cameraEvent.value = null
         _uiState.update { state -> state.copy(cameraEvent = null) }
     }
     sealed class CameraEvent {
-        data class MoveTo(val lon: Double, val lat: Double) : CameraEvent()
+        data class MoveTo(val lat: Double, val lon: Double) : CameraEvent()
     }
 }
