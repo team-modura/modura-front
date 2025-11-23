@@ -166,7 +166,16 @@ class StillcutScreen(private val placeId: Int) : Screen {
                         }
                         TextButton(onClick = {
                             selectedStillcutId?.let { id ->
-                                screenModel.postStillcut(context, placeId, id)
+                                screenModel.postStillcut(
+                                    context = context,
+                                    placeId = placeId,
+                                    stillcutId = selectedStillcutId!!,
+                                    similarity = ((screenModel.totalScore ?: 0.0) ).toInt(),
+                                    composition = ((screenModel.structureScore ?: 0.0) ).toInt(),
+                                    clarity = ((screenModel.clarityScore ?: 0.0) ).toInt(),
+                                    color = ((screenModel.toneScore ?: 0.0) ).toInt(),
+                                    layout = ((screenModel.paletteScore ?: 0.0) ).toInt()
+                                )
                             }
                             rootNavigator?.push(PlaceDetailScreen(id = placeId))
                         }) {

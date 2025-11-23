@@ -9,6 +9,7 @@ import com.modura.app.domain.model.request.login.LoginRequestModel
 import com.modura.app.domain.model.request.login.UserRequestModel
 import com.modura.app.domain.repository.LoginRepository
 import com.modura.app.domain.repository.TokenRepository
+import com.modura.app.util.extension.isTokenExpired
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -54,7 +55,8 @@ class LoginScreenModel(
         appScope.launch {
             repository.login(LoginRequestModel(authCode)).onSuccess { loginResult ->
                 println("MODURA 서버 로그인 성공: ${loginResult.accessToken}")
-
+                tokenRepository.saveUserInfo(loginResult.id, loginResult.username)
+                println("되냐: ${loginResult.id}, ${loginResult.username}")
                 if(loginResult.isInactive){
                     reactivate()
                 }
@@ -100,17 +102,20 @@ class LoginScreenModel(
     fun checkAutoLogin() {
         appScope.launch {
             val accessToken = tokenRepository.getAccessToken()
+            val refreshToken = tokenRepository.getRefreshToken()
 
-            if (accessToken.isNullOrBlank()) {
+            if (accessToken.isBlank() || refreshToken.isBlank()) {
                 return@launch
             }
-            val refreshToken = tokenRepository.getRefreshToken()
-            if (!refreshToken.isNullOrBlank()) {
-                println("자동 로그인 성공: 유효한 토큰이 존재합니다.")
-                _isAutoLoginSuccess.value = true
-            } else {
+
+            if (isTokenExpired(accessToken)) {
+                println("⚠️ 자동 로그인 실패: 액세스 토큰이 만료되었습니다.")
+
                 tokenRepository.clearTokens()
+                return@launch
             }
+            println("✅ 자동 로그인 성공: 유효한 토큰이 존재합니다.")
+            _isAutoLoginSuccess.value = true
         }
     }
 

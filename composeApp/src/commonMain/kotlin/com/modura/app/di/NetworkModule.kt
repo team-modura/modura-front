@@ -28,6 +28,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import io.ktor.client.plugins.HttpSend
+import io.ktor.client.plugins.plugin
 
 object NetworkQualifiers {
     const val AUTH_HTTP_CLIENT = "AuthHttpClient"
@@ -40,7 +42,7 @@ object NetworkQualifiers {
 val networkModule = module {
     single(named(NetworkQualifiers.AUTH_HTTP_CLIENT)) {
         val tokenRepository: TokenRepository = get()
-        // 토큰 재발급 전용 클라이언트를 여기서 직접 생성
+
         val tokenRefreshClient = HttpClient(CIO) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             defaultRequest {
@@ -58,56 +60,58 @@ val networkModule = module {
                 })
             }
             install(Logging) { level = LogLevel.ALL }
+
             defaultRequest {
                 url(BASE_URL)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
+
+                val accessToken = runBlocking { tokenRepository.getAccessToken() }
+                if (accessToken.isNotBlank()) {
+                    header(HttpHeaders.Authorization, "Bearer $accessToken")
+                }
             }
 
-            install(Auth) {
-                bearer {
-                    loadTokens {
-                        // runBlocking: suspend 함수가 끝날 때까지 동기적으로 기다리게 만듦
-                        runBlocking {
-                            val accessToken = tokenRepository.getAccessToken()
-                            val refreshToken = tokenRepository.getRefreshToken()
-                            if (accessToken.isNotBlank()) {
-                                BearerTokens(accessToken, refreshToken)
+            install(HttpSend) {
+                maxSendCount = 3
+            }
+        }.also { client ->
+            client.plugin(HttpSend).intercept { request ->
+                val originalCall = execute(request)
+
+                if (originalCall.response.status.value == 401) {
+                    val oldRefreshToken = tokenRepository.getRefreshToken()
+
+                    if (oldRefreshToken.isNotBlank()) {
+                        try {
+                            val refreshResponse: BaseResponse<ReissueTokenResult> =
+                                tokenRefreshClient.post("auth/reissue") {
+                                    header("X-Refresh-Token", oldRefreshToken)
+                                }.body()
+
+                            val newTokens = refreshResponse.result
+                            if (newTokens != null) {
+                                tokenRepository.saveTokens(newTokens.accessToken, newTokens.refreshToken)
+                                request.headers[HttpHeaders.Authorization] = "Bearer ${newTokens.accessToken}"
+                                execute(request)
                             } else {
-                                null
-                            }
-                        }
-                    }
-
-                    refreshTokens {
-                        // runBlocking: suspend 함수가 끝날 때까지 동기적으로 기다리게 만듦
-                        runBlocking {
-                            val oldRefreshToken = tokenRepository.getRefreshToken()
-                            if (oldRefreshToken.isBlank()) return@runBlocking null
-
-                            try {
-                                val response: BaseResponse<ReissueTokenResult> =
-                                    tokenRefreshClient.post("auth/reissue") {
-                                        header("X-Refresh-Token", oldRefreshToken)
-                                    }.body()
-
-                                val newTokens = response.result
-                                if (newTokens != null) {
-                                    tokenRepository.saveTokens(newTokens.accessToken, newTokens.refreshToken)
-                                    BearerTokens(newTokens.accessToken, newTokens.refreshToken)
-                                } else {
-                                    tokenRepository.clearTokens()
-                                    null
-                                }
-                            } catch (e: Exception) {
                                 tokenRepository.clearTokens()
-                                null
+                                originalCall
                             }
+                        } catch (e: Exception) {
+                            tokenRepository.clearTokens()
+                            originalCall
                         }
+                    } else {
+                        originalCall
                     }
+                } else {
+                    originalCall
                 }
             }
         }
     }
+
+
     single(named(NetworkQualifiers.YOUTUBE_HTTP_CLIENT)) {
         HttpClient {
             defaultRequest {
@@ -141,9 +145,9 @@ val networkModule = module {
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
             install(HttpTimeout) {
-                requestTimeoutMillis = 15000L // 요청 전체에 대한 타임아웃 (15초)
-                connectTimeoutMillis = 15000L // 서버 연결에 대한 타임아웃 (15초)
-                socketTimeoutMillis = 15000L  // 데이터 수신에 대한 타임아웃 (15초)
+                requestTimeoutMillis = 15000L
+                connectTimeoutMillis = 15000L
+                socketTimeoutMillis = 15000L
             }
             install(ContentNegotiation) {
                 json(Json {

@@ -391,7 +391,7 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                         colors = listOf(
                                             Color.Transparent,
                                             MaterialTheme.colorScheme.onSurface,
-                                            MaterialTheme.colorScheme.surface
+                                            MaterialTheme.colorScheme.background
                                         ),
                                         startY = currentImageHeightPx * (0.5f * ((currentImageHeightPx - minImageHeightPx) / minImageHeightPx).coerceIn(0f, 1f))
                                     )

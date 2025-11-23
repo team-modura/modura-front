@@ -262,7 +262,16 @@ class DetailScreenModel(
         }
     }
 
-    fun postStillcut(context: Any,placeId: Int,stillcutId: Int){
+    fun postStillcut(
+        context: Any,
+        placeId: Int,
+        stillcutId: Int,
+        similarity: Int,
+        composition: Int,
+        clarity: Int,
+        color: Int,
+        layout: Int
+    ){
         screenModelScope.launch {
             val imagePath = saveBitmapToFile(context, capturedImage!!)
             val mimeType = "image/jpeg"
@@ -300,12 +309,13 @@ class DetailScreenModel(
 
             val request = StillcutRequestModel(
                 imageUrl = response.key,
-                similarity = (totalScore ?: 0.0).toInt(),
-                angle = (structureScore ?: 0.0).toInt(),
-                clarity = (clarityScore ?: 0.0).toInt(),
-                color = (toneScore ?: 0.0).toInt(),
-                palette = (paletteScore ?: 0.0).toInt()
+                similarity = similarity,
+                angle = composition,
+                clarity = clarity,
+                color = color,
+                palette = layout
             )
+
             repository.stillcutSave(placeId, stillcutId, request).onSuccess {
                 println("✅ 서버에 스틸컷 정보 저장 성공: $it")
             }.onFailure {
