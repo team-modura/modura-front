@@ -51,7 +51,8 @@ actual fun KakaoMapView(
     currentLocation: Location?,
     cameraEvent: MapScreenModel.CameraEvent?,
     onCameraEventConsumed: () -> Unit,
-    onMarkerClick: (PlaceResponseModel) -> Unit
+    onMarkerClick: (PlaceResponseModel) -> Unit,
+    onLocationFound: (Location) -> Unit
 ) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
@@ -60,7 +61,7 @@ actual fun KakaoMapView(
     var labelLayer by remember { mutableStateOf<LabelLayer?>(null) }
 
     var isMapInitialized by remember { mutableStateOf(false) }
-
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val locationPermissionsState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -123,6 +124,7 @@ actual fun KakaoMapView(
                     com.kakao.vectormap.camera.CameraUpdateFactory.newCenterPosition(position, 15)
                 )
                 Log.d("KakaoMapView", "카메라 이벤트 수신: 내 위치로 이동 -> $position")
+                onLocationFound(Location(position.latitude, position.longitude))
                 onCameraEventConsumed() // 이벤트 소비 완료 알림
             }
             null -> {}

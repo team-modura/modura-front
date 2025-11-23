@@ -51,9 +51,9 @@ class AIScreenModel(
         }
     }
 
-    fun getAIPlaces(userId: Int){
+    fun getAIPlaces(userId: Int, lat: Double = 37.5665, lon: Double = 126.978) {
         screenModelScope.launch {
-            repository.aiPlaces(userId, 37.5665f, 126.978f).onSuccess {
+            repository.aiPlaces(userId, lat.toFloat(), lon.toFloat()).onSuccess {
                 _aiPlaces.value = it.placeList
                 println(it)
             }.onFailure {

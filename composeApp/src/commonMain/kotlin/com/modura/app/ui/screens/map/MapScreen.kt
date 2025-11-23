@@ -54,6 +54,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.modura.app.LocalRootNavigator
 import com.modura.app.data.repositoryImpl.LocalRepositoryImpl
+import com.modura.app.domain.Location
 import com.modura.app.domain.repository.LocalRepository
 import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
@@ -88,6 +89,7 @@ object MapScreen : Screen {
         val coroutineScope = rememberCoroutineScope()
         var scrollToTopTrigger by remember { mutableStateOf<Any?>(null) }
         val aiPlaces by aiScreenModel.aiPlaces.collectAsState()
+        var myLastLocation by remember { mutableStateOf<Location?>(null) }
 
         LaunchedEffect(Unit) {screenModel.scrollToTopEvent.collect {
             scrollToTopTrigger = Any()
@@ -274,6 +276,13 @@ object MapScreen : Screen {
                             onMarkerClick = { place ->
                                 screenModel.setFocusedPlace(place)
                                 if(currentStep == SheetStep.PEEK) currentStep = SheetStep.MIDDLE
+                            },
+                            onLocationFound = { location ->
+                                println("내 위치 찾음! 저장 중: $location")
+                                myLastLocation = location
+                                if (userId > 0) {
+                                    aiScreenModel.getAIPlaces(userId.toInt(), location.latitude, location.longitude)
+                                }
                             }
                         )
                     }

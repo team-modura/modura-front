@@ -28,7 +28,8 @@ actual fun KakaoMapView(
     currentLocation: Location?,
     cameraEvent: MapScreenModel.CameraEvent?,
     onCameraEventConsumed: () -> Unit,
-    onMarkerClick: (PlaceResponseModel) -> Unit
+    onMarkerClick: (PlaceResponseModel) -> Unit,
+    onLocationFound: (Location) -> Unit
 ) {
 
 }
