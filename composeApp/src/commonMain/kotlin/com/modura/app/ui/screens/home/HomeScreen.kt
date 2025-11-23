@@ -46,6 +46,7 @@ import com.modura.app.ui.components.LocationItemSmall
 import com.modura.app.ui.components.SectionTitle
 import com.modura.app.ui.screens.ai.AIScreenModel
 import com.modura.app.ui.screens.detail.ContentDetailScreen
+import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.theme.Gray100
 import modura.composeapp.generated.resources.Res
 import modura.composeapp.generated.resources.img_diagnosis
@@ -59,6 +60,7 @@ class HomeScreen : Screen {
     override fun Content() {
         val screenModel = getScreenModel<HomeScreenModel>()
         val aiScreenModel = getScreenModel<AIScreenModel>()
+        val detailScreenModel = getScreenModel<DetailScreenModel>()
         val userId by aiScreenModel.userId.collectAsState()
         val navigator = LocalRootNavigator.current!!
         val scrollState = rememberScrollState()
@@ -67,7 +69,6 @@ class HomeScreen : Screen {
         val topSeries by screenModel.topSeries.collectAsState()
         val topMovie by screenModel.topMovie.collectAsState()
         val topPlaces by screenModel.topPlaces.collectAsState()
-
 
         LaunchedEffect(userId) {
             screenModel.topSeries()
@@ -111,17 +112,47 @@ class HomeScreen : Screen {
                     contentScale = ContentScale.Crop
                 )
                 SectionTitle("AI가 추천해주는 Contents")
-                HomeAIContentRow(aiContents, navigator)
+                HomeAIContentRow(aiContents, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    })
 
                 SectionTitle("TOP 10 촬영지")
-                HomePlaceRow(topPlaces, navigator)
+                HomePlaceRow(topPlaces, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
 
                 SectionTitle("TOP 10 Series")
-                HomeContentRow(topSeries, navigator)
+                HomeContentRow(topSeries, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
 
                 SectionTitle("TOP 10 Movie")
-                HomeContentRow(topMovie, navigator)
-
+                HomeContentRow(topMovie, navigator,
+                    onBookmarkClick = { id, isLiked ->
+                        if (isLiked) {
+                            detailScreenModel.contentLike(id)
+                        } else {
+                            detailScreenModel.contentLikeCancel(id)
+                        }
+                    }
+                )
                 Spacer(Modifier.height(20.dp))
             }
         }

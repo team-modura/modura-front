@@ -58,6 +58,7 @@ import com.modura.app.domain.repository.LocalRepository
 import com.modura.app.ui.components.PlaceListBlock
 import com.modura.app.ui.components.SearchField
 import com.modura.app.ui.components.map.KakaoMapView
+import com.modura.app.ui.screens.ai.AIScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
 import com.modura.app.ui.screens.home.HomeScreenModel
 import com.modura.app.ui.theme.Gray900
@@ -80,15 +81,25 @@ object MapScreen : Screen {
     override fun Content() {
         val navigator = LocalRootNavigator.current!!
         val screenModel = getScreenModel<MapScreenModel>()
-        val homeScreenModel = getScreenModel<HomeScreenModel>()
+        val aiScreenModel = getScreenModel<AIScreenModel>()
+        val userId by aiScreenModel.userId.collectAsState()
         val uiState by screenModel.uiState.collectAsState()
         val focusedPlaceId by screenModel.focusedPlaceId.collectAsState()
         val coroutineScope = rememberCoroutineScope()
         var scrollToTopTrigger by remember { mutableStateOf<Any?>(null) }
+        val aiPlaces by aiScreenModel.aiPlaces.collectAsState()
 
-        LaunchedEffect(Unit) {
-            screenModel.scrollToTopEvent.collect {
-                scrollToTopTrigger = Any()
+        LaunchedEffect(Unit) {screenModel.scrollToTopEvent.collect {
+            scrollToTopTrigger = Any()
+        }
+        }
+
+        LaunchedEffect(userId) {
+            if (userId > 0) {
+                println(">>> AI 장소 요청 시작 (UserID: $userId)")
+                aiScreenModel.getAIPlaces(userId.toInt())
+            } else {
+                println(">>> UserID가 유효하지 않음: $userId")
             }
         }
 
@@ -295,7 +306,18 @@ object MapScreen : Screen {
                                 color = Gray900,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(20.dp))
-                                    .clickable { println("AI 추천 촬영지 클릭됨") }
+                                    .clickable {
+                                        screenModel.updatePlaces(aiPlaces)
+                                        if (aiPlaces.isNotEmpty()) {
+                                            currentStep = SheetStep.MIDDLE
+                                            coroutineScope.launch {
+                                                scaffoldState.bottomSheetState.expand()
+                                            }
+                                            println("AI 추천 촬영지 적용 완료: ${aiPlaces.size}개")
+                                        } else {
+                                            println("AI 추천 장소 데이터가 없습니다.")
+                                        }
+                                    }
                                     .background(White)
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             )

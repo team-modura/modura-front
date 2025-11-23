@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import com.modura.app.ui.theme.Black
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun LoginBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row {
-                Text("회원가입을 위해 동의가 필요해요", style = MaterialTheme.typography.headlineMedium)
+                Text("회원가입을 위해 동의가 필요해요", style = MaterialTheme.typography.headlineMedium, color = Black)
                 Spacer(modifier=Modifier.weight(1f))
             }
             Spacer(modifier = Modifier.height(20.dp))

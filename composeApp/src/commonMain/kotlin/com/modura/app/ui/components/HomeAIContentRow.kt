@@ -20,7 +20,8 @@ import com.modura.app.ui.screens.detail.ContentDetailScreen
 @Composable
  fun HomeAIContentRow(
     items: List<RecommendationResponseModel>,
-    navigator: Navigator?
+    navigator: Navigator?,
+    onBookmarkClick: (Int, Boolean) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -36,7 +37,8 @@ import com.modura.app.ui.screens.detail.ContentDetailScreen
                 rank = index + 1,
                 onClick = {
                     navigator?.push(ContentDetailScreen(item.id))
-                }
+                },
+                onBookmarkClick = onBookmarkClick
             )
         }
     }

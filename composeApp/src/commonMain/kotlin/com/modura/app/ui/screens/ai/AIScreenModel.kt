@@ -5,6 +5,8 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.modura.app.data.dto.response.ai.RecommendationResponseDto
 import com.modura.app.domain.model.response.ai.RecommendationResponseModel
+import com.modura.app.domain.model.response.map.PlaceResponseModel
+import com.modura.app.domain.model.response.map.PlacesResponseModel
 import com.modura.app.domain.model.response.search.SearchContentResponseModel
 import com.modura.app.domain.repository.TokenRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,10 @@ class AIScreenModel(
     private val _aiContents = MutableStateFlow<List<RecommendationResponseModel>>(emptyList())
     val aiContents = _aiContents.asStateFlow()
 
+
+    private val _aiPlaces = MutableStateFlow<List<PlaceResponseModel>>(emptyList())
+    val aiPlaces = _aiPlaces.asStateFlow()
+
     init {
         screenModelScope.launch {
             _userId.value = tokenRepository.getUserId().toLong()
@@ -38,6 +44,17 @@ class AIScreenModel(
         screenModelScope.launch {
             repository.recommendation(userId).onSuccess {
                 _aiContents.value = it.placeList
+                println(it)
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun getAIPlaces(userId: Int){
+        screenModelScope.launch {
+            repository.aiPlaces(userId, 37.5665f, 126.978f).onSuccess {
+                _aiPlaces.value = it.placeList
                 println(it)
             }.onFailure {
                 it.printStackTrace()

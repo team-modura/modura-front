@@ -45,6 +45,18 @@ class MapScreenModel(
     init {
         getPlacesByDistance()
     }
+
+    fun updatePlaces(newPlaces: List<PlaceResponseModel>) {
+        screenModelScope.launch {
+            _uiState.update { it.copy(places = newPlaces) }
+
+            if (newPlaces.isNotEmpty()) {
+                setFocusedPlace(newPlaces.first())
+            }
+            _scrollToTopEvent.emit(Unit)
+        }
+    }
+
     fun getPlaces(query: String?) {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }
@@ -81,8 +93,6 @@ class MapScreenModel(
             }
         }
     }
-
-
     fun getPlacesByDistance() {
         screenModelScope.launch {
             _uiState.update { it.copy(inProgress = true, errorMessage = null) }

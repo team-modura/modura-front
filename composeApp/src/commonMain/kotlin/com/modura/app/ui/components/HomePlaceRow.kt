@@ -14,7 +14,8 @@ import com.modura.app.ui.screens.detail.PlaceDetailScreen
 @Composable
  fun HomePlaceRow(
     items: List<SearchPlaceResponseModel>,
-    navigator: Navigator?
+    navigator: Navigator?,
+    onBookmarkClick: (Int, Boolean) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -28,7 +29,8 @@ import com.modura.app.ui.screens.detail.PlaceDetailScreen
                 rank = index + 1,
                 onClick = {
                     navigator?.push(PlaceDetailScreen(item.id))
-                }
+                },
+                onBookmarkClick = onBookmarkClick
             )
         }
     }

@@ -254,6 +254,13 @@ data class ContentDetailScreen(val id: Int) : Screen {
                                                 onClick = {
                                                     println("${place.name}(id: ${place.id}) 클릭됨")
                                                     rootNavigator?.push(PlaceDetailScreen(place.id))
+                                                },
+                                                onBookmarkClick = { id, isLiked ->
+                                                    if (isLiked) {
+                                                        screenModel.contentLike(id)
+                                                    } else {
+                                                        screenModel.contentLikeCancel(id)
+                                                    }
                                                 }
                                             )
                                         }
