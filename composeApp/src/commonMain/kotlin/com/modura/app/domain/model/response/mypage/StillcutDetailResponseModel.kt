@@ -11,5 +11,10 @@ data class StillcutDetailResponseModel(
     val stillcut: String,
     val title: String,
     val name: String,
-    val date: String
+    val date: String,
+    val similarity: Int,
+    val angle: Int,
+    val clarity: Int,
+    val color: Int,
+    val palette: Int
 )

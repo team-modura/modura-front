@@ -53,6 +53,7 @@ import com.modura.app.ui.components.TabItem
 import com.modura.app.ui.screens.detail.ContentDetailScreen
 import com.modura.app.ui.screens.detail.DetailScreenModel
 import com.modura.app.ui.screens.detail.PlaceDetailScreen
+import com.modura.app.ui.screens.detail.StillcutDetailScreen
 import com.modura.app.ui.theme.Black
 import com.modura.app.ui.theme.Gray100
 import com.modura.app.ui.theme.Gray500
